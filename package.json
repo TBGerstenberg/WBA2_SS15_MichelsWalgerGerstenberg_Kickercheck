@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/TobiGe/WBA_Team4/issues"
   },
-  "homepage": "https://github.com/TobiGe/WBA_Team4"
+  "homepage": "https://github.com/TobiGe/WBA_Team4",
+  "dependencies": {
+    "chalk": "^1.0.0"
+  }
 }
