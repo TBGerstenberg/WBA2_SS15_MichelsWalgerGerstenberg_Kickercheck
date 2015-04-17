@@ -1,6 +1,5 @@
 var fs = require('fs')
 var chalk = require('chalk')
-
 var skyscraper;
 
 fs.readFile("wolkenkratzer.json", function(err, data){
@@ -11,7 +10,6 @@ fs.readFile("wolkenkratzer.json", function(err, data){
 	console.log();
 
 	skyscraper = JSON.parse(data);
-    
     
     //Sortieren 
     skyscraper.wolkenkratzer.sort(function (a,b){
@@ -28,10 +26,20 @@ fs.readFile("wolkenkratzer.json", function(err, data){
         }
     });
     
+    //in Datei schreiben
+    var outputFilename="wolkenkratzer_sortiert.json"
+    
+    fs.writeFile(outputFilename, JSON.stringify(skyscraper, null, 4), function(err) {
+        if(err) {
+          console.log(err);
+        } 
+        
+        else {
+          console.log("JSON saved to " + outputFilename);
+        }
+    }); 
     
     
-    
-
 	for(var i = 0; i < skyscraper.wolkenkratzer.length; i++)
 	{
 		console.log(chalk.green('Name: '+skyscraper.wolkenkratzer[i].name));
@@ -41,6 +49,8 @@ fs.readFile("wolkenkratzer.json", function(err, data){
 	}
 
 });
+
+
 
 
   
