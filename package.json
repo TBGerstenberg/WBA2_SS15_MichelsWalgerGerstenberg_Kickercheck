@@ -1,0 +1,19 @@
+{
+  "name": "WBA2-Projekt",
+  "version": "0.0.1",
+  "description": "Ein Projekt für das Modul WBA2",
+  "main": "aufgabe1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TobiGe/WBA_Team4.git"
+  },
+  "author": "Anatol Walger,Manuel Michels,Tobias Gerstenberg",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TobiGe/WBA_Team4/issues"
+  },
+  "homepage": "https://github.com/TobiGe/WBA_Team4"
+}
