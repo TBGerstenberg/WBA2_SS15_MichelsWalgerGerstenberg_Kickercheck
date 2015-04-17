@@ -1,6 +1,6 @@
 var fs = require('fs')
 var chalk = require('chalk')
-//
+
 var skyscraper;
 
 fs.readFile("wolkenkratzer.json", function(err, data){
