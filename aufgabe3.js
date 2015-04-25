@@ -4,7 +4,7 @@ var chalk = require('chalk')
 var skyscraper;
 
 //Read File 
-fs.readFile("wolkenkratzer.json", function(err, data){
+fs.readFile("wolkenkratzer.json",'utf8', function(err, data){
 
     //Check for errors
 	if(err) throw err;
@@ -13,7 +13,7 @@ fs.readFile("wolkenkratzer.json", function(err, data){
 	console.log('Daten werden eingelesen...');
 
     //Parse JSON and save into variable
-	skyscraper = JSON.parse(data);
+	skyscraper = JSON.parse(data.toString());
     
     //Sort Array, callback gives feedback when sorting is finished
     skyscraper.wolkenkratzer.sort(function (a,b){
@@ -34,7 +34,7 @@ fs.readFile("wolkenkratzer.json", function(err, data){
     var outputFilename="wolkenkratzer_sortiert.json"
     
     //Write sorted array into a JSON file, Callback function 
-    fs.writeFile(outputFilename, JSON.stringify(data, null, 4), function(err) {
+    fs.writeFile(outputFilename, JSON.stringify(skyscraper,null,4), function(err) {
         
         //Check for writing Errors
         if(err) throw err;
