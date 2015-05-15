@@ -40,6 +40,8 @@ app.post('/spielerprofil',jsonParser,function(req,res){
               name:req.body.name,
               email:req.body.email
     };
+
+    id_counter++;
     
     //Kontrollausgabe
     //console.log(user);
