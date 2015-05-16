@@ -16,22 +16,31 @@ var data=[
 
 ]
 
-//
+//Repräsentation einer Spielerliste abrufen 
 app.get('/spielerprofil_liste',function(req,res){
-    /*Festlegen welche Repräsentationsformen angefragt werden können
+    
+    //Festlegen welche Repräsentationsformen angefragt werden können
     var acceptedTypes=req.accepts(['html','json']);
     switch(acceptedTypes){
     
             case 'html':
-             res.type=('html').send();
-    
-    
-    }*/
-    
-    
-    res.send(data);
+                var spielerProfilListe_html="";
+                for(var i=0; i<data.length ; i++){
+                    spielerProfilListe_html=spielerProfilListe_html+profileToHTML(data[i]);
+                }
+                res.type('html').send(spielerProfilListe_html);
+            break;
+            
+            case 'json':
+                res.type('json').send(data);
+            break;
+
+            default:req.status(406).send("accepted types are html or json");
+    }
+    res.end();
 });
 
+//Anlegen eines Spielerprofils
 //Bei einem Post auf die Ressource Spielerprofil wird ein user-Objekt konstruiert und intern abgelegt
 app.post('/spielerprofil',jsonParser,function(req,res){
         
@@ -40,18 +49,24 @@ app.post('/spielerprofil',jsonParser,function(req,res){
               name:req.body.name,
               email:req.body.email
     };
-
+    
+    //User fortlaufend nummerieren
     id_counter++;
     
     //Kontrollausgabe
-    //console.log(user);
+    console.log(user);
     
+    // User Objekt in ein Array pushen 
     data.push(user);
 
     res.end();
 });
 
-
+//Funktion um ein Spielerprofil in eine HTML-Repräsentation umzuwandeln 
+function profileToHTML(profile){
+   var HTMLrep="<h1>"+profile.name+"</h1><br><p>"+profile.email+"<p><br>";
+   return HTMLrep;
+}
 
 //Server lauscht auf Anfragen auf Port 3000
 app.listen(3000);
