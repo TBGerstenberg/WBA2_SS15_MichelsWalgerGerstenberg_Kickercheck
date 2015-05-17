@@ -26,7 +26,7 @@ app.get('/spielerprofil_liste',function(req,res){
             case 'html':
                 var spielerProfilListe_html="";
                 for(var i=0; i<data.length ; i++){
-                    spielerProfilListe_html=spielerProfilListe_html+profileToHTML(data[i]);
+                    spielerProfilListe_html+=profileToHTML(data[i]);
                 }
                 res.type('html').send(spielerProfilListe_html);
             break;
@@ -64,7 +64,7 @@ app.post('/spielerprofil',jsonParser,function(req,res){
 
 //Funktion um ein Spielerprofil in eine HTML-Repräsentation umzuwandeln 
 function profileToHTML(profile){
-   var HTMLrep="<h1>"+profile.name+"</h1><br><p>"+profile.email+"<p><br>";
+   var HTMLrep="<h1>"+profile.name+"</h1><br /><p>"+profile.email+"<p><br />";
    return HTMLrep;
 }
 
