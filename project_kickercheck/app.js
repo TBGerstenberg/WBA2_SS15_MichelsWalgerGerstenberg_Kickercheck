@@ -61,7 +61,7 @@ app.post('/spielerprofil',jsonParser,function(req,res){
     console.log(user);
     
     // User Objekt in ein Array pushen 
-    if(req.body.name || req.body.email) {
+    if(req.body.name && req.body.email) {
     data.push(user);
     }
     else {
