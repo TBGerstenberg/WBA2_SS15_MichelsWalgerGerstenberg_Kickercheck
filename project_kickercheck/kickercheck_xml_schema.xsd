@@ -1,0 +1,42 @@
+ <!--Dokument ,welches das XML-Schema zur validierung von XML-basierten requests beinhaltet -->
+ 
+ <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:kickercheck="http://kickercheck/validation_namespace"
+             targetNamespace="http://kickercheck/validation_namespace">
+
+<!-- element declarations --> 
+
+    <xsd:element name="Benutzer" type="kickercheck:BenutzerTyp">
+
+    <xsd:element name="Turnier" type="kickercheck:TurnierTyp">
+
+    <xsd:element name="Match" type="kickercheck:MatchTyp">
+
+    <xsd:element name="Kickertisch" type="kickercheck:KickertischTyp"> 
+
+    <xsd:element name="Standort" type="kickercheck:StandortTyp"> 
+
+
+<!--type declarations-->
+
+    <xsd:complexType name="kickercheck:BenutzerTyp">
+
+    </complexType> 
+
+    <xsd:complexType name="kickercheck:TurnierTyp">
+
+    </complexType> 
+
+    <xsd:complexType name="kickercheck:MatchTyp">
+
+    </complexType> 
+
+    <xsd:complexType name="kickercheck:KickertischTyp">
+
+    </complexType> 
+
+    <xsd:complexType name="kickercheck:StandortTyp">
+
+    </complexType> 
+
+</schema>
