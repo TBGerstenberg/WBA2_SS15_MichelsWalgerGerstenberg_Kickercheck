@@ -13,7 +13,7 @@ fs.readFile("wolkenkratzer.json",'utf8', function(err, data){
 	console.log('Daten werden eingelesen...');
 
     //Parse JSON and save into variable
-	skyscraper = JSON.parse(data.toString());
+	skyscraper = JSON.parse(data);
     
     //Sort Array, callback gives feedback when sorting is finished
     skyscraper.wolkenkratzer.sort(function (a,b){
@@ -55,6 +55,8 @@ fs.readFile("wolkenkratzer.json",'utf8', function(err, data){
         console.log("ausgabe beendet");  
     });     
 });	
+
+//
 
 
     

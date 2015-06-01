@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/TobiGe/WBA_Team4",
   "dependencies": {
-    "chalk": "^1.0.0"
+    "body-parser": "^1.12.4",
+    "chalk": "^1.0.0",
+    "express": "^4.12.3"
   }
 }

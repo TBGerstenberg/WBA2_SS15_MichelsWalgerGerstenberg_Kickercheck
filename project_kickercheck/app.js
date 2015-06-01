@@ -1,3 +1,8 @@
+//Redis.io NoSQL Datenbankmodul für Node.js einbinden 
+var redis=require('redis');
+//Client für die Abfrage von Daten aus der Redis DB erzeugen 
+var client=redis.createClient();
+
 //Express Modul einbinden 
 var express=require('express');
 //bodyParser modul einbinden und in "bodyparser" ablegen
