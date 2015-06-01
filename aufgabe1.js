@@ -2,7 +2,7 @@
 var fs = require('fs')
 
 // Variable to store parsed JSON
-var skyscraper;
+//var skyscraper;
 
 //Read the File at a spcified path , function in Parameters 
 //gets fired when the input is finished
@@ -15,7 +15,7 @@ fs.readFile("wolkenkratzer.json", function(err, data){
     
     //data contains the content of the specified file,
     // convert the JSON to a    JS object
-	skyscraper = JSON.parse(data);
+	 var skyscraper = JSON.parse(data);
 
     //Loop over all Skyscrapers and display their properties
 	for(var i = 0; i < skyscraper.wolkenkratzer.length; i++)
