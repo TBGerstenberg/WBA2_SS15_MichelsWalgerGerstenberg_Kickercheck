@@ -52,6 +52,7 @@ fs.writeFile('test.xml', xmlDoc.toString(), function(err) {
 */
 
 app.get('/Benutzer/{BenutzerId}', function(req,res){
+    
 });
 
 app.post('/Benutzer', function(req,res){
@@ -59,7 +60,11 @@ app.post('/Benutzer', function(req,res){
     var acceptedTypes=req.accepts('application/xml');
     if(acceptedTypes){
         //Userdatensatz in die Datenbank einfügen
-        
+        if(isValidated){
+        }
+        else{
+            req.status(400).send("Die Anfrage ist fehlerhaft Aufgebaut");
+        }     
     }
     else{
         req.status(406).send("Content Type wird nicht unterstuetzt");
@@ -67,7 +72,19 @@ app.post('/Benutzer', function(req,res){
 });
 
 app.put('/Benutzer/{BenutzerId}', function(req,res){
-         
+    var acceptedTypes=req.accepts('application/xml');
+    if(acceptedTypes){
+        //Userdatensatz in die Datenbank einfügen
+        if(isValidated){
+            
+        }
+        else{
+            req.status(400).send("Die Anfrage ist fehlerhaft Aufgebaut");
+        }
+    }
+    else{
+        req.status(406).send("Content Type wird nicht unterstuetzt");
+    }         
 });
 
 app.delete('/Benutzer/{BenutzerId}', function(req,res){
