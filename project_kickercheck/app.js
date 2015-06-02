@@ -243,76 +243,77 @@ app.post('/Kickertisch/',xmlparser({trim: false, explicitArray: false}),function
     
     //Check ob der Content Type der Anfrage xml ist 
     if(contentType != "application/xml"){
-        //res.writeHead("Accepts","application/xml");
-        //res.status(406).write("Content Type is not supported");
+        res.writeHead("Accepts","application/xml");
+        res.status(406).write("Content Type is not supported");
+        res.end();
     }
-    
-    
     
     else{
             
+        //Warte bis der id Zaehler erhoeht wurde 
         client.incr('KickertischId', function(err, id) {
+        
+            //Kickertisch Information in die Datenbank einfügen 
+            client.hmset(id,
+            {'Tischhersteller':req.body.root.Tischhersteller,
+            'Modell':req.body.root.Modell,
+            'Standort':'23',
+            'Zustand':req.body.root.Zustand,
+            'Bild':req.body.root.Bild});
             
-                //console.log(gimmeValue(id));
-                //Kickertisch Information mit HMSET
-                    client.hmset(id,
-                     {'Tischhersteller':req.body.root.Tischhersteller,
-                      'Modell':req.body.root.Modell,
-                      'Standort':'23',
-                      'Zustand':req.body.root.Zustand,
-                      'Bild':req.body.root.Bild});
-            
-                      res.set('Location','/Kickertisch/'+id);
+            res.setHeader("Location","/Kickertisch/"+ id);
+            res.status(201).send("Kickertisch angelegt!");
+            //Antwort beenden 
+            res.end();
         });
-        
-    
-      
-        
-        //Setzen des Statuscodes 201 - created 
-       // res.status(201).write("Anfrage zum Anlegen eines Tisches erfolgreich");
     }
-        
-    //Antwort beenden 
-    res.end();
-
 });
 
 
 /*Mit put kann das Bild eines Kickertischs und/oder seine Zustandsbeschreibung geändert werden*/
-app.put('/Kickertisch/:TischId' , function(req,res){
+app.put('/Kickertisch/:TischId', xmlparser({trim: false, explicitArray: false}) , function(req,res){
     
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-    var tisch=client.exists(req.params.TischId);
-    
-    //Angegebener Key existiert nicht
-    if(tisch==0){
-        res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
-    }
-     
-    //Angegebener Key existiert 
-    else{
-    
-        //Abfrage des contenttypes der Request
-        var contentType=req.get('Content-Type');
-
-        //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-        if(contentType != "application/xml"){
-            res.setHeader("Accepts","application/xml");
-            res.status(406).send("Content Type is not supported");
+    client.exists(req.params.TischId,function(err,IdExists){
+        
+        //client.exists hat true geliefert 
+        if(IdExists){
+            
+            //Abfrage des contenttypes der Request
+            var contentType=req.get('Content-Type');
+            
+            //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+            if(contentType != "application/xml"){
+                
+                //Teile dem Client einen unterstuetzten Type mit 
+                res.setHeader("Accepts","application/xml");
+                
+                //Zeige über den Statuscode und eine Nachricht 
+                res.status(406).send("Content Type is not supported");
+                  
+                //Antwort beenden
+                res.end();
+            }
+        
+            else{
+                //Aendere Informationen des Tisches mit in der 
+                client.hmset(req.params.TischId,{
+                    'Zustand':req.body.root.Zustand,
+                    'Bild':req.body.root.Bild});  
+                
+                //Alles ok , sende 200 
+                res.status(200).send("Das hat funktioniert! Aenderungen angenommen");
+                
+                //Antwort beenden
+                res.end();
+            }
         }
         
-        else{
-            //Suche Tisch mit id :Tischid aus der Datenbank 
-            var tischId=client.get(req.params.TischId);
-            
-            //Ueberschreibe Werte in der Datenbank 
-            client.hmset(tischId,"Zustand", req.body.Zustand,"Bild", req.body.Bild);
-        }
-    }
-    
-    //Antwort beenden
-    res.end();
-    
+        res.status(404).send("Es konnte keine Aenderung durchgefuehrt werden");
+        
+        //Antwort beenden
+        res.end(); 
+    });
 });
 
 app.delete('/Kickertisch/:TischId' , function(req,res){
