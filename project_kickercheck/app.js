@@ -22,35 +22,7 @@ app.use(express.static(__dirname + '/Assets/XMLValidation'));
 
 var libxml = require('libxmljs');
 
-var xsd='Assets/XMLValidation/test.xsd';
-var xmlSample='Assets/XMLValidation/sample.xml';
-var xmlDoc="";
-var xsdDoc="";
 
-
-
-function readXML(callback) {      
-  fs.readFile(xmlSample,'utf8', function (err, data) {
-    // The data argument of the fs.readFile callback is the data buffer
-    xmlDoc += libxml.parseXml(data.toString()); 
-      callback();
-  });
-}
-
-function showXML() {
-	 xmlDoc;
-}
-
-var ergebnis=readXML(showXML)
-console.log(ergebnis);
-
-/*
-//..... do some changes to xmlDoc
-fs.writeFile('test.xml', xmlDoc.toString(), function(err) {
-  if (err) throw err;
-  console.log('Wrote XML string to test.xml'); 
-});
-*/
 
 
 //Setup für Datenbank
@@ -165,7 +137,6 @@ app.post('/Benutzer', function(req,res){
     //Benutzer Information mit HMSET
     client.hmset(currentId,"Name", req.body.Name, "Alter" , req.body.Alter ,"Position", req.body.Position,"Bild", req.body.Bild,"isActive", 1);
     
-    
     //Setzen des Statuscodes 201 - created 
     res.status(201).send("Anfrage zum Anlegen eines Benutzers erfolgreich");
     
@@ -173,10 +144,7 @@ app.post('/Benutzer', function(req,res){
     res.setHeader("Location","/Benutzer/"+ currentId);
     
     //Antwort beenden 
-    res.end();
-
-    
-    
+    res.end(); 
 });
 
 app.put('/Benutzer/:BenutzerId', function(req,res){
@@ -235,6 +203,7 @@ app.delete('/Benutzer/:BenutzerId', function(req,res){
 
 });
 
+
 //Kickertisch Methoden 
 
 app.get('/Kickertisch/:TischId', function(req,res){
@@ -248,44 +217,61 @@ app.get('/Kickertisch/:TischId', function(req,res){
     }
     
     else{
-    var acceptedTypes= req.get('Accepts');
-    switch(acceptedTypes){
-        
-        case "text/html":
-            //Html repr. bauen 
-            
-        break;
-            
-        default:
-            //We cannot send a representation that is accepted by the client 
-            req.status(406).send("Content Type wird nicht unterstuetzt");
+        var acceptedTypes= req.get('Accepts');
+        switch(acceptedTypes){
+
+            case "text/html":
+                //Html repr. bauen
+                req.status(200);
+            break;
+
+            default:
+                //We cannot send a representation that is accepted by the client 
+                req.status(406).send("Content Type wird nicht unterstuetzt");
+        }
     }
-    }
+    //Antwort beenden
+    res.end();
 });
 
-app.post('/Kickertisch/' ,function(req,res){
+/*Das Verb Post auf der Ressource Kickertisch legt eine neue Kicktisch Ressource an und liefert bei Erolg 
+einen 201 Statuscode mit einem Locationheader der neu erzeugten Ressource */
+app.post('/Kickertisch/',xmlparser({trim: false, explicitArray: false}),function(req,res){
     
     //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
     var contentType=req.get('Content-Type');
     
     //Check ob der Content Type der Anfrage xml ist 
     if(contentType != "application/xml"){
-        res.setHeader("Accepts","application/xml");
-        res.status(406).send("Content Type is not supported");
+        //res.writeHead("Accepts","application/xml");
+        //res.status(406).write("Content Type is not supported");
     }
-
-    //Id für den neuen Kickertisch 
-    var currentId=client.INCR(KickertischId);
-
-    //Kickertisch Information mit HMSET
-    client.hmset(currentId,"Hersteller", req.body.Hersteller, "Standort" , req.body.StandortId ,"Zustand", req.body.Zustand,"Bild", req.body.Bild);
     
-    //Setzen des Statuscodes 201 - created 
-    res.status(201).send("Anfrage zum Anlegen eines Tisches erfolgreich");
     
-    //Rueckerhalt eines Locationheaders der neu angelegten Ressource 
-    res.setHeader("Location","/Kickertisch/"+ currentId);
     
+    else{
+            
+        client.incr('KickertischId', function(err, id) {
+            
+                //console.log(gimmeValue(id));
+                //Kickertisch Information mit HMSET
+                    client.hmset(id,
+                     {'Tischhersteller':req.body.root.Tischhersteller,
+                      'Modell':req.body.root.Modell,
+                      'Standort':'23',
+                      'Zustand':req.body.root.Zustand,
+                      'Bild':req.body.root.Bild});
+            
+                      res.set('Location','/Kickertisch/'+id);
+        });
+        
+    
+      
+        
+        //Setzen des Statuscodes 201 - created 
+       // res.status(201).write("Anfrage zum Anlegen eines Tisches erfolgreich");
+    }
+        
     //Antwort beenden 
     res.end();
 
@@ -303,7 +289,6 @@ app.put('/Kickertisch/:TischId' , function(req,res){
         res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
     }
      
-    
     //Angegebener Key existiert 
     else{
     
@@ -319,11 +304,13 @@ app.put('/Kickertisch/:TischId' , function(req,res){
         else{
             //Suche Tisch mit id :Tischid aus der Datenbank 
             var tischId=client.get(req.params.TischId);
+            
             //Ueberschreibe Werte in der Datenbank 
             client.hmset(tischId,"Zustand", req.body.Zustand,"Bild", req.body.Bild);
         }
     }
     
+    //Antwort beenden
     res.end();
     
 });
@@ -341,10 +328,10 @@ app.delete('/Kickertisch/:TischId' , function(req,res){
     else{
         var tischID=client.get(req.params.TischId);
         client.del(req.params.TischId);
-    }
-
-    
+    }   
 });
+
+
 
 function kickerTischHTML(id,hersteller,zustand){
  
