@@ -296,6 +296,39 @@ function kickerTischHTML(id,hersteller,zustand){
 }
 
 
+//Match Methoden
+app.get('/Match/:MatchId'), function(req,res){
+});
+app.post('/Match'), function(req,res){
+});
+app.put('/Match/:MatchId'), function(req,res){
+});
+app.delete('/Match/:MatchId'), function(req,res){
+});
+
+//Standort Methoden
+app.get('/Standort/:StandortId'), function(req,res){
+    
+});
+app.post('/Standort'), function(req,res){
+    
+});
+app.put('/Standort/:StandortId'), function(req,res){
+    
+});
+app.delete('/Standort/:StandortId'), function(req,res){
+    
+});
+
+//Tunier Methoden
+app.get('/Tunier/:TunierId'), function(req,res){
+});
+app.post('/Tunier'), function(req,res){
+});
+app.put('/Tunier/:TunierId'), function(req,res){
+});
+app.delete('/Tunier/:TunierId'), function(req,res){
+});
 
 
 //Server lauscht auf Anfragen auf Port 3000
