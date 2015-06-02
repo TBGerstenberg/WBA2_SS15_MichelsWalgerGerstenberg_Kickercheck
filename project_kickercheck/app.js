@@ -170,6 +170,7 @@ app.put('/Kickertisch/:TischId' , function(req,res){
     if(tisch==0){
         res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
     }
+     
     
     //Angegebener Key existiert 
     else{
