@@ -1,5 +1,5 @@
 //Redis.io NoSQL Datenbankmodul für Node.js einbinden 
-var redis=require('redis');
+var redis =  require('redis');
 var assert = require('assert');
 
 //Client für die Abfrage von Daten aus der Redis DB erzeugen 
@@ -67,7 +67,7 @@ client.SETNX("TurnierId","0");
 app.get('/Benutzer/:BenutzerId', function(req,res){
     
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-    var benutzer=client.exists(req.params.BenutzerId);
+    var benutzer = client.exists(req.params.BenutzerId);
     
     //Speichere BenuzerId aus der URI in eine Variable
     var BenutzerId=client.get(req.params.BenutzerId);
@@ -296,19 +296,29 @@ function kickerTischHTML(id,hersteller,zustand){
  
 }
 
+//Subressource von Kickertisch: Fordernungen Methoden
+app.post('Kickertisch/:TischId', function(req,res){
+
+});
+
+app.delete('Kickertisch/:TischId/Forderung', function(req,res){
+
+});
+
 
 //Match Methoden
-app.get('/Match/:MatchId'), function(req,res){
+app.get('/Match/:MatchId', function(req,res){
 });
-app.post('/Match'), function(req,res){
+app.post('/Match', function(req,res){
 });
-app.put('/Match/:MatchId'), function(req,res){
+app.put('/Match/:MatchId', function(req,res){
 });
-app.delete('/Match/:MatchId'), function(req,res){
+app.delete('/Match/:MatchId', function(req,res){
 });
 
 //Standort Methoden
-app.get('/Standort/:StandortId'), function(req,res){
+
+app.get('/Standort/:StandortId', function(req,res){
     
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     var standort=client.exists(req.params.StandortId);
@@ -339,7 +349,8 @@ app.get('/Standort/:StandortId'), function(req,res){
     res.end();
     
 });
-app.post('/Standort'), function(req,res){
+
+app.post('/Standort', function(req,res){
     
     //Abruf eines Benutzer, nur dann wenn client html verarbeiten kann 
     var contentType=req.get('Content-Type');
@@ -366,7 +377,8 @@ app.post('/Standort'), function(req,res){
     res.end();
     
 });
-app.put('/Standort/:StandortId'), function(req,res){
+
+app.put('/Standort/:StandortId', function(req,res){
     
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     var standort=client.exists(req.params.StandortId);
@@ -399,7 +411,8 @@ app.put('/Standort/:StandortId'), function(req,res){
 
     
 });
-app.delete('/Standort/:StandortId'), function(req,res){
+
+app.delete('/Standort/:StandortId', function(req,res){
     
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     var standort=client.exists(req.params.StandortId);
@@ -412,21 +425,26 @@ app.delete('/Standort/:StandortId'), function(req,res){
     else{
         var standortID=client.get(req.params.StandortId);
         client.del(req.params.StandortId);
-    }
-
-    
+    }  
 });
 
 //Tunier Methoden
-app.get('/Tunier/:TunierId'), function(req,res){
+app.get('/Tunier/:TunierId', function(req,res){
 });
-app.post('/Tunier'), function(req,res){
+app.post('/Tunier', function(req,res){
 });
-app.put('/Tunier/:TunierId'), function(req,res){
+app.put('/Tunier/:TunierId', function(req,res){
 });
-app.delete('/Tunier/:TunierId'), function(req,res){
+app.delete('/Tunier/:TunierId', function(req,res){
 });
 
+//Subressource von Match: Spielstand Methoden
+app.get('/Match/:MatchId/Spielstand' function(req,res){
+
+});
+app.put('Match/:MatchId/Spielstand', function(req,res){
+
+});
 
 //Server lauscht auf Anfragen auf Port 3000
 app.listen(3000);
