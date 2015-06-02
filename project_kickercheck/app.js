@@ -27,6 +27,7 @@ var xmlDoc="";
 var xsdDoc="";
 
 
+
 function readXML(callback) {      
   fs.readFile(xmlSample,'utf8', function (err, data) {
     // The data argument of the fs.readFile callback is the data buffer
