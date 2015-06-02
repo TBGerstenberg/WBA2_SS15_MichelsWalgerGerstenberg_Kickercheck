@@ -62,8 +62,61 @@ client.SETNX("AccountId","0");
 client.SETNX("TurnierId","0");
 
 
-//Benuzer Methoden
 
+//Account Methoden
+app.get('/Account/:AccountId', function(req, res){
+    
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    var account = client.exists(req.params.AccountId);
+    
+    //Angegebener Key existiert nicht
+    if(account == 0){
+        res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
+    }
+    
+    else{
+        var acceptedTypes= req.get('Accepts');
+        switch(acceptedTypes){
+        
+            case "text/html":
+                //Html repr. bauen 
+            
+            break;
+              
+            default:
+            //We cannot send a representation that is accepted by the client 
+            req.status(406).send("Content Type wird nicht unterstuetzt");
+    }
+    res.end();
+}
+});
+
+app.post('/Account', function(req, res){
+
+
+});
+
+app.put('/Account/:AccountId', function(req, res){
+
+
+});
+
+app.delete('/Account/:AccountId', function(req, res){
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+//Benutzer Methoden
 app.get('/Benutzer/:BenutzerId', function(req,res){
     
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
@@ -81,7 +134,7 @@ app.get('/Benutzer/:BenutzerId', function(req,res){
         var acceptedTypes= req.get('Accepts');
         switch(acceptedTypes){
         
-            case:"text/html"
+            case "text/html":
                 //Html repr. bauen 
             
             break;
@@ -197,7 +250,7 @@ app.get('/Kickertisch/:TischId', function(req,res){
     var acceptedTypes= req.get('Accepts');
     switch(acceptedTypes){
         
-        case:"text/html"
+        case "text/html":
             //Html repr. bauen 
             
         break;
@@ -335,7 +388,7 @@ app.get('/Standort/:StandortId', function(req,res){
         var acceptedTypes= req.get('Accepts');
         switch(acceptedTypes){
         
-            case:"text/html"
+            case "text/html":
                 //Html repr. bauen 
             
             break;
@@ -439,7 +492,7 @@ app.delete('/Tunier/:TunierId', function(req,res){
 });
 
 //Subressource von Match: Spielstand Methoden
-app.get('/Match/:MatchId/Spielstand' function(req,res){
+app.get('/Match/:MatchId/Spielstand',function(req,res){
 
 });
 app.put('Match/:MatchId/Spielstand', function(req,res){
