@@ -9,9 +9,9 @@ var fs = require('fs');
 //Express Modul einbinden 
 var express=require('express');
 //bodyParser modul einbinden und in "bodyparser" ablegen
-var bodyParser= require('body-parser');
+var xmlparser = require('express-xml-parser');
 //jsonParser inszanziieren und in "jsonParser" ablegen 
-var jsonParser=bodyParser.json();
+
 //Expressinstanz anlegen und in "app" ablegen 
 var app=express();
 
