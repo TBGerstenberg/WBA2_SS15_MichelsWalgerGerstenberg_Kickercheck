@@ -165,6 +165,7 @@ app.post('/Benutzer', function(req,res){
     //Benutzer Information mit HMSET
     client.hmset(currentId,"Name", req.body.Name, "Alter" , req.body.Alter ,"Position", req.body.Position,"Bild", req.body.Bild,"isActive", 1);
     
+    
     //Setzen des Statuscodes 201 - created 
     res.status(201).send("Anfrage zum Anlegen eines Benutzers erfolgreich");
     
