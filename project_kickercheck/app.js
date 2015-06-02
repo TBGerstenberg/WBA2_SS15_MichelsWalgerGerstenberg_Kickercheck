@@ -61,45 +61,122 @@ client.SETNX("AccountId","0");
 client.SETNX("TurnierId","0");
 
 
+//Benuzer Methoden
 
-
-app.get('/Benutzer/{BenutzerId}', function(req,res){
+app.get('/Benutzer/:BenutzerId', function(req,res){
     
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    var benutzer=client.exists(req.params.BenutzerId);
+    
+    //Speichere BenuzerId aus der URI in eine Variable
+    var BenutzerId=client.get(req.params.BenutzerId);
+    
+    //Angegebener Key existiert nicht
+    if(benutzer==0 || client.hmget(BenutzerId,"isActive") == 0){
+        res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
+    }
+    
+    else{
+        var acceptedTypes= req.get('Accepts');
+        switch(acceptedTypes){
+        
+            case:"text/html"
+                //Html repr. bauen 
+            
+            break;
+              
+            default:
+            //We cannot send a representation that is accepted by the client 
+            req.status(406).send("Content Type wird nicht unterstuetzt");
+    }
+    }
+    //Antwort beenden
+    res.end();
 });
 
 app.post('/Benutzer', function(req,res){
-    //Wenn acceptedTypes != Null war der Content Type der Anfrage application/xml
-    var acceptedTypes=req.accepts('application/xml');
-    if(acceptedTypes){
-        //Userdatensatz in die Datenbank einfügen
-        if(isValidated){
-        }
-        else{
-            req.status(400).send("Die Anfrage ist fehlerhaft Aufgebaut");
-        }     
+
+    //Abruf eines Benutzer, nur dann wenn client html verarbeiten kann 
+    var contentType=req.get('Content-Type');
+    
+    //Check ob der Content Type der Anfrage xml ist 
+    if(contentType != "application/xml"){
+        res.setHeader("Accepts","application/xml");
+        res.status(406).send("Content Type is not supported");
     }
-    else{
-        req.status(406).send("Content Type wird nicht unterstuetzt");
-    }         
+
+    //Id für den neuen Benutzer
+    var currentId=client.INCR(BenutzerId);
+
+    //Benutzer Information mit HMSET
+    client.hmset(currentId,"Name", req.body.Name, "Alter" , req.body.Alter ,"Position", req.body.Position,"Bild", req.body.Bild,"isActive", 1);
+    
+    //Setzen des Statuscodes 201 - created 
+    res.status(201).send("Anfrage zum Anlegen eines Benutzers erfolgreich");
+    
+    //Rueckerhalt eines Locationheaders der neu angelegten Ressource 
+    res.setHeader("Location","/Benutzer/"+ currentId);
+    
+    //Antwort beenden 
+    res.end();
+
+    
+    
 });
 
-app.put('/Benutzer/{BenutzerId}', function(req,res){
-    var acceptedTypes=req.accepts('application/xml');
-    if(acceptedTypes){
-        //Userdatensatz in die Datenbank einfügen
-        if(isValidated){
-            
+app.put('/Benutzer/:BenutzerId', function(req,res){
+    
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    var benutzer=client.exists(req.params.BenutzerId);
+    //Speichere BenuzerId aus der URI in eine Variable
+    var BenutzerId=client.get(req.params.BenutzerId);
+    
+    //Angegebener Key existiert nicht
+    if(benutzer==0 || client.hmget(BenutzerId,"isActive") == 0){
+        res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
+    }
+     
+    
+    //Angegebener Key existiert 
+    else{
+    
+        //Abfrage des contenttypes der Request
+        var contentType=req.get('Content-Type');
+
+        //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+        if(contentType != "application/xml"){
+            res.setHeader("Accepts","application/xml");
+            res.status(406).send("Content Type is not supported");
         }
+        
         else{
-            req.status(400).send("Die Anfrage ist fehlerhaft Aufgebaut");
+            //Ueberschreibe Werte in der Datenbank 
+            client.hmset(BenutzerId,"Name", req.body.Name, "Alter" , req.body.Alter ,"Position", req.body.Position,"Bild", req.body.Bild, "isActive", 1);
         }
     }
-    else{
-        req.status(406).send("Content Type wird nicht unterstuetzt");
-    }         
+    
+    res.end();
+    
 });
 
-app.delete('/Benutzer/{BenutzerId}', function(req,res){
+app.delete('/Benutzer/:BenutzerId', function(req,res){
+    
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    var benutzer=client.exists(req.params.BenutzerId);
+    
+    //Speichere BenuzerId aus der URI in eine Variable
+    var BenutzerId=client.get(req.params.BenutzerId);
+    
+    //Angegebener Key existiert nicht
+    if(benutzer==0 || client.hmget(BenutzerId,"isActive") == 0){
+        res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
+    }
+    
+    else{
+        //Speichere Benutzer mit id :BenuzerId aus der Datenbank
+        var benutzerId=client.get(req.params.benutzerId);
+        client.hmset(benutzerId,"isActice",0);
+    }
 
 });
 
