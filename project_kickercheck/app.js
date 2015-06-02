@@ -15,6 +15,7 @@ var jsonParser=bodyParser.json();
 //Expressinstanz anlegen und in "app" ablegen 
 var app=express();
 
+
 app.use(express.static(__dirname + '/styles'));
 app.use(express.static(__dirname + '/Assets/XMLValidation'));
 
@@ -309,14 +310,110 @@ app.delete('/Match/:MatchId'), function(req,res){
 //Standort Methoden
 app.get('/Standort/:StandortId'), function(req,res){
     
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    var standort=client.exists(req.params.StandortId);
+    
+    //Speichere standortId aus der URI in eine Variable
+    var standortId=client.get(req.params.StandortId);
+    
+    //Angegebener Key existiert nicht
+    if(standort==0){
+        res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
+    }
+    
+    else{
+        var acceptedTypes= req.get('Accepts');
+        switch(acceptedTypes){
+        
+            case:"text/html"
+                //Html repr. bauen 
+            
+            break;
+              
+            default:
+            //We cannot send a representation that is accepted by the client 
+            req.status(406).send("Content Type wird nicht unterstuetzt");
+    }
+    }
+    //Antwort beenden
+    res.end();
+    
 });
 app.post('/Standort'), function(req,res){
+    
+    //Abruf eines Benutzer, nur dann wenn client html verarbeiten kann 
+    var contentType=req.get('Content-Type');
+    
+    //Check ob der Content Type der Anfrage xml ist 
+    if(contentType != "application/xml"){
+        res.setHeader("Accepts","application/xml");
+        res.status(406).send("Content Type is not supported");
+    }
+
+    //Id für den neuen Standort
+    var currentId=client.INCR(StandortId);
+
+    //Benutzer Information mit HMSET
+    client.hmset(currentId,"Name", req.body.Name, "Adresse" , req.body.Adresse ,"Beschreibung", req.body.Beschreibung);
+    
+    //Setzen des Statuscodes 201 - created 
+    res.status(201).send("Anfrage zum Anlegen eines Benutzers erfolgreich");
+    
+    //Rueckerhalt eines Locationheaders der neu angelegten Ressource 
+    res.setHeader("Location","/Standort/"+ currentId);
+    
+    //Antwort beenden 
+    res.end();
     
 });
 app.put('/Standort/:StandortId'), function(req,res){
     
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    var standort=client.exists(req.params.StandortId);
+    //Speichere StandortId aus der URI in eine Variable
+    var StandortId=client.get(req.params.StandortId);
+    
+    //Angegebener Key existiert nicht
+    if(standort==0){
+        res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
+    }
+    
+    //Angegebener Key existiert 
+    else{
+        //Abfrage des contenttypes der Request
+        var contentType=req.get('Content-Type');
+
+        //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+        if(contentType != "application/xml"){
+            res.setHeader("Accepts","application/xml");
+            res.status(406).send("Content Type is not supported");
+        }
+        
+        else{
+            //Ueberschreibe Werte in der Datenbank 
+            client.hmset(StandortId,"Name", req.body.Name, "Adresse" , req.body.Adresse ,"Beschreibung", req.body.Beschreibung);
+        }
+    }
+    
+    res.end();
+
+    
 });
 app.delete('/Standort/:StandortId'), function(req,res){
+    
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    var standort=client.exists(req.params.StandortId);
+    
+    //Angegebener Key existiert nicht
+    if(standort==0){
+        res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
+    }
+    
+    else{
+        var standortID=client.get(req.params.StandortId);
+        client.del(req.params.StandortId);
+    }
+
     
 });
 
