@@ -1,10 +1,11 @@
 //Redis.io NoSQL Datenbankmodul für Node.js einbinden 
 var redis=require('redis');
+var assert = require('assert');
+
 //Client für die Abfrage von Daten aus der Redis DB erzeugen 
 var client=redis.createClient();
-//
-var ValidatorXML = require("libxml.js");
-
+// Filesystem Modul include
+var fs = require('fs');
 //Express Modul einbinden 
 var express=require('express');
 //bodyParser modul einbinden und in "bodyparser" ablegen
@@ -16,6 +17,38 @@ var app=express();
 
 app.use(express.static(__dirname + '/styles'));
 app.use(express.static(__dirname + '/Assets/XMLValidation'));
+
+
+var libxml = require('libxmljs');
+
+var xsd='Assets/XMLValidation/test.xsd';
+var xmlSample='Assets/XMLValidation/sample.xml';
+var xmlDoc="";
+var xsdDoc="";
+
+
+function readXML(callback) {      
+  fs.readFile(xmlSample,'utf8', function (err, data) {
+    // The data argument of the fs.readFile callback is the data buffer
+    xmlDoc += libxml.parseXml(data.toString()); 
+      callback();
+  });
+}
+
+function showXML() {
+	 xmlDoc;
+}
+
+var ergebnis=readXML(showXML)
+console.log(ergebnis);
+
+/*
+//..... do some changes to xmlDoc
+fs.writeFile('test.xml', xmlDoc.toString(), function(err) {
+  if (err) throw err;
+  console.log('Wrote XML string to test.xml'); 
+});
+*/
 
 app.get('/Benutzer/{BenutzerId}', function(req,res){
 });
