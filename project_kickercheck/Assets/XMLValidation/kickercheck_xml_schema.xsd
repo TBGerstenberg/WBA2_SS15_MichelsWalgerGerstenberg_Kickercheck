@@ -6,16 +6,19 @@
 
 <!-- element declarations --> 
 
-    <!-- Ressourcentypen --> 
-    <xsd:element name="Benutzer" type="kickercheck:BenutzerTyp">
+    <!-- Ressourcenelemente --> 
+    
+    <xsd:element name="Benutzer" type="kickercheck:BenutzerTyp"/>
 
-    <xsd:element name="Turnier" type="kickercheck:TurnierTyp">
+    <xsd:element name="Turnier" type="kickercheck:TurnierTyp"/>
 
-    <xsd:element name="Match" type="kickercheck:MatchTyp">
+    <xsd:element name="Match" type="kickercheck:MatchTyp"/>
 
-    <xsd:element name="Kickertisch" type="kickercheck:KickertischTyp"> 
+    <xsd:element name="Kickertisch" type="kickercheck:KickertischTyp"/> 
 
-    <xsd:element name="Standort" type="kickercheck:StandortTyp">
+    <xsd:element name="Standort" type="kickercheck:StandortTyp"/>
+    
+    <xsd:element name="Forderung" type="kickercheck:ForderungTyp"/>
     
     
     
@@ -24,66 +27,94 @@
     
     <!--Benutzerelement subelements -->
     
-        <xsd:element name="Name" type=xsd:string>
+        <xsd:element name="Name" type=xsd:string/>
 
-        <xsd:element name="Alter" type=xsd:integer> 
+        <xsd:element name="Alter" type=xsd:integer/> 
 
-        <xsd:element name="bevorzugte_Position" type="kickercheck:bevorzugte_PositionTyp">
+        <xsd:element name="bevorzugte_Position" type="kickercheck:bevorzugte_PositionTyp"/>
     
-        <!-- hier Bildtyp nachschlagen --> 
-        <xsd:element name="Profilbild" type="xsd:binary">
+        <xsd:element name="Profilbild" type="xsd:base64Binary"/>
     
     <!--Match subelements -->
     
-        <xsd:element name="Datum" type="xsd:date">
+        <xsd:element name="Datum" type="xsd:date"/>
 
-        <xsd:element name="Uhrzeit" type="xsd:time">
+        <xsd:element name="Uhrzeit" type="xsd:time"/>
         
     <!--Kickertisch subelements -->
     
         <xsd:element name="Tischhersteller" type="kickercheck:TischherstellerTyp"/>
         
         <xsd:element name="Modell" type="kickercheck:ModellTyp"/>
+        
+        <xsd:element name="Zustand" type="xsd:string"/> 
+        
+        
 
 
 <!--type declarations-->
 
     <xsd:complexType name="kickercheck:BenutzerTyp">
+        <all>
         <element ref="kickercheck:Name"/>
         <element ref="kickercheck:Alter"/>
         <element ref="kickercheck:bevorzugte_Position"/>
-        <!-- hier Bildtyp nachschlagen --> 
         <element ref="kickercheck:Profilbild"/>
+        </all>
     </complexType> 
     
     <xsd:complexType name="kickercheck:TurnierTyp">
         <element ref="kickercheck:Standort"/>
         <element ref="Tischhersteller"/>
-
     </complexType> 
 
     <xsd:complexType name="kickercheck:MatchTyp">
         <element ref="kickercheck:Datum"/>
         <element ref="kickercheck:Uhrzeit"/>
+        <element ref="kickercheck:Kickertisch"/>
     </complexType> 
 
     <xsd:complexType name="kickercheck:KickertischTyp">
         <element ref="kickercheck:Standort"/>
         <element ref="kickercheck:Tischhersteller"/>
+        <element ref="kickercheck:Modell"/>
     </complexType> 
     
     <xsd:complexType name="kickercheck:TischherstellerTyp">
-        <element ref="kickercheck:Name"/>
-        <element ref="kickercheck:Modell"/>
+        <restriction base="xsd:string"/>
+            <enumeration value="Heiku">
+            <enumeration value="Fireball">
+            <enumeration value="Leonhart">
+            <enumeration value="Lettner">
+            <enumeration value="Libero">
+            <enumeration value="Tornado">
+            <enumeration value="Ullrich">
+            <enumeration value="P4P">
+            <enumeration value="Tuniro">
+            <enumeration value="Garlando">
+            <enumeration value="Longoni">
+        </restriction>
     </complexType>
     
     <xsd:complextType name="kickercheck:ModellTyp">
         <!-- Art des Tisches (regular,)-->
-
+        
+        
     </complexType>
 
     <xsd:complexType name="kickercheck:StandortTyp">
 
     </complexType> 
-
+    
+    <xsd complexType name="ForderungTyp">
+        <element ref="kickercheck:Datum"/>
+        <element ref="kickercheck:Uhrzeit"/>
+    </complexType>
+    
+    <xsd:simpleType name="bevorzuge_PositionTyp">
+        <restriction base="xsd:string">
+            <enumeration value="Sturm"/>
+            <enumeration value="Verteidigung"/>
+        </restriction>
+    </simpleType>
 </schema>
