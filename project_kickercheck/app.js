@@ -63,11 +63,7 @@ app.post('/Benutzer', function(req,res){
     }
     else{
         req.status(406).send("Content Type wird nicht unterstuetzt");
-    }
-    
-
-
-         
+    }         
 });
 
 app.put('/Benutzer/{BenutzerId}', function(req,res){
@@ -76,6 +72,28 @@ app.put('/Benutzer/{BenutzerId}', function(req,res){
 
 app.delete('/Benutzer/{BenutzerId}', function(req,res){
 
+});
+
+//Kickertisch Methoden 
+
+app.get('/Kickertisch/{TischId}', function(req,res){
+
+
+});
+
+app.post('/Kickertisch/' ,function(req,res){
+
+
+});
+
+app.put('/Kickertisch/{TischId}' , function(req,res){
+
+
+});
+
+app.delete('/Kickertisch/{TischId}' , function(req,res){
+
+    
 });
 
 
