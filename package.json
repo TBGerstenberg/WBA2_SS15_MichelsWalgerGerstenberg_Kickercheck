@@ -1,25 +1,27 @@
 {
-  "name": "WBA2-Projekt",
+  "name": "wba2-projekt",
   "version": "0.0.1",
   "description": "Ein Projekt für das Modul WBA2",
-  "main": "aufgabe1.js",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.12.4",
+    "express": "^4.12.4",
+    "libxmljs": "^0.14.1",
+    "redis": "^0.12.1",
+    "xml2js": "^0.4.9"
+  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/TobiGe/WBA_Team4.git"
+    "url": "git+https://github.com/TobiGe/WBA_Team4.git"
   },
-  "author": "Anatol Walger,Manuel Michels,Tobias Gerstenberg",
+  "author": "Anatol Walger, Manuel Michels, Tobias Gerstenberg",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/TobiGe/WBA_Team4/issues"
   },
-  "homepage": "https://github.com/TobiGe/WBA_Team4",
-  "dependencies": {
-    "body-parser": "^1.12.4",
-    "chalk": "^1.0.0",
-    "express": "^4.12.3",
-    "express-xml-parser": "^1.0.0"
-  }
+  "homepage": "https://github.com/TobiGe/WBA_Team4#readme"
 }
