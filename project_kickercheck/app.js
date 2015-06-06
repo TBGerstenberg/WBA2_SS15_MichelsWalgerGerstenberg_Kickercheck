@@ -3,13 +3,20 @@
 
 	//Client für die Abfrage von Daten aus der Redis DB erzeugen 
 	var client = redis.createClient();
+	
 	//Express Modul einbinden 
 	var express = require('express');
+	
+	// Bodyparser für XML Parsing
 	var bodyparser = require('body-parser');
 	var parseXML = bodyparser.text({
 	    type: 'application/xml'
 	});
+	
+	// libxml für XML Validierung
 	var libxml = require('libxmljs');
+	
+	// xml2js für XML-JS Parsing
 	var xml2js = require('xml2js');
 	var xml2jsParser = new xml2js.Parser();
 
@@ -28,7 +35,6 @@
 	// ACCOUNT // 
 	// ACCOUNT // 
 
-	//Account Methoden
 	app.get('/Account/:AccountId', function(req, res) {
 
 	    var accountId = req.params.AccountId;
@@ -77,7 +83,6 @@
 	//  BENUTZER // 
 	//  BENUTZER // 
 
-	//Benutzer Methoden
 	app.get('/Benutzer/:BenutzerId', function(req, res) {
 
 
@@ -85,11 +90,11 @@
 
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
-
+			// hget return 0 wenn key auf false sonst 1
 	        client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
 
 
-	            if (IdExists && benutzerValid == 1) {
+	            if (IdExists && benutzerValid) {
 
 	                var acceptedTypes = req.get('Accept');
 	                switch (acceptedTypes) {
@@ -132,11 +137,11 @@
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } else {
-
+			// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
-
+				// BenutzerId in redis erhöhen
 	            client.incr('BenutzerId', function(err, id) {
-
+					// Setze Hashset auf Key "Benutzer BenutzerId" 
 	                client.hmset('Benutzer ' + id, {
 	                    'Name': xml["root"]["Benutzer"][0]["Name"],
 	                    'Alter': xml["root"]["Benutzer"][0]["Alter"],
@@ -174,7 +179,8 @@
 	    } else {
 
 	        var benutzerId = req.params.BenutzerId;
-
+	        
+			// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 	            client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
@@ -187,7 +193,7 @@
 	                        res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                        res.end();
 
-	                    } else if (IdExists && benutzerValid == 1) {
+	                    } else if (IdExists && benutzerValid) {
 
 	                        client.hmset('Benutzer ' + benutzerId, {
 	                            'Name': xml["root"]["Benutzer"][0]["Name"],
@@ -233,7 +239,7 @@
 	        client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
 	            client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
 
-	                if (IdExists && benutzerValid == 0) {
+	                if (IdExists && !benutzerValid) {
 
 	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                    res.end();
@@ -305,7 +311,8 @@
 	/*Das Verb Post auf der Ressource Kickertisch legt eine neue Kicktisch Ressource an und liefert bei Erolg 
 	einen 201 Statuscode mit einem Locationheader der neu erzeugten Ressource */
 	app.post('/Kickertisch/', parseXML, function(req, res) {
-
+	
+		// Parser Modul um req.body von XML in JSON zu wandeln
 	    xml2jsParser.parseString(req.body, function(err, xml) {
 
 	        //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
@@ -357,7 +364,7 @@
 	        res.end();
 	    } else {
 
-
+		// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 	            var tischId = req.params.TischId;
@@ -469,7 +476,7 @@
 
 	            } else {
 
-
+					// Parser Modul um req.body von XML in JSON zu wandeln
 	                xml2jsParser.parseString(req.body, function(err, xml) {
 
 	                    //Warte bis der id Zaehler erhoeht wurde 
@@ -591,13 +598,13 @@
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } else {
-
+		// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 	            client.incr('MatchId', function(err, id) {
-
+					// Durch alle "Match" und "Spieler" XML Tags iterieren
 	                for (var i = 0; i < xml.root.Match.length; i++) {
-
+						
 	                    client.hmset('Match ' + id, {
 	                        'Spieler': xml["root"]["Match"][i]["Spieler"],
 	                        'Kickertisch': xml["root"]["Match"][0]["Kickertisch"],
@@ -631,7 +638,7 @@
 	        //Antwort beenden
 	        res.end();
 	    } else {
-
+		// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 	            var matchId = req.params.MatchId;
@@ -648,7 +655,7 @@
 
 	                } else {
 
-	                    //Kickertisch Information in die Datenbank einfügen 
+	                    // Durch alle "Match" und "Spieler" XML Tags iterieren 
 	                    for (var i = 0; i < xml.root.Match.length; i++) {
 
 	                        client.hmset('Match ' + matchId, {
@@ -738,7 +745,7 @@
 	        //Antwort beenden
 	        res.end();
 	    } else {
-
+		// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 
@@ -757,7 +764,7 @@
 
 	                    //client.exists hat false geliefert 
 	                    if (IdExists && spielstandValid) {
-
+							// Durch alle "Match" und "Spieler" XML Tags iterieren
 	                        for (var i = 0; i < xml.root.Match.length; i++) {
 
 	                            client.hmset('Match ' + matchId, {
@@ -837,12 +844,12 @@
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } else {
-
+		// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 
 	            client.incr('StandortId', function(err, id) {
-
+					// Durch alle "Kickertisch" XML Tags iterieren
 	                for (var i = 0; i < xml.root.Standort.length; i++) {
 
 
@@ -881,7 +888,7 @@
 	        res.end();
 	    } else {
 
-
+		// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 	            var standortId = req.params.StandortId;
@@ -896,7 +903,7 @@
 
 	                } else {
 
-	                    //Kickertisch Information in die Datenbank einfügen 
+	                    // Durch alle "Kickertisch" XML Tags iterieren
 	                    for (var i = 0; i < xml.root.Standort.length; i++) {
 
 	                        client.hmset('Standort ' + standortId, {
@@ -1018,9 +1025,10 @@
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } else {
+		    // Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 	            client.incr('TurnierId', function(err, id) {
-
+					// Durch alle "Match" und "Spieler" XML Tags iterieren
 	                for (var i = 0; i < xml.root.Turnier.length; i++) {
 
 
@@ -1060,7 +1068,7 @@
 	        //Antwort beenden
 	        res.end();
 	    } else {
-
+			// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 	            var turnierId = req.params.TurnierId;
@@ -1076,7 +1084,7 @@
 
 	                } else {
 
-	                    //Kickertisch Information in die Datenbank einfügen 
+	                    // Durch alle "Match" und "Spieler" XML Tags iterieren
 
 	                    for (var i = 0; i < xml.root.Turnier.length; i++) {
 
