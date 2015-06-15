@@ -1,119 +1,115 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:atom=http://www.w3.org/2005/Atom">
 
+
+    <xsd:element name="Name" type="xsd:string"/>
+    
+    <xsd:element name="Beschreibung" type="xsd:string"/>
+
+    <xsd:element name="Alter" type="xsd:integer"/> 
+		
+    <xsd:element name="Bild" type="xsd:base64Binary"/>
+                 
+    <xsd:element name="Datum" type="xsd:date"/>
+
+    <xsd:element name="Uhrzeit" type="xsd:time"/>
+    
+    <xsd:element name="Zustand" type="xsd:string"/> 
+    
 	<xsd:element name="root" type="rootTyp" />
+    
+    <xsd:complexType name="rootTyp">
+        <xsd:element ref="atom:link"/>
+   		<xsd:choice>
+    		<xsd:element ref="Benutzer"/>
+    		<xsd:element ref="Match"/>
+            <xsd:element ref="Turnier"/>
+            <xsd:element ref="Lokalitaet"/>
+        </xsd:choice>
+    </xsd:complexType>
+    
     <xsd:element name="Benutzer" type="BenutzerTyp"/>
-     <xsd:element name="Forderung" type="ForderungTyp"/>
-     
-      <xsd:complexType name="BenutzerTyp">
+    
+    <xsd:complexType name="BenutzerTyp">
         <xsd:all>
-        <xsd:element ref="Name"/>
-        <xsd:element ref="Alter"/>
-        <xsd:element ref="Position"/>
-        <xsd:element ref="Bild"/>
+            <xsd:element ref="Name"/>
+            <xsd:element ref="Alter"/>
+            <xsd:element ref="Position"/>
+            <xsd:element ref="Bild"/>
         </xsd:all>
     </xsd:complexType> 
     
-     <xsd:element name="Name" type="xsd:string"/>
-
-        <xsd:element name="Alter" type="xsd:integer"/> 
-		
-		 <xsd:element name="Spieler" type="SpielerTyp"/> 
+    <xsd:element name="Spieler" type="SpielerTyp"/>
     
-        <xsd:element name="Bild" type="xsd:base64Binary"/>
-        
-        <xsd:element name="Position" type="PositionTyp"/>
-        
-   
+    <xsd:complexType name="SpielerTyp">
+        <xsd:choice minOccurs="2" maxOccurs="4">
+           <xsd:element name="Spieler"/>
+        </xsd:choice>
+    </xsd:complexType>
+    
+    <xsd:element name="Lokalitaet" type=LokalitaetTyp/>
+    
+    <xsd:complexType name="LokalitaetTyp">
+        <xsd:all>
+            <xsd:element ref="Name"/>
+            <xsd:element ref="Beschreibung"/>
+            <xsd:element ref="atom:link" minOccurs="1"/>
+        </xsd:all>
+    </xsd:complexType>
+    
+    <xsd:element name="Position" type="PositionTyp"/>
+    
     <xsd:simpleType name="PositionTyp">
-        
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="Sturm"/>
             <xsd:enumeration value="Verteidigung"/>
         </xsd:restriction>
     </xsd:simpleType>
-    
-    <xsd:complexType name="SpielerTyp">
         
-        <xsd:choice minOccurs="2" maxOccurs="4">
-           <xsd:element name="Spieler" />
-        </xsd:choice>
-    </xsd:complexType>
-    
-        <xsd:complexType name="ForderungTyp">
-        <xsd:sequence>
-        <xsd:element ref="Datum"/>
-            <xsd:element ref="Uhrzeit"/>
-            </xsd:sequence>
-        </xsd:complexType>
-       
-    
-        <xsd:element name="Datum" type="xsd:date"/>
-
-        <xsd:element name="Uhrzeit" type="xsd:time"/>
-        
-            
-    <xsd:complexType name="rootTyp">
-   		<xsd:choice>
-    		<xsd:element ref="Benutzer"/>
-    		<xsd:element ref="Forderung"/>
-   </xsd:choice>
-    </xsd:complexType>
-
-   
-      <xsd:element name="Turnier" type="TurnierTyp"/>
     <xsd:element name="Match" type="MatchTyp"/>
-    <xsd:element name="Kickertisch" type="KickertischTyp"/> 
-        
-        <xsd:element name="Standort" type="xsd:string"/>
-        
+    
+    <xsd:complexType name="MatchTyp">
+        <xsd:sequence>  
+            <xsd:element ref="Datum"/>
+            <xsd:element ref="Uhrzeit"/>
+            <xsd:element ref="Spielstand"/>
+            <xsd:element ref="atom:link" minOccurs="0" maxOccurs="5"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:element name="Spielstand" type="SpielstandTyp"/>
+
+    <!--Spielstand kann nur Werte von 0-6 annehmen , sobald einer 6 erreicht ist das Spiel vorbei-->
+    <xsd:simpleType name="SpielstandTyp">
+        <xsd:restriction base="xsd:string">
+            <pattern value="(([0-6]\-[0-5])|([0-5]\-[0-6])"/> 
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    
+    <xsd:element name="Turnier" type="TurnierTyp"/>
+    
+     <xsd:complexType name="TurnierTyp">
+        <xsd:all>
+            <xsd:element ref="atom:link" minOccurs="4"/>
+        </xsd:all>
+    </xsd:complexType> 
+    
+    <xsd:element name="Kickertisch" type="KickertischTyp"/>
+    
+    <xsd:complexType name="KickertischTyp">
+         <xsd:sequence>
+            <xsd:element ref="Tischhersteller"/>
+            <xsd:element ref="Modell"/>
+            <xsd:element ref="Zustand"/>
+            <xsd:element ref="Bild"/>
+        </xsd:sequence>
+    </xsd:complexType> 
     
     <xsd:element name="Tischhersteller" type="TischherstellerTyp"/>
     
-        <xsd:element name="Modell" type="ModellTyp"/>
-        
-        <xsd:element name="Zustand" type="xsd:string"/> 
-        
-
-
-    
-
-    
-    
-    
-    <xsd:complexType name="TurnierTyp" >
-        <xsd:sequence>
-        <xsd:element ref="Standort"/>
-            <xsd:element ref="Tischhersteller"/>
-            </xsd:sequence>
-    </xsd:complexType> 
-
-       
-    <xsd:complexType name="MatchTyp">
-        <xsd:sequence>
-	    <xsd:element ref="Spieler"/>  
-        <xsd:element ref="Datum"/>
-        <xsd:element ref="Uhrzeit"/>
-        <xsd:element ref="Kickertisch"/>
-            </xsd:sequence>
-        </xsd:complexType>
-        
-    
-
-    <xsd:complexType name="KickertischTyp">
-         <xsd:sequence>
-       
-        <xsd:element ref="Tischhersteller"/>
-            <xsd:element ref="Modell"/>
-            <xsd:element ref="Standort"/>
-            <xsd:element ref="Zustand"/>
-            <xsd:element ref="Bild"/>
-            </xsd:sequence>
-        </xsd:complexType> 
-    
-    
     <xsd:simpleType name="TischherstellerTyp">
-    
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="Heiku" />
             <xsd:enumeration value="Fireball" />
@@ -128,14 +124,11 @@
             <xsd:enumeration value="Longoni"/>
         </xsd:restriction>
     </xsd:simpleType>
+
+    <xsd:element name="Modell" type="ModellTyp"/>
     
     <xsd:complexType name="ModellTyp">
-        
             
     </xsd:complexType>
-
-    <xsd:complexType name="StandortTyp">
-
-    </xsd:complexType> 
-
+    
 </xsd:schema>
