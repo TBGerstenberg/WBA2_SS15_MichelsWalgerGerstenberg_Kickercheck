@@ -1,0 +1,6 @@
+<root xmlns:atom="http://www.w3.org/2005/Atom" xmlns:kickercheck="http://www.example.org">
+        <Tischersteller></Tischersteller>
+        <Modell></Modell>
+        <Zustand></Zustand>
+        <Bild></Bild>
+</root>
