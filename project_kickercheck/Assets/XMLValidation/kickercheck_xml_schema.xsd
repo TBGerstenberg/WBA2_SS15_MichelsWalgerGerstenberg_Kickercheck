@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:atom=http://www.w3.org/2005/Atom">
+            xmlns:atom="http://www.w3.org/2005/Atom">
 
 
     <xsd:element name="Name" type="xsd:string"/>
@@ -48,7 +48,7 @@
         </xsd:choice>
     </xsd:complexType>
     
-    <xsd:element name="Lokalitaet" type=LokalitaetTyp/>
+    <xsd:element name="Lokalitaet" type="LokalitaetTyp"/>
     
     <xsd:complexType name="LokalitaetTyp">
         <xsd:all>
