@@ -318,7 +318,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	//Kickertisch Methoden 
 
-	app.get('/Kickertisch/:TischId', function(req, res) {
+	app.get('/Lokalitaet/:TischId', function(req, res) {
 
 	    var tischId = req.params.TischId;
 
@@ -355,9 +355,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    });
 	});
 
-	/*Das Verb Post auf der Ressource Kickertisch legt eine neue Kicktisch Ressource an und liefert bei Erolg 
-	einen 201 Statuscode mit einem Locationheader der neu erzeugten Ressource */
-	app.post('/Kickertisch/', parseXML, function(req, res) {
+	app.post('/Lokalitaet/{LokalitaetId}/Kickertisch', parseXML, function(req, res) {
 	
 		// Parser Modul um req.body von XML in JSON zu wandeln
 	    xml2jsParser.parseString(req.body, function(err, xml) {
@@ -366,29 +364,25 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	        var contentType = req.get('Content-Type');
 
 	        //Check ob der Content Type der Anfrage xml ist 
-	        if (contentType != "application/xml") {
-	            res.set("Accepts", "application/xml");
+	        if (contentType != "application/atom+xml") {
+	            res.set("Accepts", "application/atom+xml");
 	            res.status(406).send("Content Type is not supported");
 	            res.end();
-	        } else {
-
-	            client.incr('KickertischId', function(err, id) {
-
+	        }
+            else {
+                client.incr('KickertischId', function(err, id) {
 	                client.hmset('Kickertisch ' + id, {
 	                    'Tischhersteller': xml["root"]["Kickertisch"][0]["Tischhersteller"],
 	                    'Modell': xml["root"]["Kickertisch"][0]["Modell"],
-	                    'Standort': xml["root"]["Kickertisch"][0]["Standort"],
 	                    'Zustand': xml["root"]["Kickertisch"][0]["Zustand"],
 	                    'Bild': xml["root"]["Kickertisch"][0]["Bild"]
 	                });
-
-
+                    
 	                res.set("Location", "/Kickertisch/" + id);
 	                res.status(201).send("Kickertisch angelegt!");
 	                //Antwort beenden 
 	                res.end();
 	            });
-
 	        }
 	    });
 	});
