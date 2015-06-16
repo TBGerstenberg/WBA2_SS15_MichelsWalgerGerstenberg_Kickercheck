@@ -1,0 +1,9 @@
+<kickercheck xmlns="http://www.w3.org/2005/Atom" xmlns:kickercheck="http://www.example.org">
+    <Turnier>
+    <Teilnehmerzahl></Teilnehmerzahl>
+    <Typ></Typ>
+    <Austragungszeitraum></Austragungszeitraum>
+
+    <atom:link titel="Match" rel="http://www.kickercheck.de/rels/Match" href=""></atom:link>
+    </Turnier>
+</kickercheck>

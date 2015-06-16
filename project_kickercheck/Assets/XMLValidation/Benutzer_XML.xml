@@ -1,8 +1,8 @@
-<root xmlns:atom="http://www.w3.org/2005/Atom" xmlns:kickercheck="http://www.example.org">
+<kickercheck xmlns:atom="http://www.w3.org/2005/Atom" xmlns:kickercheck="http://www.example.org">
 <Benutzer>
     <Name></Name>
     <Alter></Alter>
     <Position></Position>
     <Bild></Bild>
 </Benutzer>
-</root>
+</kickercheck>

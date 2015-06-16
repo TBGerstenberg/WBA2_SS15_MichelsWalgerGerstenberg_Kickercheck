@@ -1,7 +1,7 @@
-<root xmlns:atom="http://www.w3.org/2005/Atom" xmlns:kickercheck="http://www.example.org">
+<kickercheck xmlns:atom="http://www.w3.org/2005/Atom" xmlns:kickercheck="http://www.example.org">
     <Lokalitaet>
         <Name></Name>
         <Beschreibung></Beschreibung>
         <atom:link title="" rel="http://www.kickercheck.de/rels/Kickertisch" href=""/>
     </Lokalitaet>
-</root>
+</kickercheck>

@@ -19,6 +19,9 @@
 	// xml2js für XML-JS Parsing
 	var xml2js = require('xml2js');
 	var xml2jsParser = new xml2js.Parser();
+	
+	// builder für xml templates
+	 var builder = require('xmlbuilder');
 
 	//Expressinstanz anlegen und in "app" ablegen 
 	var app = express();
@@ -31,6 +34,96 @@
 	client.SETNX("StandortId", "0");
 	client.SETNX("AccountId", "0");
 	client.SETNX("TurnierId", "0");
+	
+	
+  
+	 var atomNS = "http://www.w3.org/2005/Atom";
+	 var kickerNS = "http://www.example.org";
+	 var matchRel = "http://www.kickercheck.de/rels/Match";
+	 var lokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
+	 var spielstandRel = "http://www.kickercheck.de/rels/Spielstand";
+	 
+	 var kickertisch_object = {  
+  Kickertisch: {
+    Tischhersteller: "NULL",
+	Modell: "NULL",
+	Zustand: "NULL",
+	Bild: "NULL"
+  
+  }
+};
+
+	 var benutzer_object = {  
+  Benutzer: {
+    Name: "NULL",
+	Alter: "NULL",
+	Position: "NULL",
+	Bild: "NULL"
+  
+  }
+};
+
+ var turnier_object = {  
+  Turnier: {
+    Teilnehmerzahl: "NULL",
+	Typ: "NULL",
+	Austragungszeitraum: "NULL",
+	
+	"atom:link" : {'#text':'NULL', '@title':"NULL",'@rel':matchRel,'@href':"NULL"}
+  
+  }
+};
+
+ var lokalitaet_object = {  
+  Lokalitaet: {
+    Name: "NULL",
+	Beschreibung: "NULL",
+	"atom:link" : {'#text':'NULL', '@title':"NULL",'@rel':lokalitaetRel,'@href':"NULL"}
+  
+  }
+};
+
+ var match_object = {  
+  Match: {
+   Datum: "NULL",
+	Uhrzeit: "NULL",
+	'#list': [
+    {"atom:link" : {'#text':'NULL', '@title':"Spielstand",'@rel':spielstandRel,'@href':"NULL"} },
+	{"atom:link" : {'#text':'NULL', '@title':"Austragungsort",'@rel':lokalitaetRel,'@href':"NULL"} }
+    ],
+	
+  }
+};
+
+ var spielstand_object = {  
+  Spielstand: 'NULL'
+};
+
+
+var kickertisch_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
+.ele(kickertisch_object)
+.end({ pretty: true});
+
+var turnier_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
+.ele(turnier_object)
+.end({ pretty: true});
+
+var spielstand_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
+.ele(spielstand_object)
+.end({ pretty: true});
+
+var benutzer_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
+.ele(benutzer_object)
+.end({ pretty: true});
+
+var lokalitaet_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
+.ele(lokalitaet_object)
+.end({ pretty: true});
+
+var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
+.ele(match_object)
+.end({ pretty: true});
+
 
 	// ACCOUNT // 
 	// ACCOUNT // 
