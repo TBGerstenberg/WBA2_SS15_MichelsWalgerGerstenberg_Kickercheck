@@ -292,52 +292,27 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	app.delete('/Benutzer/:BenutzerId', function(req, res) {
 
-	    var contentType = req.get('Content-Type');
+        var benutzerId = req.params.BenutzerId;
 
-	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
-
-	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
-
-	        //Zeige über den Statuscode und eine Nachricht 
-	        res.status(406).send("Content Type is not supported");
-
-	        //Antwort beenden
-	        res.end();
-	    } else {
-
-	        var benutzerId = req.params.BenutzerId;
-
-	        client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
-	            client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
-
-	                if (IdExists && !benutzerValid) {
-
-	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
-	                    res.end();
-
-	                } else {
-
-	                    client.hmset('Benutzer ' + benutzerId, "isActive", 0);
-	                    //Alles ok , sende 200 
-	                    res.status(200).send("Das hat funktioniert! Benutzer gelöscht");
-
-	                    //Antwort beenden
-	                    res.end();
-
-
-	                }
-
-	            });
+        client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
+            client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
+                if (!IdExists || !benutzerValid) {
+                    res.status(404).send("Die Ressource wurde nicht gefunden.");
+                    res.end();
+                }
+                else {
+                    client.hmset('Benutzer ' + benutzerId, "isActive", 0);
+                    
+                    //Alles ok , sende 200 
+                    res.status(200).send("Das hat funktioniert! Benutzer gelöscht");
+                    
+                    //Antwort beenden
+                    res.end();
+                }
+            });
 	        });
 
-	    }
-
-	});
-
-	// / BENUTZER // 
-	// / BENUTZER // 
+	    });
 
 	// KICKERTISCH // 
 	// KICKERTISCH // 
