@@ -22,6 +22,8 @@
 
 	//Expressinstanz anlegen und in "app" ablegen 
 	var app = express();
+	
+	var builder = require('xmlbuilder');
 
 	//Setup für Datenbank
 	client.SETNX("BenutzerId", "0");
@@ -79,16 +81,12 @@
 };
 
  var match_object = {  
-  Match: {
-   Datum: "NULL",
-	Uhrzeit: "NULL",
-	'#list': [
+  Match: [
+   {Datum: "NULL" },
+	{Uhrzeit: "NULL" },
     {"atom:link" : {'#text':'NULL', '@title':"Spielstand",'@rel':spielstandRel,'@href':"NULL"} },
-	{"atom:link" : {'#text':'NULL', '@title':"Austragungsort",'@rel':lokalitaetRel,'@href':"NULL"} }
-    ],
-	
-  }
-};
+	{"atom:link" : {'#text':'NULL', '@title':"Austragungsort",'@rel':lokalitaetRel,'@href':"NULL" } }
+  ]};
 
  var spielstand_object = {  
   Spielstand: 'NULL'
@@ -118,8 +116,6 @@ var lokalitaet_template = builder.create('kickercheck',{version: '1.0', encoding
 var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
 .ele(match_object)
 .end({ pretty: true});
-
-
 
 
 	//  BENUTZER // 
