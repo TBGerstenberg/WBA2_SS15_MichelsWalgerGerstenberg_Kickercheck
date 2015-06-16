@@ -34,8 +34,8 @@
 	client.SETNX("AccountId", "0");
 	client.SETNX("TurnierId", "0");
 
-     var atomNS = "http://www.w3.org/2005/Atom";
-	 var kickerNS = "http://www.example.org";
+     var atomNS = 'http://www.w3.org/2005/Atom';
+	 var kickerNS = 'http://www.example.org';
 	 var matchRel = "http://www.kickercheck.de/rels/Match";
 	 var lokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
 	 var spielstandRel = "http://www.kickercheck.de/rels/Spielstand";
@@ -105,9 +105,9 @@ var spielstand_template = builder.create('kickercheck',{version: '1.0', encoding
 .ele(spielstand_object)
 .end({ pretty: true});
 
-var benutzer_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
+var benutzer_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS).att('xmlns:kickercheck',kickerNS)
 .ele(benutzer_object)
-.end({ pretty: true});
+.end({ pretty: false});
 
 var lokalitaet_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
 .ele(lokalitaet_object)
@@ -136,19 +136,35 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                var acceptedTypes = req.get('Accept');
                     //Es wird zunaechst nur text/html 
 	                switch (acceptedTypes) {
-	                    case "application/xml+atom":
-	                        //Server antwortet mit einer Benutzerrerpräsentation 
+	                    case "application/xml":
+	                    
+	                    
+	                    client.hgetall('Benutzer ' + benutzerId,function(err,obj) {
+		                   
+		                    var benutzerZu = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS).att('xmlns:kickercheck',kickerNS)
+.ele(obj)
+.end({ pretty: false});
+
+   //Server antwortet mit einer Benutzerrerpräsentation 
                             //
-	                        res.status(200).send("Benutzer: " + benutzerId);
+	                  
+							res.set("Content-Type","application/xml")
+	                         res.status(200);
+	                         
+	                         res.write(benutzerZu);
+	                           //Antwort beenden        
+	           res.end();
+	                       });
                         break;
                             
 	                    default:
 	                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
 	                        res.status(406).send("Content Type wird nicht unterstuetzt");
+	                          //Antwort beenden        
+	           res.end();
 	                        break;
 	                }
-               //Antwort beenden        
-	           res.end();
+             
                }
                 else {
                     //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
@@ -165,8 +181,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
-	    if (contentType != "application/xml+atom") {
-	        res.set("Accepts", "application/xml+atom");
+	    if (contentType != "application/xml") {
+	        res.set("Accepts", "application/xml");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } 
@@ -178,12 +194,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             * Ab Zeile 1100 im Kommentar            *
             *                                       */
             
+/*
             var parsedXML = libxml.parseXmlString(req.body);
 	       
             var validateAgXSD = parsedXML.validate(xsdDoc);
 	
             // Verschicktes XML nach XSD Schema gültig
             if(validateAgXSD) {
+*/
                 // Parser Modul um req.body von XML in JSON zu wandeln
                 xml2jsParser.parseString(req.body, function(err, xml) {
 				    // BenutzerId in redis erhöhen
@@ -197,9 +215,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                         'isActive': 1
                     });
                     
-                    res.send(contentType, 'application/xml+atom');
+                    res.set("Content-Type", 'application/xml');
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                    res.send(req);
+                 
                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
 	                res.set("Location", "/Benutzer/" + id);
                     //Bei Erfolg mit 201 Antworten
@@ -208,12 +226,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                res.end();
 	               });
 	           });
-	       }
+	   /*    }
             //Das Übertragene XML-Schema war ungültig
+
             else{
                 res.status(404).send("Das Schema war ungültig.");
                 res.end();
             }
+*/
         }
     });
 
