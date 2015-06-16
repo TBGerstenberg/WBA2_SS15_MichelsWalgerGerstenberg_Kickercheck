@@ -32,7 +32,7 @@
 	client.SETNX("AccountId", "0");
 	client.SETNX("TurnierId", "0");
 
-    	 var atomNS = "http://www.w3.org/2005/Atom";
+     var atomNS = "http://www.w3.org/2005/Atom";
 	 var kickerNS = "http://www.example.org";
 	 var matchRel = "http://www.kickercheck.de/rels/Match";
 	 var lokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
@@ -142,19 +142,20 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                switch (acceptedTypes) {
 	                    case "application/xml+atom":
 	                        //Server antwortet mit einer Benutzerrerpräsentation 
-                            
+                            //
 	                        res.status(200).send("Benutzer: " + benutzerId);
                         break;
                             
 	                    default:
-	                        //We cannot send a representation that is accepted by the client 
+	                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
 	                        res.status(406).send("Content Type wird nicht unterstuetzt");
 	                        break;
 	                }
-
-	               res.end();
-	            } 
+               //Antwort beenden        
+	           res.end();
+               }
                 else {
+                    //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
 	                res.status(404).send("Die Ressource wurde nicht gefunden oder isActive auf 0.");
 	                res.end();
 	            }
@@ -173,6 +174,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } 
+        
         else{
             /*                                      *
             * Validierung noch nicht fertig         *
@@ -204,6 +206,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     res.send(req);
                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
 	                res.set("Location", "/Benutzer/" + id);
+                    //Bei Erfolg mit 201 Antworten
 	                res.status(201).send("Benutzer angelegt!");
 	                //Antwort beenden 
 	                res.end();
