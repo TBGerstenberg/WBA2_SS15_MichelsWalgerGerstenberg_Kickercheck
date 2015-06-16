@@ -19,9 +19,6 @@
 	// xml2js für XML-JS Parsing
 	var xml2js = require('xml2js');
 	var xml2jsParser = new xml2js.Parser();
-	
-	// builder für xml templates
-	 var builder = require('xmlbuilder');
 
 	//Expressinstanz anlegen und in "app" ablegen 
 	var app = express();
@@ -34,10 +31,8 @@
 	client.SETNX("StandortId", "0");
 	client.SETNX("AccountId", "0");
 	client.SETNX("TurnierId", "0");
-	
-	
-  
-	 var atomNS = "http://www.w3.org/2005/Atom";
+
+    	 var atomNS = "http://www.w3.org/2005/Atom";
 	 var kickerNS = "http://www.example.org";
 	 var matchRel = "http://www.kickercheck.de/rels/Match";
 	 var lokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
@@ -125,53 +120,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 .end({ pretty: true});
 
 
-	// ACCOUNT // 
-	// ACCOUNT // 
 
-	app.get('/Account/:AccountId', function(req, res) {
-
-	    var accountId = req.params.AccountId;
-	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-	    var account = client.exists(req.params.AccountId);
-
-	    //Angegebener Key existiert nicht
-	    if (account == 0) {
-	        res.status(404).send("Spezifizierte Ressource wurde nicht gefunden!");
-	    } else {
-	        var acceptedTypes = req.get('Accepts');
-	        switch (acceptedTypes) {
-
-	            case "text/html":
-	                //Html repr. bauen 
-
-	                break;
-
-	            default:
-	                //We cannot send a representation that is accepted by the client 
-	                req.status(406).send("Content Type wird nicht unterstuetzt");
-	        }
-	        res.end();
-	    }
-	});
-
-	app.post('/Account', function(req, res) {
-
-
-
-	});
-
-	app.put('/Account/:AccountId', function(req, res) {
-
-
-	});
-
-	app.delete('/Account/:AccountId', function(req, res) {
-
-
-	});
-
-	// / ACCOUNT // 
-	// / ACCOUNT // 
 
 	//  BENUTZER // 
 	//  BENUTZER // 
@@ -186,129 +135,158 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 			// hget return 0 wenn key auf false sonst 1
 	        client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
 
-
 	            if (IdExists && benutzerValid) {
 
 	                var acceptedTypes = req.get('Accept');
 	                switch (acceptedTypes) {
-
 	                    case "text/html":
 	                        //Html repr. bauen
 	                        res.status(200).send("Benutzer: " + benutzerId);
-
-	                        break;
-
-
+                            break;
+                            
 	                    default:
 	                        //We cannot send a representation that is accepted by the client 
 	                        res.status(406).send("Content Type wird nicht unterstuetzt");
 	                        break;
-
 	                }
 
-	                res.end();
-	            } else {
+	               res.end();
+	            } 
+                else {
 	                res.status(404).send("Die Ressource wurde nicht gefunden oder isActive auf 0.");
 	                res.end();
-
 	            }
-
 	        });
 	    });
-
 	});
 
 	app.post('/Benutzer', parseXML, function(req, res) {
-
 
 	    //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
-	    if (contentType != "application/xml") {
-	        res.set("Accepts", "application/xml");
+	    if (contentType != "application/xml+atom") {
+	        res.set("Accepts", "application/xml+atom");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
-	    } else {
-			// Parser Modul um req.body von XML in JSON zu wandeln
-	        xml2jsParser.parseString(req.body, function(err, xml) {
-				// BenutzerId in redis erhöhen
-	            client.incr('BenutzerId', function(err, id) {
-					// Setze Hashset auf Key "Benutzer BenutzerId" 
-	                client.hmset('Benutzer ' + id, {
-	                    'Name': xml["root"]["Benutzer"][0]["Name"],
-	                    'Alter': xml["root"]["Benutzer"][0]["Alter"],
-	                    'Position': xml["root"]["Benutzer"][0]["Position"],
-	                    'Profilbild': xml["root"]["Benutzer"][0]["Profilbild"],
-	                    'isActive': 1
-	                });
-
-
+	    } 
+        else{
+            /*                                      *
+            * Validierung noch nicht fertig         *
+            * Variable xsdDoc noch nicht definiert  *
+            * Ab Zeile 1100 im Kommentar            *
+            *                                       */
+            
+            var parsedXML = libxml.parseXmlString(req.body);
+	       
+            var validateAgXSD = parsedXML.validate(xsdDoc);
+	
+            // Verschicktes XML nach XSD Schema gültig
+            if(validateAgXSD) {
+                // Parser Modul um req.body von XML in JSON zu wandeln
+                xml2jsParser.parseString(req.body, function(err, xml) {
+				    // BenutzerId in redis erhöhen
+                    client.incr('BenutzerId', function(err, id) {
+                    // Setze Hashset auf Key "Benutzer BenutzerId" 
+                    client.hmset('Benutzer ' + id, {
+                        'Name': xml["root"]["Benutzer"][0]["Name"],
+                        'Alter': xml["root"]["Benutzer"][0]["Alter"],
+                        'Position': xml["root"]["Benutzer"][0]["Position"],
+                        'Bild': xml["root"]["Benutzer"][0]["Bild"],
+                        'isActive': 1
+                    });
+                    
+                    res.send(contentType, 'application/xml+atom');
+                    //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
+                    res.send(req);
+                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
 	                res.set("Location", "/Benutzer/" + id);
 	                res.status(201).send("Benutzer angelegt!");
 	                //Antwort beenden 
 	                res.end();
-	            });
-
-	        });
-	    }
-	});
+	               });
+	           });
+	       }
+            //Das Übertragene XML-Schema war ungültig
+            else{
+                res.status(404).send("Das Schema war ungültig.");
+                res.end();
+            }
+        }
+    });
 
 	app.put('/Benutzer/:BenutzerId', parseXML, function(req, res) {
 
 	    var contentType = req.get('Content-Type');
 
-	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    //Wenn kein XML+atom geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+	    if (contentType != "application/xml+Atom") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/xml+Atom");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
 
 	        //Antwort beenden
 	        res.end();
-	    } else {
-
+	    } 
+        else {
 	        var benutzerId = req.params.BenutzerId;
 	        
 			// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 	            client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
-
-	                client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
+                    client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
 
 	                    //client.exists hat false geliefert 
-	                    if (!IdExists) {
-
+	                    if (!IdExists || !benutzerValid) {
 	                        res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                        res.end();
-
-	                    } else if (IdExists && benutzerValid) {
-
-	                        client.hmset('Benutzer ' + benutzerId, {
-	                            'Name': xml["root"]["Benutzer"][0]["Name"],
-	                            'Alter': xml["root"]["Benutzer"][0]["Alter"],
-	                            'Position': xml["root"]["Benutzer"][0]["Position"],
-	                            'Profilbild': xml["root"]["Benutzer"][0]["Profilbild"],
-	                            'isActive': 1
-	                        });
-
+                        } 
+                        else if (IdExists && benutzerValid) {
+                            /*                                      *
+                            * Validierung noch nicht fertig         *
+                            * Variable xsdDoc noch nicht definiert  *
+                            * Ab Zeile 1100 im Kommentar            *
+                            *                                       */
+                            var parsedXML = libxml.parseXmlString(req.body);
+                            var validateAgXSD = parsedXML.validate(xsdDoc);
+	
+                            // Verschicktes XML nach XSD Schema gültig
+                            if(validateAgXSD) {
+                                client.hmset('Benutzer ' + benutzerId, {
+                                    'Name': xml["root"]["Benutzer"][0]["Name"],
+                                    'Alter': xml["root"]["Benutzer"][0]["Alter"],
+                                    'Position': xml["root"]["Benutzer"][0]["Position"],
+                                    'Profilbild': xml["root"]["Benutzer"][0]["Profilbild"],
+                                    'isActive': 1
+                                });
+                            
+                                
+                            res.send(contentType, 'application/xml+atom');
+                            //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
+                            res.send(req);    
+                                
 	                        //Alles ok , sende 200 
 	                        res.status(200).send("Das hat funktioniert! Benutzer geändert");
-
-	                        //Antwort beenden
+                            //Antwort beenden
 	                        res.end();
-
-	                    }
-
-	                });
+                            }
+                            
+                            //Das XML+Atom Schema war nicht gültig
+                            else {
+		                      res.status(404).send("Das Schema war ungültig.");
+		                      res.end();
+	                       }
+                        }
+	                });  
 	            });
 	        });
-	    }
-	});
+        }
+    });
 
 	app.delete('/Benutzer/:BenutzerId', function(req, res) {
 
