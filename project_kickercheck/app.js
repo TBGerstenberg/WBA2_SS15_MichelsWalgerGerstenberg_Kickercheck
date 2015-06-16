@@ -127,22 +127,24 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	app.get('/Benutzer/:BenutzerId', function(req, res) {
 
-
+        //BenutzerId aus der URI extrahieren
 	    var benutzerId = req.params.BenutzerId;
 
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
 			// hget return 0 wenn key auf false sonst 1
 	        client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
-
+                //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
 	            if (IdExists && benutzerValid) {
-
+                    //Headerfeld Accept abfragen
 	                var acceptedTypes = req.get('Accept');
+                    //Es wird zunaechst nur text/html 
 	                switch (acceptedTypes) {
-	                    case "text/html":
-	                        //Html repr. bauen
+	                    case "application/xml+atom":
+	                        //Server antwortet mit einer Benutzerrerpräsentation 
+                            
 	                        res.status(200).send("Benutzer: " + benutzerId);
-                            break;
+                        break;
                             
 	                    default:
 	                        //We cannot send a representation that is accepted by the client 
