@@ -10,7 +10,7 @@
 	// Bodyparser für XML Parsing
 	var bodyparser = require('body-parser');
 	var parseXML = bodyparser.text({
-	    type: 'application/xml'
+	    type: 'application/atom+xml'
 	});
 	
 	// libxml für XML Validierung
@@ -34,8 +34,8 @@
 	client.SETNX("AccountId", "0");
 	client.SETNX("TurnierId", "0");
 
-     var atomNS = 'http://www.w3.org/2005/Atom';
-	 var kickerNS = 'http://www.example.org';
+     var atomNS = "http://www.w3.org/2005/Atom";
+	 var kickerNS = "http://www.example.org";
 	 var matchRel = "http://www.kickercheck.de/rels/Match";
 	 var lokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
 	 var spielstandRel = "http://www.kickercheck.de/rels/Spielstand";
@@ -136,22 +136,20 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                var acceptedTypes = req.get('Accept');
                     //Es wird zunaechst nur text/html 
 	                switch (acceptedTypes) {
-	                    case "application/xml":
+	                    case "application/atom+xml":
 	                    
 	                    
 	                    client.hgetall('Benutzer ' + benutzerId,function(err,obj) {
 		                   
-		                    var benutzerZu = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS).att('xmlns:kickercheck',kickerNS)
+		                    var benutzerZu = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS+' ').att('xmlns:kickercheck', kickerNS+' ')
 .ele(obj)
-.end({ pretty: false});
+.end({ pretty: true });
 
    //Server antwortet mit einer Benutzerrerpräsentation 
                             //
 	                  
-							res.set("Content-Type","application/xml")
-	                         res.status(200);
-	                         
-	                         res.write(benutzerZu);
+							res.set("Content-Type","application/atom+xml")
+	                         res.status(200).write(benutzerZu);
 	                           //Antwort beenden        
 	           res.end();
 	                       });
@@ -181,8 +179,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
-	    if (contentType != "application/xml") {
-	        res.set("Accepts", "application/xml");
+	    if (contentType != "application/atom+xml") {
+	        res.set("Accepts", "application/atom+xml");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } 
@@ -215,7 +213,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                         'isActive': 1
                     });
                     
-                    res.set("Content-Type", 'application/xml');
+                    res.set("Content-Type", 'application/atom+xml');
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
                  
                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
@@ -242,10 +240,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML+atom geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml+Atom") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml+Atom");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -287,7 +285,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                 });
                             
                                 
-                            res.send(contentType, 'application/xml+atom');
+                            res.send(contentType, 'application/atom+xml');
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
                             res.send(req);    
                                 
@@ -413,10 +411,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -468,10 +466,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -520,8 +518,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
-	    if (contentType != "application/xml") {
-	        res.set("Accepts", "application/xml");
+	    if (contentType != "application/atom+xml") {
+	        res.set("Accepts", "application/atom+xml");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } else {
@@ -566,10 +564,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -654,8 +652,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
-	    if (contentType != "application/xml") {
-	        res.set("Accepts", "application/xml");
+	    if (contentType != "application/atom+xml") {
+	        res.set("Accepts", "application/atom+xml");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } else {
@@ -688,10 +686,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -795,10 +793,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -900,8 +898,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
-	    if (contentType != "application/xml") {
-	        res.set("Accepts", "application/xml");
+	    if (contentType != "application/atom+xml") {
+	        res.set("Accepts", "application/atom+xml");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } else {
@@ -937,10 +935,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -993,10 +991,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -1081,8 +1079,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
-	    if (contentType != "application/xml") {
-	        res.set("Accepts", "application/xml");
+	    if (contentType != "application/atom+xml") {
+	        res.set("Accepts", "application/atom+xml");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } else {
@@ -1118,10 +1116,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -1175,10 +1173,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/xml") {
+	    if (contentType != "application/atom+xml") {
 
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/xml");
+	        res.set("Accepts", "application/atom+xml");
 
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
@@ -1267,10 +1265,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		        var contentType=req.get('Content-Type');
 	            
 	            //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	            if(contentType != "application/xml"){
+	            if(contentType != "application/atom+xml"){
 	                
 	                //Teile dem Client einen unterstuetzten Type mit 
-	                res.set("Accepts","application/xml");
+	                res.set("Accepts","application/atom+xml");
 	                
 	                //Zeige über den Statuscode und eine Nachricht 
 	                res.status(406).send("Content Type is not supported");
