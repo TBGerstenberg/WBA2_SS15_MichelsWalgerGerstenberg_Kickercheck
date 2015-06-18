@@ -206,10 +206,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     client.incr('BenutzerId', function(err, id) {
                     // Setze Hashset auf Key "Benutzer BenutzerId" 
                     client.hmset('Benutzer ' + id, {
-                        'Name': xml["root"]["Benutzer"][0]["Name"],
-                        'Alter': xml["root"]["Benutzer"][0]["Alter"],
-                        'Position': xml["root"]["Benutzer"][0]["Position"],
-                        'Bild': xml["root"]["Benutzer"][0]["Bild"],
+                        'Name': xml["kickercheck"]["Benutzer"][0]["Name"],
+                        'Alter': xml["kickercheck"]["Benutzer"][0]["Alter"],
+                        'Position': xml["kickercheck"]["Benutzer"][0]["Position"],
+                        'Bild': xml["kickercheck"]["Benutzer"][0]["Bild"],
                         'isActive': 1
                     });
                     
@@ -277,10 +277,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             // Verschicktes XML nach XSD Schema gültig
                             if(validateAgXSD) {
                                 client.hmset('Benutzer ' + benutzerId, {
-                                    'Name': xml["root"]["Benutzer"][0]["Name"],
-                                    'Alter': xml["root"]["Benutzer"][0]["Alter"],
-                                    'Position': xml["root"]["Benutzer"][0]["Position"],
-                                    'Profilbild': xml["root"]["Benutzer"][0]["Profilbild"],
+                                    'Name': xml["kickercheck"]["Benutzer"][0]["Name"],
+                                    'Alter': xml["kickercheck"]["Benutzer"][0]["Alter"],
+                                    'Position': xml["kickercheck"]["Benutzer"][0]["Position"],
+                                    'Profilbild': xml["kickercheck"]["Benutzer"][0]["Profilbild"],
                                     'isActive': 1
                                 });
                             
@@ -390,10 +390,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             else {
                 client.incr('KickertischId', function(err, id) {
 	                client.hmset('Kickertisch ' + id, {
-	                    'Tischhersteller': xml["root"]["Kickertisch"][0]["Tischhersteller"],
-	                    'Modell': xml["root"]["Kickertisch"][0]["Modell"],
-	                    'Zustand': xml["root"]["Kickertisch"][0]["Zustand"],
-	                    'Bild': xml["root"]["Kickertisch"][0]["Bild"]
+	                    'Tischhersteller': xml["kickercheck"]["Kickertisch"][0]["Tischhersteller"],
+	                    'Modell': xml["kickercheck"]["Kickertisch"][0]["Modell"],
+	                    'Zustand': xml["kickercheck"]["Kickertisch"][0]["Zustand"],
+	                    'Bild': xml["kickercheck"]["Kickertisch"][0]["Bild"]
 	                });
                     
 	                res.set("Location", "/Kickertisch/" + id);
@@ -442,11 +442,11 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	                    //Kickertisch Information in die Datenbank einfügen 
 	                    client.hmset('Kickertisch ' + tischId, {
-	                        'Tischhersteller': xml["root"]["Kickertisch"][0]["Tischhersteller"],
-	                        'Modell': xml["root"]["Kickertisch"][0]["Modell"],
-	                        'Standort': xml["root"]["Kickertisch"][0]["Standort"],
-	                        'Zustand': xml["root"]["Kickertisch"][0]["Zustand"],
-	                        'Bild': xml["root"]["Kickertisch"][0]["Bild"]
+	                        'Tischhersteller': xml["kickercheck"]["Kickertisch"][0]["Tischhersteller"],
+	                        'Modell': xml["kickercheck"]["Kickertisch"][0]["Modell"],
+	                        'Standort': xml["kickercheck"]["Kickertisch"][0]["Standort"],
+	                        'Zustand': xml["kickercheck"]["Kickertisch"][0]["Zustand"],
+	                        'Bild': xml["kickercheck"]["Kickertisch"][0]["Bild"]
 	                    });
 
 	                    //Alles ok , sende 200 
@@ -542,8 +542,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                    client.incr('ForderungsId', function(err, fid) {
 
 	                        client.hmset('Kickertisch ' + tischId + ' Forderung ' + fid, {
-	                            'Datum': xml["root"]["Forderung"][0]["Datum"],
-	                            'Uhrzeit': xml["root"]["Forderung"][0]["Uhrzeit"]
+	                            'Datum': xml["kickercheck"]["Forderung"][0]["Datum"],
+	                            'Uhrzeit': xml["kickercheck"]["Forderung"][0]["Uhrzeit"]
 	                        });
 
 	                        res.set("Location", "/Kickertisch/" + tischId + "/Forderungen/" + fid);
@@ -662,14 +662,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	            client.incr('MatchId', function(err, id) {
 					// Durch alle "Match" und "Spieler" XML Tags iterieren
-	                for (var i = 0; i < xml.root.Match.length; i++) {
+	                for (var i = 0; i < xml.kickercheck.Match.length; i++) {
 						
 	                    client.hmset('Match ' + id, {
-	                        'Spieler': xml["root"]["Match"][i]["Spieler"],
-	                        'Kickertisch': xml["root"]["Match"][0]["Kickertisch"],
-	                        'Datum': xml["root"]["Match"][0]["Datum"],
-	                        'Uhrzeit': xml["root"]["Match"][0]["Uhrzeit"],
-	                        'Spielstand': xml["root"]["Match"][0]["Spielstand"]
+	                        'Spieler': xml["kickercheck"]["Match"][i]["Spieler"],
+	                        'Kickertisch': xml["kickercheck"]["Match"][0]["Kickertisch"],
+	                        'Datum': xml["kickercheck"]["Match"][0]["Datum"],
+	                        'Uhrzeit': xml["kickercheck"]["Match"][0]["Uhrzeit"],
+	                        'Spielstand': xml["kickercheck"]["Match"][0]["Spielstand"]
 	                    });
 	                }
 	                res.set("Location", "/Match/" + id);
@@ -715,14 +715,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                } else {
 
 	                    // Durch alle "Match" und "Spieler" XML Tags iterieren 
-	                    for (var i = 0; i < xml.root.Match.length; i++) {
+	                    for (var i = 0; i < xml.kickercheck.Match.length; i++) {
 
 	                        client.hmset('Match ' + matchId, {
-	                            'Spieler': xml["root"]["Match"][i]["Spieler"],
-	                            'Kickertisch': xml["root"]["Match"][0]["Kickertisch"],
-	                            'Datum': xml["root"]["Match"][0]["Datum"],
-	                            'Uhrzeit': xml["root"]["Match"][0]["Uhrzeit"],
-	                            'Spielstand': xml["root"]["Match"][0]["Spielstand"]
+	                            'Spieler': xml["kickercheck"]["Match"][i]["Spieler"],
+	                            'Kickertisch': xml["kickercheck"]["Match"][0]["Kickertisch"],
+	                            'Datum': xml["kickercheck"]["Match"][0]["Datum"],
+	                            'Uhrzeit': xml["kickercheck"]["Match"][0]["Uhrzeit"],
+	                            'Spielstand': xml["kickercheck"]["Match"][0]["Spielstand"]
 	                        });
 	                    }
 
@@ -824,19 +824,19 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                    //client.exists hat false geliefert 
 	                    if (IdExists && spielstandValid) {
 							// Durch alle "Match" und "Spieler" XML Tags iterieren
-	                        for (var i = 0; i < xml.root.Match.length; i++) {
+	                        for (var i = 0; i < xml.kickercheck.Match.length; i++) {
 
 	                            client.hmset('Match ' + matchId, {
-	                                'Spieler': xml["root"]["Match"][i]["Spieler"],
-	                                'Kickertisch': xml["root"]["Match"][0]["Kickertisch"],
-	                                'Datum': xml["root"]["Match"][0]["Datum"],
-	                                'Uhrzeit': xml["root"]["Match"][0]["Uhrzeit"],
-	                                'Spielstand': xml["root"]["Match"][0]["Spielstand"]
+	                                'Spieler': xml["kickercheck"]["Match"][i]["Spieler"],
+	                                'Kickertisch': xml["kickercheck"]["Match"][0]["Kickertisch"],
+	                                'Datum': xml["kickercheck"]["Match"][0]["Datum"],
+	                                'Uhrzeit': xml["kickercheck"]["Match"][0]["Uhrzeit"],
+	                                'Spielstand': xml["kickercheck"]["Match"][0]["Spielstand"]
 	                            });
 	                        }
 
 	                        //Alles ok , sende 200 
-	                        res.status(200).send("Das hat funktioniert! Spielstand geändert auf " + xml["root"]["Match"][0]["Spielstand"]);
+	                        res.status(200).send("Das hat funktioniert! Spielstand geändert auf " + xml["kickercheck"]["Match"][0]["Spielstand"]);
 
 	                        //Antwort beenden
 	                        res.end();
@@ -909,14 +909,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	            client.incr('StandortId', function(err, id) {
 					// Durch alle "Kickertisch" XML Tags iterieren
-	                for (var i = 0; i < xml.root.Standort.length; i++) {
+	                for (var i = 0; i < xml.kickercheck.Standort.length; i++) {
 
 
 	                    client.hmset('Standort ' + id, {
-	                        'Kickertisch': xml.root.Standort[i].Kickertisch,
-	                        'Adresse': xml["root"]["Standort"][0]["Adresse"],
-	                        'Name': xml["root"]["Standort"][0]["Name"],
-	                        'Beschreibung': xml["root"]["Standort"][0]["Beschreibung"],
+	                        'Kickertisch': xml.kickercheck.Standort[i].Kickertisch,
+	                        'Adresse': xml["kickercheck"]["Standort"][0]["Adresse"],
+	                        'Name': xml["kickercheck"]["Standort"][0]["Name"],
+	                        'Beschreibung': xml["kickercheck"]["Standort"][0]["Beschreibung"],
 	                    });
 
 	                }
@@ -963,13 +963,13 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                } else {
 
 	                    // Durch alle "Kickertisch" XML Tags iterieren
-	                    for (var i = 0; i < xml.root.Standort.length; i++) {
+	                    for (var i = 0; i < xml.kickercheck.Standort.length; i++) {
 
 	                        client.hmset('Standort ' + standortId, {
-	                            'Kickertisch': xml.root.Standort[i].Kickertisch,
-	                            'Adresse': xml["root"]["Standort"][0]["Adresse"],
-	                            'Name': xml["root"]["Standort"][0]["Name"],
-	                            'Beschreibung': xml["root"]["Standort"][0]["Beschreibung"],
+	                            'Kickertisch': xml.kickercheck.Standort[i].Kickertisch,
+	                            'Adresse': xml["kickercheck"]["Standort"][0]["Adresse"],
+	                            'Name': xml["kickercheck"]["Standort"][0]["Name"],
+	                            'Beschreibung': xml["kickercheck"]["Standort"][0]["Beschreibung"],
 	                        });
 
 	                    }
@@ -1088,14 +1088,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 	            client.incr('TurnierId', function(err, id) {
 					// Durch alle "Match" und "Spieler" XML Tags iterieren
-	                for (var i = 0; i < xml.root.Turnier.length; i++) {
+	                for (var i = 0; i < xml.kickercheck.Turnier.length; i++) {
 
 
 	                    client.hmset('Turnier ' + id, {
-	                        'Matches': xml.root.Turnier[i].Match,
-	                        'Spieler': xml.root.Turnier[i].Spieler,
-	                        'Typ': xml["root"]["Turnier"][0]["Typ"],
-	                        'Datum': xml["root"]["Turnier"][0]["Datum"],
+	                        'Matches': xml.kickercheck.Turnier[i].Match,
+	                        'Spieler': xml.kickercheck.Turnier[i].Spieler,
+	                        'Typ': xml["kickercheck"]["Turnier"][0]["Typ"],
+	                        'Datum': xml["kickercheck"]["Turnier"][0]["Datum"],
 	                    });
 
 
@@ -1145,14 +1145,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	                    // Durch alle "Match" und "Spieler" XML Tags iterieren
 
-	                    for (var i = 0; i < xml.root.Turnier.length; i++) {
+	                    for (var i = 0; i < xml.kickercheck.Turnier.length; i++) {
 
 
 	                        client.hmset('Turnier ' + turnierId, {
-	                            'Matches': xml.root.Turnier[i].Match,
-	                            'Spieler': xml.root.Turnier[i].Spieler,
-	                            'Typ': xml["root"]["Turnier"][0]["Typ"],
-	                            'Datum': xml["root"]["Turnier"][0]["Datum"],
+	                            'Matches': xml.kickercheck.Turnier[i].Match,
+	                            'Spieler': xml.kickercheck.Turnier[i].Spieler,
+	                            'Typ': xml["kickercheck"]["Turnier"][0]["Typ"],
+	                            'Datum': xml["kickercheck"]["Turnier"][0]["Datum"],
 	                        });
 
 
