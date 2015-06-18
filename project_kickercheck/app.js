@@ -620,7 +620,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	            res.status(404).send("Die Ressource wurde nicht gefunden.");
 	            res.end();
 
-	        } else {
+	        }
+            else {
 
 	            var acceptedTypes = req.get('Accept');
 	            switch (acceptedTypes) {
@@ -645,6 +646,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 
 	});
+
 	app.post('/Match', parseXML, function(req, res) {
 
 
@@ -1083,27 +1085,26 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	        res.set("Accepts", "application/atom+xml");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
-	    } else {
+	    } 
+        else {
 		    // Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 	            client.incr('TurnierId', function(err, id) {
 					// Durch alle "Match" und "Spieler" XML Tags iterieren
 	                for (var i = 0; i < xml.kickercheck.Turnier.length; i++) {
-
-
-	                    client.hmset('Turnier ' + id, {
+                        client.hmset('Turnier ' + id, {
 	                        'Matches': xml.kickercheck.Turnier[i].Match,
-	                        'Spieler': xml.kickercheck.Turnier[i].Spieler,
 	                        'Typ': xml["kickercheck"]["Turnier"][0]["Typ"],
 	                        'Datum': xml["kickercheck"]["Turnier"][0]["Datum"],
+                            'Spieleranzahl': xml["kickercheck"]["Tunier"][0]["Spieleranzahl"],
 	                    });
-
-
 	                }
-
-
+                    //Setze ResponseType auf application/atom+xml
+                    res.type("application/atom+xml"); 
+                    //sets the response’s HTTP header Location field to /Turnier/
 	                res.set("Location", "/Turnier/" + id);
-	                res.status(201).send("Turnier angelegt!");
+                    //Statuscode 201 für Erfolg, Rückgabe Body ist das Angelegte Tunier im ContentType application/atom+xml
+                    res.status(201).send(req.body);
 	                //Antwort beenden 
 	                res.end();
 	            });
