@@ -50,6 +50,7 @@
   }
 };
 
+/*
 	 var benutzer_object = {  
   Benutzer: {
     Name: "NULL",
@@ -59,6 +60,7 @@
   
   }
 };
+*/
 
  var turnier_object = {  
   Turnier: {
@@ -105,9 +107,11 @@ var spielstand_template = builder.create('kickercheck',{version: '1.0', encoding
 .ele(spielstand_object)
 .end({ pretty: true});
 
+/*
 var benutzer_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS).att('xmlns:kickercheck',kickerNS)
 .ele(benutzer_object)
 .end({ pretty: false});
+*/
 
 var lokalitaet_template = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:atom",atomNS).att("xmlns:kickercheck",kickerNS)
 .ele(lokalitaet_object)
@@ -131,7 +135,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 			// hget return 0 wenn key auf false sonst 1
 	        client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
                 //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
-	            if (IdExists && benutzerValid) {
+	            if (IdExists == 1 && benutzerValid == 1) {
                     //Headerfeld Accept abfragen
 	                var acceptedTypes = req.get('Accept');
                     //Es wird zunaechst nur text/html 
@@ -164,10 +168,16 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                }
              
                }
-                else {
+                else if(IdExists == 1 && benutzerValid == 0) {
                     //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
 	                res.status(404).send("Die Ressource wurde nicht gefunden oder isActive auf 0.");
 	                res.end();
+	            }
+	            else {
+		             //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
+	                res.status(404).send("Die Ressource wurde nicht gefunden.");
+	                res.end();
+
 	            }
 	        });
 	    });
@@ -217,11 +227,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
                  
                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
-	                res.set("Location", "/Benutzer/" + id);
-                    //Bei Erfolg mit 201 Antworten
-	                res.status(201).send("Benutzer angelegt!");
-	                //Antwort beenden 
-	                res.end();
+	                res.set("Location", "/Benutzer/" + id).status(201).send(req.body).end();
 	               });
 	           });
 	   /*    }
@@ -261,11 +267,13 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
 
 	                    //client.exists hat false geliefert 
-	                    if (!IdExists || !benutzerValid) {
+	                    if (IdExists == 1 && benutzerValid == 0) {
 	                        res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                        res.end();
                         } 
-                        else if (IdExists && benutzerValid) {
+                        else if (IdExists == 1 && benutzerValid == 1) {
+	                        
+	             
                             /*                                      *
                             * Validierung noch nicht fertig         *
                             * Variable xsdDoc noch nicht definiert  *
@@ -286,7 +294,13 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                     'isActive': 1
                                 });
   
-                            
+                             res.status(200).set('Content-Type', 'application/atom+xml').send(req.body);
+                            //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
+                            //Antwort beenden
+	                        res.end();
+	                        
+	                         }
+	                        
 /*                             }
                             
                             //Das XML+Atom Schema war nicht gültig
@@ -294,17 +308,15 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		                      res.status(404).send("Das Schema war ungültig.");
 		                      res.end();
 	                       }
+	                                            
 */
-                        }
-                        
-                        
-	              res.status(200).set('Content-Type', 'application/atom+xml');
-                            //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
-                          
-                          res.send(req.body);
-         
-                            //Antwort beenden
+                       
+                        else {
+	                          res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                        res.end();
+
+                        } 
+	             
 	                });  
 	            });
 	            
@@ -347,7 +359,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	//Kickertisch Methoden 
 
-	app.get('/Lokalitaet/:TischId', function(req, res) {
+	app.get('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId', function(req, res) {
 
 	    var tischId = req.params.TischId;
 
@@ -384,7 +396,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    });
 	});
 
-	app.post('/Lokalitaet/{LokalitaetId}/Kickertisch', parseXML, function(req, res) {
+	app.post('/Lokalitaet/:LokalitaetId/Kickertisch', parseXML, function(req, res) {
 	
 		// Parser Modul um req.body von XML in JSON zu wandeln
 	    xml2jsParser.parseString(req.body, function(err, xml) {
@@ -417,7 +429,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	});
 
 	/*Mit put kann das Bild eines Kickertischs und/oder seine Zustandsbeschreibung geändert werden*/
-	app.put('/Kickertisch/:TischId/', parseXML, function(req, res) {
+	app.put('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId/', parseXML, function(req, res) {
 
 	    var contentType = req.get('Content-Type');
 
@@ -472,7 +484,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    }
 	});
 
-	app.delete('/Kickertisch/:TischId', function(req, res) {
+	app.delete('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId/', function(req, res) {
 
 	    var contentType = req.get('Content-Type');
 
