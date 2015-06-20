@@ -1,0 +1,170 @@
+<xs:schema xmlns:atom="http://www.w3.org/2005/Atom" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.w3.org/2005/Atom" elementFormDefault="qualified" version="1.0">
+	<xs:element name="entry" type="atom:entryType"/>
+	<xs:element name="feed" type="atom:feedType"/>
+	<xs:complexType name="categoryType">
+		<xs:annotation>
+			<xs:documentation>The Atom cagegory construct is defined in section 4.2.2 of the format spec. Java class for categoryType complex type. The following schema fragment specifies the expected content contained within this class.<pre>&lt;complexType name="categoryType">&lt;complexContent>&lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">&lt;attGroup ref="{http://www.w3.org/2005/Atom}commonAttributes"/>&lt;attribute name="term" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />&lt;attribute name="scheme" type="{http://www.w3.org/2001/XMLSchema}anyURI" />&lt;attribute name="label" type="{http://www.w3.org/2001/XMLSchema}string" />&lt;/restriction>&lt;/complexContent>&lt;/complexType></pre></xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="term" type="xs:string" use="required"/>
+		<xs:attribute name="scheme" type="xs:anyURI"/>
+		<xs:attribute name="label" type="xs:string"/>
+		<xs:attribute name="base" type="xs:anyURI"/>
+		<xs:attribute name="lang" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="contentType">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" type="xs:string"/>
+				<xs:attribute name="src" type="xs:anyURI"/>
+				<xs:attribute name="base" type="xs:anyURI"/>
+				<xs:attribute name="lang" type="xs:string"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="entryType">
+		<xs:annotation>
+			<xs:documentation><pre>&lt;complexType name="entryType">&lt;complexContent>&lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">&lt;sequence>&lt;element name="author" type="{http://www.w3.org/2005/Atom}personType" maxOccurs="unbounded" minOccurs="0"/>&lt;element name="category" type="{http://www.w3.org/2005/Atom}categoryType" maxOccurs="unbounded" minOccurs="0"/>&lt;element name="content" type="{http://www.w3.org/2005/Atom}contentType" minOccurs="0"/>&lt;element name="contributor" type="{http://www.w3.org/2005/Atom}personType" maxOccurs="unbounded" minOccurs="0"/>&lt;element name="id" type="{http://www.w3.org/2005/Atom}idType"/>&lt;element name="link" type="{http://www.w3.org/2005/Atom}linkType" maxOccurs="unbounded" minOccurs="0"/>&lt;element name="published" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/>&lt;element name="rights" type="{http://www.w3.org/2005/Atom}textType" minOccurs="0"/>&lt;element name="source" type="{http://www.w3.org/2005/Atom}textType" minOccurs="0"/>&lt;element name="summary" type="{http://www.w3.org/2005/Atom}textType" minOccurs="0"/>&lt;element name="title" type="{http://www.w3.org/2005/Atom}textType"/>&lt;element name="updated" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>&lt;/sequence>&lt;attGroup ref="{http://www.w3.org/2005/Atom}commonAttributes"/>&lt;/restriction>&lt;/complexContent>&lt;/complexType></pre></xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="author" type="atom:personType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="category" type="atom:categoryType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="content" type="atom:contentType" minOccurs="0"/>
+			<xs:element name="contributor" type="atom:personType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="id" type="atom:idType"/>
+			<xs:element name="link" type="atom:linkType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="published" type="xs:dateTime" minOccurs="0"/>
+			<xs:element name="rights" type="atom:textType" minOccurs="0"/>
+			<xs:element name="source" type="atom:textType" minOccurs="0"/>
+			<xs:element name="summary" type="atom:textType" minOccurs="0"/>
+			<xs:element name="title" type="atom:textType"/>
+			<xs:element name="updated" type="xs:dateTime"/>
+		</xs:sequence>
+		<xs:attribute name="base" type="xs:anyURI"/>
+		<xs:attribute name="lang" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="feedType">
+		<xs:annotation>
+			<xs:documentation>The Atom feed construct is defined in section 4.1.1 of the format spec. Java class for feedType complex type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="author" type="atom:personType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="category" type="atom:categoryType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="contributor" type="atom:personType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="generator" type="atom:generatorType" minOccurs="0"/>
+			<xs:element name="icon" type="atom:iconType" minOccurs="0"/>
+			<xs:element name="id" type="atom:idType"/>
+			<xs:element name="link" type="atom:linkType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="logo" type="atom:logoType" minOccurs="0"/>
+			<xs:element name="rights" type="atom:textType" minOccurs="0"/>
+			<xs:element name="subtitle" type="atom:textType" minOccurs="0"/>
+			<xs:element name="title" type="atom:textType"/>
+			<xs:element name="updated" type="xs:dateTime"/>
+			<xs:element name="entry" type="atom:entryType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="base" type="xs:anyURI"/>
+		<xs:attribute name="lang" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="generatorType">
+		<xs:annotation>
+			<xs:documentation><pre>&lt;complexType name="generatorType">&lt;simpleContent>&lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>string">&lt;attGroup ref="{http://www.w3.org/2005/Atom}commonAttributes"/>&lt;attribute name="uri" type="{http://www.w3.org/2001/XMLSchema}anyURI" />&lt;attribute name="version" type="{http://www.w3.org/2001/XMLSchema}string" />&lt;/extension>&lt;/simpleContent>&lt;/complexType></pre></xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="uri" type="xs:anyURI"/>
+				<xs:attribute name="version" type="xs:string"/>
+				<xs:attribute name="base" type="xs:anyURI"/>
+				<xs:attribute name="lang" type="xs:string"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="iconType">
+		<xs:annotation>
+		</xs:annotation>
+		<xs:restriction base="xs:anyURI"/>
+	</xs:simpleType>
+	<xs:simpleType name="idType">
+		<xs:annotation>
+		</xs:annotation>
+		<xs:restriction base="xs:anyURI"/>
+	</xs:simpleType>
+	<xs:complexType name="linkType">
+		<xs:annotation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="href" type="xs:anyURI" use="required"/>
+				<xs:attribute name="rel" type="xs:string"/>
+				<xs:attribute name="type" type="xs:string"/>
+				<xs:attribute name="hreflang" type="xs:string"/>
+				<xs:attribute name="title" type="xs:string"/>
+				<xs:attribute name="length" type="xs:positiveInteger"/>
+				<xs:attribute name="base" type="xs:anyURI"/>
+				<xs:attribute name="lang" type="xs:string"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="logoType">
+		<xs:annotation>
+		</xs:annotation>
+		<xs:restriction base="xs:anyURI"/>
+	</xs:simpleType>
+	<xs:complexType name="objectFactory">
+		<xs:annotation>
+		</xs:annotation>
+	</xs:complexType>
+	<xs:complexType name="personType">
+		<xs:annotation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="uri" type="atom:uriType" minOccurs="0"/>
+			<xs:element name="email" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="base" type="xs:anyURI"/>
+		<xs:attribute name="lang" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="sourceType">
+		<xs:annotation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="author" type="atom:personType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="category" type="atom:categoryType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="contributor" type="atom:personType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="generator" type="atom:generatorType" minOccurs="0"/>
+			<xs:element name="icon" type="atom:iconType" minOccurs="0"/>
+			<xs:element name="id" type="atom:idType" minOccurs="0"/>
+			<xs:element name="link" type="atom:linkType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="logo" type="atom:logoType" minOccurs="0"/>
+			<xs:element name="rights" type="atom:textType" minOccurs="0"/>
+			<xs:element name="subtitle" type="atom:textType" minOccurs="0"/>
+			<xs:element name="title" type="atom:textType" minOccurs="0"/>
+			<xs:element name="updated" type="xs:dateTime" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="base" type="xs:anyURI"/>
+		<xs:attribute name="lang" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="textType">
+		<xs:annotation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" type="xs:string"/>
+				<xs:attribute name="base" type="xs:anyURI"/>
+				<xs:attribute name="lang" type="xs:string"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="uriType">
+		<xs:annotation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:anyURI">
+				<xs:attribute name="base" type="xs:anyURI"/>
+				<xs:attribute name="lang" type="xs:string"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema>
