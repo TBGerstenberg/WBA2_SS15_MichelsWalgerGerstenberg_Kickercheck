@@ -65,13 +65,13 @@
     <xsd:element name="Teilnehmerzahl" type="TeilnehmerZahlTyp"/>
     
     <!-- Eine Teilnehmerzahl muss zumindest ein Vielfaches von 2 sein -->
-    <xsd:complexType name="TeilnehmerZahlTyp"/>
-        <xsd:simpleType>
+    
+        <xsd:simpleType name="TeilnehmerZahlTyp">
             <xsd:restriction base="xsd:integer">
                 <xsd:pattern value="[2|4|6|8][2|4|6|8]"/>
             </xsd:restriction>
         </xsd:simpleType>
-    </xsd:complexType>
+
 
 	
     <xsd:complexType name="BenutzerTyp">
