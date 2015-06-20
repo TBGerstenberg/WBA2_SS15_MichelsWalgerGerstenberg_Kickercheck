@@ -72,6 +72,10 @@
   
   }
 };
+
+gültige Benutzeranfrage 
+
+<?xml version="1.0" encoding="UTF-8" ?><Benutzer xmlns="http://www.kickercheck.de/namespace"><Name>porker</Name><Alter>23</Alter><Position>yolo</Position><Bild>eW9vbw==</Bild></Benutzer>
 */
 
  var turnier_object = {  
@@ -313,10 +317,11 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 							  xml2jsParser.parseString(req.body, function(err, xml) {
 
                                 client.hmset('Benutzer ' + benutzerId, {
+	                                	                                
                                     'Name': xml.Benutzer.Name,
                                     'Alter': xml.Benutzer.Alter,
                                     'Position': xml.Benutzer.Position,
-                                    'Bild': xmlBenutzer.Bild,
+                                    'Bild': xml.Benutzer.Bild,
                                     'isActive': 1
                                 });  
                              });
@@ -340,6 +345,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 						   res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
 	                
 						   //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+						   
 						   res.end();
 	                    }
 	                });  
