@@ -7,6 +7,9 @@
 	//Express Modul einbinden 
 	var express = require('express');
 	
+	//Fs Modul zum einlesen der xsd 
+	var fileSystem=require('fs');
+	
 	// Bodyparser für XML Parsing
 	var bodyparser = require('body-parser');
 	var parseXML = bodyparser.text({
@@ -16,16 +19,22 @@
 	// libxml für XML Validierung
 	var libxml = require('libxmljs');
 	
+	// libxml erweiterung für XSD 
+	var xsd = require('libxml-xsd');
+	
 	// xml2js für XML-JS Parsing
 	var xml2js = require('xml2js');
+	
+	//Parser von xml2js 
 	var xml2jsParser = new xml2js.Parser();
 
 	//Expressinstanz anlegen und in "app" ablegen 
 	var app = express();
 	
+	//Zusatzmodul zum erstellen von xml-Repräsentationen 
 	var builder = require('xmlbuilder');
 
-	//Setup für Datenbank
+	//Setup für Datenbank , diese Werte werden inkrementiert um eindeutige IDs in den URI Templates zu generieren 
 	client.SETNX("BenutzerId", "0");
 	client.SETNX("ForderungsId", "0");
 	client.SETNX("KickertischId", "0");
@@ -33,7 +42,12 @@
 	client.SETNX("StandortId", "0");
 	client.SETNX("AccountId", "0");
 	client.SETNX("TurnierId", "0");
-
+	
+	//XML-Schema zur Validierung einlesen , Synchrone Variante gewählt weil dies eine Voraussetzung für den Erfolg anderer Methoden ist 
+	var xsdString=fileSystem.readFileSync('./Assets/XMLValidation/kickercheck_xml_schema.xsd','utf8');
+	
+	var xsdDoc = xsd.parse(xsdString);
+	
      var atomNS = "http://www.w3.org/2005/Atom";
 	 var kickerNS = "http://www.example.org";
 	 var matchRel = "http://www.kickercheck.de/rels/Match";
@@ -41,7 +55,7 @@
 	 var spielstandRel = "http://www.kickercheck.de/rels/Spielstand";
 	 
 	 var kickertisch_object = {  
-  Kickertisch: {
+    Kickertisch: {
     Tischhersteller: "NULL",
 	Modell: "NULL",
 	Zustand: "NULL",
@@ -142,35 +156,33 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                switch (acceptedTypes) {
 	                    case "application/atom+xml":
 	                    
-	                    
 	                    client.hgetall('Benutzer ' + benutzerId,function(err,obj) {
 		                   
-		                    var benutzerZu = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS+' ').att('xmlns:kickercheck', kickerNS+' ')
+		                var benutzerZu = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS+' ').att('xmlns:kickercheck', kickerNS+' ')
 .ele(obj)
 .end({ pretty: true });
 
-   //Server antwortet mit einer Benutzerrerpräsentation 
-                            //
-	                  
+   							//Server antwortet mit einer Benutzerrerpräsentation 
 							res.set("Content-Type","application/atom+xml");
-	                         res.status(200).write(benutzerZu);
-	                           //Antwort beenden        
-	           res.end();
+							//Antworte mit Content Type 200 - OK , schreibe Benutzerrepräsentation in den Body 
+	                        res.status(200).write(benutzerZu);
+	                        //Antwort beenden        
+							res.end();
 	                       });
                         break;
                             
 	                    default:
 	                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
 	                        res.status(406).send("Content Type wird nicht unterstuetzt");
-	                          //Antwort beenden        
-	           res.end();
-	                        break;
+	                        //Antwort beenden        
+							res.end();
+	                    break;
 	                }
-             
                }
+               
                 else if(IdExists == 1 && benutzerValid == 0) {
                     //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
-	                res.status(404).send("Die Ressource wurde nicht gefunden oder isActive auf 0.");
+	                res.status(404).send("Die Ressource wurde für den Zugriff von außen gesperrt 0.");
 	                res.end();
 	            }
 	            else {
@@ -183,9 +195,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    });
 	});
 
+
 	app.post('/Benutzer', parseXML, function(req, res) {
 
-	    //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
+	    //Abruf eines Tisches
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
@@ -196,48 +209,51 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    } 
         
         else{
-            /*                                      *
-            * Validierung noch nicht fertig         *
-            * Variable xsdDoc noch nicht definiert  *
-            * Ab Zeile 1100 im Kommentar            *
-            *                                       */
             
-/*
+			//Req.body als XML Parsen 
             var parsedXML = libxml.parseXmlString(req.body);
 	       
+	       //Das geparste XML gegen das XSD validieren 
             var validateAgXSD = parsedXML.validate(xsdDoc);
 	
             // Verschicktes XML nach XSD Schema gültig
             if(validateAgXSD) {
-*/
+
                 // Parser Modul um req.body von XML in JSON zu wandeln
                 xml2jsParser.parseString(req.body, function(err, xml) {
-				    // BenutzerId in redis erhöhen
+				    // BenutzerId in redis erhöhen, atomare Aktion 
                     client.incr('BenutzerId', function(err, id) {
                     // Setze Hashset auf Key "Benutzer BenutzerId" 
                     client.hmset('Benutzer ' + id, {
-                        'Name': xml["kickercheck"]["Benutzer"][0]["Name"],
-                        'Alter': xml["kickercheck"]["Benutzer"][0]["Alter"],
-                        'Position': xml["kickercheck"]["Benutzer"][0]["Position"],
-                        'Bild': xml["kickercheck"]["Benutzer"][0]["Bild"],
+                        'Name': xml["Benutzer"][0]["Name"],
+                        'Alter': xml["Benutzer"][0]["Alter"],
+                        'Position': xml["Benutzer"][0]["Position"],
+                        'Bild': xml["Benutzer"][0]["Bild"],
                         'isActive': 1
                     });
-                    
-                    res.set("Content-Type", 'application/atom+xml');
+                    	         
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                 
+                    res.write(xml);
+                    
+                    //Setze Contenttype der Antwort auf application/atom+xml
+                    res.set("Content-Type", 'application/atom+xml');
+           
                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
-	                res.set("Location", "/Benutzer/" + id).status(201).send(req.body).end();
+	                res.set("Location", "/Benutzer/" + id).status(201).end();
 	               });
 	           });
-	   /*    }
+	       }
+	       
             //Das Übertragene XML-Schema war ungültig
-
             else{
-                res.status(404).send("Das Schema war ungültig.");
+	            //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne 
+	            //Den Content zu ändern 
+                res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
+                
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                
                 res.end();
             }
-*/
         }
     });
 
@@ -271,6 +287,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                        res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                        res.end();
                         } 
+                        
                         else if (IdExists == 1 && benutzerValid == 1) {
 	                        
 	             
@@ -287,10 +304,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             if(validateAgXSD) {
 */
                                 client.hmset('Benutzer ' + benutzerId, {
-                                    'Name': xml["kickercheck"]["Benutzer"][0]["Name"],
-                                    'Alter': xml["kickercheck"]["Benutzer"][0]["Alter"],
-                                    'Position': xml["kickercheck"]["Benutzer"][0]["Position"],
-                                    'Profilbild': xml["kickercheck"]["Benutzer"][0]["Profilbild"],
+                                    'Name': xml["Benutzer"][0]["Name"],
+                                    'Alter': xml["Benutzer"][0]["Alter"],
+                                    'Position': xml["Benutzer"][0]["Position"],
+                                    'Profilbild': xml["Benutzer"][0]["Profilbild"],
                                     'isActive': 1
                                 });
   
@@ -981,16 +998,15 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	                //client.exists hat false geliefert 
 	                if (!IdExists) {
-
+		                
 	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                    res.end();
-
-	                } else {
+	                } 
+	                else {
 
 	                    // Durch alle "Match" und "Spieler" XML Tags iterieren
 
 	                    for (var i = 0; i < xml.kickercheck.Turnier.length; i++) {
-
 
 	                        client.hmset('Turnier ' + turnierId, {
 	                            'Matches': xml.kickercheck.Turnier[i].Match,
@@ -998,8 +1014,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                            'Typ': xml["kickercheck"]["Turnier"][0]["Typ"],
 	                            'Datum': xml["kickercheck"]["Turnier"][0]["Datum"],
 	                        });
-
-
 	                    }
 	                    //Alles ok , sende 200 
 	                    res.status(200).send("Das hat funktioniert! Turnier geändert");
@@ -1053,16 +1067,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    }
 	});
 
+	//Server lauscht auf Anfragen auf Port 3000
+	app.listen(3000);
 
 
 
 	// / TURNIER // 
 	// / TURNIER //
 
-    
-
-	//Server lauscht auf Anfragen auf Port 3000
-	app.listen(3000);
 
 	// VALIDIERE XML GEGEN SCHEMA //
 	// VALIDIERE XML GEGEN SCHEMA //
