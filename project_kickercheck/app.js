@@ -246,8 +246,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	       
             //Das Übertragene XML-Schema war ungültig
             else{
-	            //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne 
-	            //Den Content zu ändern 
+	            //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                 res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
                 
                 //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
@@ -273,6 +272,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	        //Antwort beenden
 	        res.end();
 	    } 
+	    
         else {
 	        var benutzerId = req.params.BenutzerId;
 	        
@@ -289,20 +289,16 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                         } 
                         
                         else if (IdExists == 1 && benutzerValid == 1) {
-	                        
-	             
-                            /*                                      *
-                            * Validierung noch nicht fertig         *
-                            * Variable xsdDoc noch nicht definiert  *
-                            * Ab Zeile 1100 im Kommentar            *
-                            *                                       */
-/*
+	                        							
+							//Xml parsen
                             var parsedXML = libxml.parseXmlString(req.body);
+                            
+                            //Das geparste XML gegen das XSD validieren 
                             var validateAgXSD = parsedXML.validate(xsdDoc);
 	
                             // Verschicktes XML nach XSD Schema gültig
                             if(validateAgXSD) {
-*/
+
                                 client.hmset('Benutzer ' + benutzerId, {
                                     'Name': xml["Benutzer"][0]["Name"],
                                     'Alter': xml["Benutzer"][0]["Alter"],
@@ -310,34 +306,27 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                     'Profilbild': xml["Benutzer"][0]["Profilbild"],
                                     'isActive': 1
                                 });
-  
+							
+							 //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
                              res.status(200).set('Content-Type', 'application/atom+xml').send(req.body);
-                            //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
+
                             //Antwort beenden
 	                        res.end();
 	                        
-	                         }
-	                        
-/*                             }
+	                        }    
+                        }
                             
-                            //Das XML+Atom Schema war nicht gültig
-                            else {
-		                      res.status(404).send("Das Schema war ungültig.");
-		                      res.end();
-	                       }
-	                                            
-*/
-                       
+                        //Das XML+Atom Schema war nicht gültig
                         else {
-	                          res.status(404).send("Die Ressource wurde nicht gefunden.");
-	                        res.end();
-
-                        } 
-	             
+			               //Setze content Type auf 400 - Bad Request , 
+			               //der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+						   res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
+	                
+						   //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+						   res.end();
+	                    }
 	                });  
-	            });
-	            
-	                        
+	            });            
 	        });
         }
     });
@@ -350,6 +339,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
                
                if(IdExists == 1 && benutzerValid == 1) {
+	               //Setze das isActive Attribut des Benutzers in der Datenbank auf 0 , so bleiben seine Daten für statistische Zwecke erhalten , nach 				   //außen ist die Ressource aber nicht mehr erreichbar 
                     client.hmset('Benutzer ' + benutzerId, "isActive", 0);
                     
                     //Alles ok , sende 200 
@@ -358,18 +348,19 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     //Antwort beenden
                     res.end();
                 }
+                
                 else if(IdExists == 1 && benutzerValid == 0) {
 	                 res.status(404).send("Die Ressource wurde nicht gefunden.");
                     res.end();
                 }
+                
                 else {
-	                 res.status(404).send("Die Ressource wurde nicht gefunden.");
+	                res.status(404).send("Die Ressource wurde nicht gefunden.");
                     res.end();
                 }
             });
-	        });
-
 	    });
+	});
 
 	// KICKERTISCH // 
 	// KICKERTISCH // 

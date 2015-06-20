@@ -1,4 +1,5 @@
-	<?xml version="1.0" encoding="UTF-8" ?>	 
+<?xml version="1.0" encoding="UTF-8" ?>
+    
 	<xsd:schema 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
     xmlns:at="http://www.w3.org/2005/Atom"        
@@ -7,8 +8,9 @@
 	elementFormDefault="qualified"
     version="1.0">
 	
-	<!--wenn er das atom.xsd nicht findet , setze bei schemaloc einen host dieser xsd -->
-	<xsd:import namespace="http://www.w3.org/2005/Atom" schemaLocation="atom.xsd"/>
+	<!-- Issue : XSD import von atom funktioniert nicht, das Linkelement wurde aus diesem Namespace 
+         einfach kopiert -->
+	<!-- <xsd:import namespace="http://www.w3.org/2005/Atom" schemaLocation="atom.xsd"/> -->
 
     <xsd:element name="Name" type="xsd:string"/>
     
@@ -28,14 +30,12 @@
 	
 	<xsd:element name="Benutzer" type="BenutzerTyp"/>
 	
-	<xsd:element name="link" type="at:linkType"/>
+	<xsd:element name="link" type="linkType"/>
     
     
 <!--Das Rootelement <kickercheck> kann entfernt werden , dann kann auf dem Server gecheckt werden ob das Root element z.B Benutzer ist, bei einer Validierung wird dann automatisch gegen das passende Element  -->	
 	
-
-
-<!-- Dieses Element wird unter dem Namen Atom.xsd includiert
+<!-- Dieses Element wird unter dem Namen Atom.xsd includiert -->
  
  <xsd:complexType name="linkType">
 		<xsd:annotation>
@@ -52,16 +52,8 @@
 				<xsd:attribute name="lang" type="xsd:string"/>
 			</xsd:extension>
 		</xsd:simpleContent>
-	</xsd:complexType> -->
+	</xsd:complexType>
 	
-<!--	<xsd:element name="link">
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element ref="link" minOccurs="1" maxOccurs="1"/>
-    		</xsd:sequence>
-		</xsd:complexType>
-	</xsd:element> -->
-
     <xsd:element name="Teilnehmerzahl" type="TeilnehmerZahlTyp"/>
     
     <!-- Eine Teilnehmerzahl muss zumindest ein Vielfaches von 2 sein -->

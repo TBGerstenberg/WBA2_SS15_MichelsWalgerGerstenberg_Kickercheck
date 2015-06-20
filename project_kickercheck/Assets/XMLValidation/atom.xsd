@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:atom="http://www.w3.org/2005/Atom" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.w3.org/2005/Atom" elementFormDefault="qualified" version="1.0">
 	<xs:element name="entry" type="atom:entryType"/>
 	<xs:element name="feed" type="atom:feedType"/>
