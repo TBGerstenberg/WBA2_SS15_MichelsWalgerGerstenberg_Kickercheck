@@ -47,7 +47,7 @@
 	var xsdDoc = libxml.parseXml(xsd);
 	
     var atomNS = "http://www.w3.org/2005/Atom";
-	var kickerNS = "http://www.example.org";
+	var kickerNS = "http://www.kickercheck.de/namespace";
 	var matchRel = "http://www.kickercheck.de/rels/Match";
 	var lokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
 	var spielstandRel = "http://www.kickercheck.de/rels/Spielstand";
@@ -75,7 +75,7 @@
 
 gültige Benutzeranfrage 
 
-<?xml version="1.0" encoding="UTF-8" ?><Benutzer xmlns="http://www.kickercheck.de/namespace"><Name>porker</Name><Alter>23</Alter><Position>yolo</Position><Bild>eW9vbw==</Bild></Benutzer>
+<?xml version="1.0" encoding="UTF-8" ?><Benutzer xmlns="http://www.kickercheck.de/namespace"><Name>porker</Name><Alter>23</Alter><Position>Sturm</Position><Bild>eW9vbw==</Bild></Benutzer>
 */
 
  var turnier_object = {  
@@ -160,14 +160,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                    
 	                    client.hgetall('Benutzer ' + benutzerId,function(err,obj) {
 		                   
-		                var benutzerZu = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS+' ').att('xmlns:kickercheck', kickerNS+' ')
+		                var benutzerZu = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS).att('xmlns:kickercheck', kickerNS)
 .ele(obj)
 .end({ pretty: true });
 
    							//Server antwortet mit einer Benutzerrerpräsentation 
 							res.set("Content-Type","application/atom+xml");
 							//Antworte mit Content Type 200 - OK , schreibe Benutzerrepräsentation in den Body 
-	                        res.status(200).write(benutzerZu);
+	                        res.status(200).write(' '+benutzerZu);
 	                        //Antwort beenden        
 							res.end();
 	                       });
@@ -184,7 +184,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                
                 else if(IdExists == 1 && benutzerValid == 0) {
                     //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
-	                res.status(404).send("Die Ressource wurde für den Zugriff von außen gesperrt 0.");
+	                res.status(404).send("Die Ressource wurde für den Zugriff von außen gesperrt.");
 	                res.end();
 	            }
 	            else {
@@ -214,9 +214,15 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             
 			//Req.body als XML Parsen 
             var parsedXML = libxml.parseXml(req.body);
+        
 	       
 	       //Das geparste XML gegen das XSD validieren 
             var validateAgXSD = parsedXML.validate(xsdDoc);
+        
+/*
+            console.log("XML Validierungsfehler:");
+           console.log(parsedXML.validationErrors);
+*/
 	
             // Verschicktes XML nach XSD Schema gültig
             if(validateAgXSD) {
@@ -224,9 +230,11 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 // Parser Modul um req.body von XML in JSON zu wandeln
                 xml2jsParser.parseString(req.body, function(err, xml) {
 	                
+/*
 	                console.log(xml);
 	                
 	                console.log(xml.Benutzer.Name);
+*/
 	                
 				    // BenutzerId in redis erhöhen, atomare Aktion 
                     client.incr('BenutzerId', function(err, id) {
@@ -245,9 +253,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
            
                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
 	                res.set("Location", "/Benutzer/" + id).status(201);
-	                         
+	                
+	         
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                    res.write(req.body);
+                    res.write(' '+req.body);
                     
 	                //Anfrage beenden 
 	                res.end();
@@ -303,9 +312,12 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                          
                         //Der Benutzer existiert und kann bearbeitet werden 
                         else if (IdExists == 1 && benutzerValid == 1) {
-	                        							
+	                        				
+	                        						
 							//Xml parsen
                             var parsedXML = libxml.parseXmlString(req.body);
+                            
+                            
                             
                             //Das geparste XML gegen das XSD validieren 
                             var validateAgXSD = parsedXML.validate(xsdDoc);
@@ -330,13 +342,13 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                              res.status(200).set('Content-Type', 'application/atom+xml');
                              
                              //Liefere Repräsentation der geänderten Ressource zurück 
-							 res.write(req.body);
+							res.write(' '+req.body);
 
                             //Antwort beenden
 	                        res.end();
 	                        
 	                        }    
-                        }
+                       
                             
                         //Das XML+Atom Schema war nicht gültig
                         else {
@@ -347,6 +359,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 						   //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
 						   
 						   res.end();
+	                    }
 	                    }
 	                });  
 	            });            
