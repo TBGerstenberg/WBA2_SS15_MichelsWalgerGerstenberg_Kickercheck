@@ -486,16 +486,19 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 			
 	            client.incr('MatchId', function(err, id) {
 					// Durch alle "Match" und "Spieler" XML Tags iterieren
-/*
-	                for (var i = 0; i < xml.Match.length; i++) {
-						 }
-*/
+
+
 	                    client.hmset('Match ' + id, {
 		                    'Datum' : xml.Match.Datum,
-		                    'Uhrzeit': xml.Match.Uhrzeit
-// 	                        'Spieler': xml.Match
-	                       	                    });
-	               
+		                    'Uhrzeit': xml.Match.Uhrzeit,
+                            'Austragungsort': xml.Match.Austragungsort, 
+                            
+ 	                        'Teilnehmer': xml.Match[0].link,
+                            'Teilnehmer2': xml.Match[1].link,
+                            'Teilnehmer3': xml.Match[2].link,
+                            'Teilnehmer4': xml.Match[3].link
+                          	                    });
+                    
 	                res.set("Location", "/Match/" + id);
 	                res.status(201).send("Match angelegt!");
 	                //Antwort beenden 
