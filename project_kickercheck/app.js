@@ -33,6 +33,7 @@
 	//Zusatzmodul zum erstellen von xml-Repräsentationen 
 	var builder = require('xmlbuilder');
 
+
 	//Setup für Datenbank , diese Werte werden inkrementiert um eindeutige IDs in den URI Templates zu generieren 
 	client.SETNX("BenutzerId", "0");
 	client.SETNX("MatchId", "0");
@@ -139,7 +140,7 @@ gültige Matchanfrage PUT
 */
 
  var spielstand_object = {  
-  Spielstand: 'NULL'
+  'Spielstand':'0-0'
 };
 
 
@@ -453,7 +454,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	                case "application/atom+xml":
                             
-                        client.hgetall('Match ' + MatchId,function(err,obj) {
+                        client.hgetall('Match ' + matchId,function(err,obj) {
 		                   
 		                var MatchZu = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
 .ele(obj)
@@ -477,7 +478,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	            }
 
-	            res.end();
+	            
 	        }
 	    });
 
@@ -698,13 +699,24 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                case "application/atom+xml":
                             
                         client.hgetall('Lokalitaet ' + LokalitaetId,function(err,obj) {
-		                   
+	                        
+	                       
+	                
+/*
+	                  var builder2 = new xml2js.Builder({rootName:'Lokalitaet'});
+	                  
+*/
+		          	                   
+		          
 		                var LokalitaetZu = builder.create('Lokalitaet',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
 .ele(obj)
 .end({ pretty: true });
+
+ console.log(util.inspect(LokalitaetZu, {showHidden: false, depth: null}));
 	                    
 	                    //Server antwortet mit einer Lokalitaetrepräsentation 
 							res.set("Content-Type","application/atom+xml");
+							
 							//Antworte mit Content Type 200 - OK , schreibe Lokalitaetrepräsentation in den Body 
 	                        res.status(200).write(' '+LokalitaetZu);
 	                        //Antwort beenden        
@@ -720,16 +732,79 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                    break;
 
 	            }
-
-	            res.end();
 	        }
 	    });
 
 
 	});
 
+    app.post('/Lokalitaet/', parseXML, function(req, res) {
 
-    app.put('/Lokalitaet/:LokalitaetId', parseXML, function(req, res)) {
+        
+        //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
+        var contentType = req.get('Content-Type');
+
+        //Check ob der Content Type der Anfrage xml ist 
+        if (contentType != "application/atom+xml") {
+	            res.set("Accepts", "application/atom+xml");
+	            res.status(406).send("Content Type is not supported");
+	            res.end();
+        }
+        else{
+            //Req.body als XML Parsen 
+            var parsedXML = libxml.parseXml(req.body);   
+           
+	       
+            //Das geparste XML gegen das XSD validieren 
+            var validateAgXSD = parsedXML.validate(xsdDoc);
+                
+            if(validateAgXSD) {
+
+                // Parser Modul um req.body von XML in JSON zu wandeln
+                xml2jsParser.parseString(req.body, function(err, xml) {
+	                
+	              
+	                
+	                console.log(util.inspect(xml, {showHidden: false, depth: null}));
+           
+				    // LokalitaetId in redis erhöhen, atomare Aktion 
+                    client.incr('LokalitaetId', function(err, id) {
+	                    
+                        // Setze Hashset auf Key "Benutzer BenutzerId" 
+                      client.hmset('Lokalitaet ' + id,{
+                            'Name' : xml.Lokalitaet.Name,
+                            'Beschreibung' : xml.Lokalitaet.Beschreibung,
+                            'Kickertisch' : xml.Lokalitaet.link
+                        });
+                 
+                 
+                                
+                    //Setze Contenttype der Antwort auf application/atom+xml
+                    res.set("Content-Type", 'application/atom+xml');
+           
+                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
+	                res.set("Location", "/Lokalitaet/" + id).status(201);
+	                
+                    //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
+                    res.write(' '+req.body);
+                    
+	                //Anfrage beenden 
+	                res.end();
+	               });
+	                  });
+	           }
+	           else {
+		     console.log(parsedXML.validationErrors);
+		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+                res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
+                
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
+                res.end();
+	    }
+        }
+    });
+    
+     app.put('/Lokalitaet/:LokalitaetId', parseXML, function(req, res) {
             
             var contentType = req.get('Content-Type');
 
@@ -772,15 +847,17 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                          if(validateAgXSD) {
                              // Parser Modul um req.body von XML in JSON zu wandeln
                              xml2jsParser.parseString(req.body, function(err, xml) {
+	                             
+	                             console.log(util.inspect(xml, {showHidden: false, depth: null}));
 
-                                 client.hmset('Match ' + matchId, {
+                                 client.hmset('Lokalitaet ' + LokalitaetId, {
                                      'Name' : xml.Lokalitaet.Name,
                                      'Beschreibung' : xml.Lokalitaet.Beschreibung
                                  });
                                  
-                                 for(int i = 1; i< xml.Lokalitaet.link.length; i++){
-                                 client.hmset('Match ' + matchId, {
-                                     'Kickertisch '+i : xml.Lokalitaet.link[i]
+                                 for(var i = 1; i< xml.Lokalitaet.link.length; i++){
+                                 client.hmset('Lokalitaet ' + LokalitaetId, {
+                                    'Kickertisch' : xml.Lokalitaet.link[i]
                                  });
                                  }
 	                    
@@ -807,64 +884,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	            }
 	});
 	
-
-    
-    
-
-
-
-    app.post('/Lokalitaet/', parseXML, function(req, res) {
-
-        
-        //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
-        var contentType = req.get('Content-Type');
-
-        //Check ob der Content Type der Anfrage xml ist 
-        if (contentType != "application/atom+xml") {
-	            res.set("Accepts", "application/atom+xml");
-	            res.status(406).send("Content Type is not supported");
-	            res.end();
-        }
-        else{
-            //Req.body als XML Parsen 
-            var parsedXML = libxml.parseXml(req.body);    
-	       
-            //Das geparste XML gegen das XSD validieren 
-            var validateAgXSD = parsedXML.validate(xsdDoc);
-                
-            if(validateAgXSD) {
-
-                // Parser Modul um req.body von XML in JSON zu wandeln
-                xml2jsParser.parseString(req.body, function(err, xml) {
-           
-				    // LokalitaetId in redis erhöhen, atomare Aktion 
-                    client.incr('LokalitaetId', function(err, id) {
-	                    
-                        // Setze Hashset auf Key "Benutzer BenutzerId" 
-                        client.hmset('Lokalitaet ' + id,{
-                            'Name' : xml.Lokalitaet.Name,
-                            'Beschreibung' : xml.Lokalitaet.Beschreibung,
-                            'Kickertisch' : xml.Lokalitaet.link
-                        });
-                    });
-                                
-                    //Setze Contenttype der Antwort auf application/atom+xml
-                    res.set("Content-Type", 'application/atom+xml');
-           
-                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
-	                res.set("Location", "/Lokalitaet/" + id).status(201);
-	                
-                    //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                    res.write(' '+req.body);
-                    
-	                //Anfrage beenden 
-	                res.end();
-	               });
-	           }
-        }
-    });
-
-
 
     app.delete('/Lokalitaet/:LokalitaetId', function(req, res) {
 
