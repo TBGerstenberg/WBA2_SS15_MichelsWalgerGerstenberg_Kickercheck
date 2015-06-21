@@ -109,9 +109,32 @@ gültige Benutzeranfrage
 	{"atom:link" : {'#text':'NULL', '@title':"Austragungsort",'@rel':lokalitaetRel,'@href':"NULL" } }
   ]};
   
-/*  gültige Matchanfrage
+/*  gültige Matchanfrage POST
 
-<?xml version="1.0" encoding="UTF-8" ?><Match xmlns="http://www.kickercheck.de/namespace"><Datum>02.11.2012</Datum><Uhrzeit>12:25</Uhrzeit><atom:link title="Teilnehmer" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/1" ></atom:link><atom:link title="Teilnehmer" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/2" ></atom:link><atom:link title="Austragungsort" rel="http://www.kickercheck.de/rels/Lokalitaet" href="http://localhost:3000/Lokalitaet/1" ></atom:link></Match>
+<?xml version="1.0" encoding="UTF-8" ?>
+<Match xmlns="http://www.kickercheck.de/namespace">
+    <Datum>2012-04-12</Datum>
+    <Uhrzeit>12:25:00</Uhrzeit>
+    <Austragungsort><link title="Austragungsort" rel="http://www.kickercheck.de/rels/Lokalitaet" href="" /></Austragungsort>
+ <link title="Teilnehmer 1" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/1" />
+  <link title="Teilnehmer 2" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/2" />
+      <link title="Teilnehmer 3" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/3" />
+  <link title="Teilnehmer 4" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/4" />
+   <link title="Spielstand" rel="http://www.kickercheck.de/rels/Spielstand" href="" />
+</Match>
+
+gültige Matchanfrage PUT
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<Match xmlns="http://www.kickercheck.de/namespace">
+    <Datum>2012-04-12</Datum>
+    <Uhrzeit>12:25:00</Uhrzeit>
+    <Austragungsort><link title="Austragungsort" rel="http://www.kickercheck.de/rels/Lokalitaet" href="" /></Austragungsort>
+ <link title="Teilnehmer 1" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/1" />
+  <link title="Teilnehmer 2" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/2" />
+      <link title="Teilnehmer 3" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/3" />
+  <link title="Teilnehmer 4" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/4" />
+</Match>
 
 */
 
@@ -535,7 +558,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    else {
 		     console.log(parsedXML.validationErrors);
 		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
+                res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
                 
                 //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
                 res.end();
@@ -617,7 +640,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                 else {
 		     console.log(parsedXML.validationErrors);
 		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
+                res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
                 
                 //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
                 res.end();
