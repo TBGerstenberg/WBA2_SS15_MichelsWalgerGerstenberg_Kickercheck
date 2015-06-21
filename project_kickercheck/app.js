@@ -51,6 +51,7 @@
 	var matchRel = "http://www.kickercheck.de/rels/Match";
 	var lokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
 	var spielstandRel = "http://www.kickercheck.de/rels/Spielstand";
+	var benutzerRel = "http://www.kickercheck.de/rels/Benutzer";
 	 
 	var kickertisch_object = {  
     Kickertisch: {
@@ -102,9 +103,15 @@ gültige Benutzeranfrage
   Match: [
    {Datum: "NULL" },
 	{Uhrzeit: "NULL" },
-    {"atom:link" : {'#text':'NULL', '@title':"Spielstand",'@rel':spielstandRel,'@href':"NULL"} },
+    {"atom:link" : {'#text':'NULL', '@title':"Teilnehmer",'@rel':benutzerRel,'@href':"NULL"} },
 	{"atom:link" : {'#text':'NULL', '@title':"Austragungsort",'@rel':lokalitaetRel,'@href':"NULL" } }
   ]};
+  
+/*  gültige Matchanfrage
+
+<?xml version="1.0" encoding="UTF-8" ?><Match xmlns="http://www.kickercheck.de/namespace"><Datum>02.11.2012</Datum><Uhrzeit>12:25</Uhrzeit><atom:link title="Teilnehmer" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/1" ></atom:link><atom:link title="Teilnehmer" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/2" ></atom:link><atom:link title="Austragungsort" rel="http://www.kickercheck.de/rels/Lokalitaet" href="http://localhost:3000/Lokalitaet/1" ></atom:link></Match>
+
+*/
 
  var spielstand_object = {  
   Spielstand: 'NULL'
@@ -398,6 +405,173 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             });
 	    });
 	});
+	
+		// MATCH // 
+	// MATCH //
+
+	//Match Methoden
+	app.get('/Match/:MatchId', function(req, res) {
+
+	    var matchId = req.params.MatchId;
+
+	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+	    client.exists('Match ' + matchId, function(err, IdExists) {
+
+	        //client.exists hat false geliefert 
+	        if (!IdExists) {
+
+	            res.status(404).send("Die Ressource wurde nicht gefunden.");
+	            res.end();
+
+	        }
+            else {
+
+	            var acceptedTypes = req.get('Accept');
+	            switch (acceptedTypes) {
+
+	                case "text/html":
+	                    //Html repr. bauen
+	                    res.status(200).send("Match: " + matchId);
+
+	                    break;
+
+
+	                default:
+	                    //We cannot send a representation that is accepted by the client 
+	                    res.status(406).send("Content Type wird nicht unterstuetzt");
+	                    break;
+
+	            }
+
+	            res.end();
+	        }
+	    });
+
+
+	});
+
+	app.post('/Match', parseXML, function(req, res) {
+
+
+	    //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
+	    var contentType = req.get('Content-Type');
+
+	    //Check ob der Content Type der Anfrage xml ist 
+	    if (contentType != "application/atom+xml") {
+	        res.set("Accepts", "application/atom+xml");
+	        res.status(406).send("Content Type is not supported");
+	        res.end();
+	    } else {
+		    
+		    	//Req.body als XML Parsen 
+            var parsedXML = libxml.parseXml(req.body);
+        
+	       
+	       //Das geparste XML gegen das XSD validieren 
+            var validateAgXSD = parsedXML.validate(xsdDoc);
+        
+/*
+            console.log("XML Validierungsfehler:");
+           console.log(parsedXML.validationErrors);
+*/
+	
+            // Verschicktes XML nach XSD Schema gültig
+            if(validateAgXSD) {
+
+
+		// Parser Modul um req.body von XML in JSON zu wandeln
+	        xml2jsParser.parseString(req.body, function(err, xml) {
+			
+			console.log(xml);
+			
+	            client.incr('MatchId', function(err, id) {
+					// Durch alle "Match" und "Spieler" XML Tags iterieren
+/*
+	                for (var i = 0; i < xml.Match.length; i++) {
+						 }
+*/
+	                    client.hmset('Match ' + id, {
+		                    'Datum' : xml.Match.Datum,
+		                    'Uhrzeit': xml.Match.Uhrzeit
+// 	                        'Spieler': xml.Match
+	                       	                    });
+	               
+	                res.set("Location", "/Match/" + id);
+	                res.status(201).send("Match angelegt!");
+	                //Antwort beenden 
+	                res.end();
+	            });
+	        });
+	    }
+	    else {
+		     console.log(parsedXML.validationErrors);
+		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+                res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
+                
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                res.end();
+	    }
+	  }
+	});
+
+	app.put('/Match/:MatchId', parseXML, function(req, res) {
+
+	    var contentType = req.get('Content-Type');
+
+	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+	    if (contentType != "application/atom+xml") {
+
+	        //Teile dem Client einen unterstuetzten Type mit 
+	        res.set("Accepts", "application/atom+xml");
+
+	        //Zeige über den Statuscode und eine Nachricht 
+	        res.status(406).send("Content Type is not supported");
+
+	        //Antwort beenden
+	        res.end();
+	    } else {
+		// Parser Modul um req.body von XML in JSON zu wandeln
+	        xml2jsParser.parseString(req.body, function(err, xml) {
+
+	            var matchId = req.params.MatchId;
+
+	            //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+	            client.exists('Match ' + matchId, function(err, IdExists) {
+
+	                //client.exists hat false geliefert 
+	                if (!IdExists) {
+
+	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
+	                    res.end();
+
+
+	                } else {
+
+	                    // Durch alle "Match" und "Spieler" XML Tags iterieren 
+	                    for (var i = 0; i < xml.kickercheck.Match.length; i++) {
+
+	                        client.hmset('Match ' + matchId, {
+	                            'Spieler': xml["kickercheck"]["Match"][i]["Spieler"],
+	                            'Kickertisch': xml["kickercheck"]["Match"][0]["Kickertisch"],
+	                            'Datum': xml["kickercheck"]["Match"][0]["Datum"],
+	                            'Uhrzeit': xml["kickercheck"]["Match"][0]["Uhrzeit"],
+	                            'Spielstand': xml["kickercheck"]["Match"][0]["Spielstand"]
+	                        });
+	                    }
+
+	                    //Alles ok , sende 200 
+	                    res.status(200).send("Das hat funktioniert! Match geändert.");
+
+	                    //Antwort beenden
+	                    res.end();
+	                }
+	            });
+	        });
+	    }
+	});
+
+	// / MATCH // 
+	// / MATCH //
 
 	// KICKERTISCH // 
 	// KICKERTISCH // 
@@ -671,144 +845,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	// / KICKERTISCH -> FORDERUNGEN // 
 	// / KICKERTISCH -> FORDERUNGEN //
 
-	// MATCH // 
-	// MATCH //
-
-	//Match Methoden
-	app.get('/Match/:MatchId', function(req, res) {
-
-	    var matchId = req.params.MatchId;
-
-	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-	    client.exists('Match ' + matchId, function(err, IdExists) {
-
-	        //client.exists hat false geliefert 
-	        if (!IdExists) {
-
-	            res.status(404).send("Die Ressource wurde nicht gefunden.");
-	            res.end();
-
-	        }
-            else {
-
-	            var acceptedTypes = req.get('Accept');
-	            switch (acceptedTypes) {
-
-	                case "text/html":
-	                    //Html repr. bauen
-	                    res.status(200).send("Match: " + matchId);
-
-	                    break;
-
-
-	                default:
-	                    //We cannot send a representation that is accepted by the client 
-	                    res.status(406).send("Content Type wird nicht unterstuetzt");
-	                    break;
-
-	            }
-
-	            res.end();
-	        }
-	    });
-
-
-	});
-
-	app.post('/Match', parseXML, function(req, res) {
-
-
-	    //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
-	    var contentType = req.get('Content-Type');
-
-	    //Check ob der Content Type der Anfrage xml ist 
-	    if (contentType != "application/atom+xml") {
-	        res.set("Accepts", "application/atom+xml");
-	        res.status(406).send("Content Type is not supported");
-	        res.end();
-	    } else {
-		// Parser Modul um req.body von XML in JSON zu wandeln
-	        xml2jsParser.parseString(req.body, function(err, xml) {
-
-	            client.incr('MatchId', function(err, id) {
-					// Durch alle "Match" und "Spieler" XML Tags iterieren
-	                for (var i = 0; i < xml.kickercheck.Match.length; i++) {
-						
-	                    client.hmset('Match ' + id, {
-	                        'Spieler': xml["kickercheck"]["Match"][i]["Spieler"],
-	                        'Kickertisch': xml["kickercheck"]["Match"][0]["Kickertisch"],
-	                        'Datum': xml["kickercheck"]["Match"][0]["Datum"],
-	                        'Uhrzeit': xml["kickercheck"]["Match"][0]["Uhrzeit"],
-	                        'Spielstand': xml["kickercheck"]["Match"][0]["Spielstand"]
-	                    });
-	                }
-	                res.set("Location", "/Match/" + id);
-	                res.status(201).send("Match angelegt!");
-	                //Antwort beenden 
-	                res.end();
-	            });
-	        });
-	    }
-	});
-
-	app.put('/Match/:MatchId', parseXML, function(req, res) {
-
-	    var contentType = req.get('Content-Type');
-
-	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/atom+xml") {
-
-	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/atom+xml");
-
-	        //Zeige über den Statuscode und eine Nachricht 
-	        res.status(406).send("Content Type is not supported");
-
-	        //Antwort beenden
-	        res.end();
-	    } else {
-		// Parser Modul um req.body von XML in JSON zu wandeln
-	        xml2jsParser.parseString(req.body, function(err, xml) {
-
-	            var matchId = req.params.MatchId;
-
-	            //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-	            client.exists('Match ' + matchId, function(err, IdExists) {
-
-	                //client.exists hat false geliefert 
-	                if (!IdExists) {
-
-	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
-	                    res.end();
-
-
-	                } else {
-
-	                    // Durch alle "Match" und "Spieler" XML Tags iterieren 
-	                    for (var i = 0; i < xml.kickercheck.Match.length; i++) {
-
-	                        client.hmset('Match ' + matchId, {
-	                            'Spieler': xml["kickercheck"]["Match"][i]["Spieler"],
-	                            'Kickertisch': xml["kickercheck"]["Match"][0]["Kickertisch"],
-	                            'Datum': xml["kickercheck"]["Match"][0]["Datum"],
-	                            'Uhrzeit': xml["kickercheck"]["Match"][0]["Uhrzeit"],
-	                            'Spielstand': xml["kickercheck"]["Match"][0]["Spielstand"]
-	                        });
-	                    }
-
-	                    //Alles ok , sende 200 
-	                    res.status(200).send("Das hat funktioniert! Match geändert.");
-
-	                    //Antwort beenden
-	                    res.end();
-	                }
-	            });
-	        });
-	    }
-	});
-
-	// / MATCH // 
-	// / MATCH //
 
 	// MATCH -> SPIELSTAND // 
 	// MATCH -> SPIELSTAND //

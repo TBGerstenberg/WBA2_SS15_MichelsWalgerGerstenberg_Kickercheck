@@ -105,14 +105,14 @@
         </xsd:restriction>
     </xsd:simpleType>
 
-    <!-- Ein Match kennt sein Datum + Uhrzeit als Anstoßzeitpunkt , Spielstand und Austragungsort sowie Links auf seine Teilnehmer -->
+    <!-- Ein Match kennt sein Datum + Uhrzeit als Anstoßzeitpunkt , (Spielstand) und Austragungsort sowie Links auf seine Teilnehmer -->
     <xsd:element name="Match" type="MatchTyp"/>
 
     <xsd:complexType name="MatchTyp">
         <xsd:sequence>  
             <xsd:element ref="Datum"/>
             <xsd:element ref="Uhrzeit"/>
-			<xsd:element ref="Spielstand"/>
+<!-- 			<xsd:element ref="Spielstand"/> -->
 			<!--Ein Match kann auch leer angelegt werden , hat aber maximal 4 Teilnehmer + seinen Austragungsort    -->
             <xsd:element ref="link" minOccurs="0" maxOccurs="5"/>
         </xsd:sequence>
