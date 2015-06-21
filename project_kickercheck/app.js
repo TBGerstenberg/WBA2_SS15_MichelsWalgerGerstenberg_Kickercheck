@@ -35,11 +35,11 @@
 
 	//Setup für Datenbank , diese Werte werden inkrementiert um eindeutige IDs in den URI Templates zu generieren 
 	client.SETNX("BenutzerId", "0");
+	client.SETNX("MatchId", "0");
+	client.SETNX("LokalitaetId", "0");
 	client.SETNX("ForderungsId", "0");
 	client.SETNX("KickertischId", "0");
-	client.SETNX("MatchId", "0");
-	client.SETNX("StandortId", "0");
-	client.SETNX("AccountId", "0");
+// 	client.SETNX("AccountId", "0");
 	client.SETNX("TurnierId", "0");
 	
 	//XML-Schema zur Validierung einlesen , Synchrone Variante gewählt weil dies eine Voraussetzung für den Erfolg anderer Methoden ist 
@@ -679,7 +679,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 //Lokalitaet
 
-    app.get('/Lokalitaet/:LokalitaetId/Kickertisch', function(req, res) {
+    app.get('/Lokalitaet/:LokalitaetId/', function(req, res) {
         
         
         var LokalitaetId = req.params.LokalitaetId;
@@ -697,9 +697,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	                case "application/atom+xml":
                             
-                        client.hgetall('Match ' + MatchId,function(err,obj) {
+                        client.hgetall('Lokalitaet ' + LokalitaetId,function(err,obj) {
 		                   
-		                var LokalitaetZu = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
+		                var LokalitaetZu = builder.create('Lokalitaet',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
 .ele(obj)
 .end({ pretty: true });
 	                    
@@ -728,16 +728,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	});
 
-
-
-
-
-        
-    
-
-    
-
-    app.post('/Lokalitaet/:LokalitaetId', parseXML, function(req, res) {
+    app.post('/Lokalitaet/', parseXML, function(req, res) {
         
         //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
         var contentType = req.get('Content-Type');
@@ -775,7 +766,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     res.set("Content-Type", 'application/atom+xml');
            
                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
-	                res.set("Location", "/Benutzer/" + id).status(201);
+	                res.set("Location", "/Lokalitaet/" + id).status(201);
 	                
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
                     res.write(' '+req.body);
@@ -789,18 +780,18 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 
 
-    app.delete('/Match/:MatchId', function(req, res) {
+    app.delete('/Lokalitaet/:LokalitaetId', function(req, res) {
 
         var LokalitaetId = req.params.LokalitaetId;
 
-        client.exists('Match ' + matchId, function(err, IdExists) {
+        client.exists('Match ' + LokalitaetId, function(err, IdExists) {
                
                if(IdExists) {
 	           
                     client.del('Lokalitaet ' + LokalitaetId);
                     
                     //Alles ok , sende 200 
-                    res.status(200).send("Das hat funktioniert! Lokalitaet mit alle Tischen gelöscht");
+                    res.status(200).send("Das hat funktioniert! Lokalitaet mit allen Tischen gelöscht");
                     
                     //Antwort beenden
                     res.end();
