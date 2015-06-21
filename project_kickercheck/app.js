@@ -7,6 +7,8 @@
 	//Express Modul einbinden 
 	var express = require('express');
 	
+	var util= require('util');
+	
 	//Fs Modul zum einlesen der xsd 
 	var fileSystem=require('fs');
 	
@@ -482,7 +484,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		// Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 			
-			console.log(xml);
+			
+			console.log(util.inspect(xml, {showHidden: false, depth: null}));
+			
+			
 			
 	            client.incr('MatchId', function(err, id) {
 					// Durch alle "Match" und "Spieler" XML Tags iterieren
@@ -493,10 +498,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		                    'Uhrzeit': xml.Match.Uhrzeit,
                             'Austragungsort': xml.Match.Austragungsort, 
                             
- 	                        'Teilnehmer': xml.Match[0].link,
-                            'Teilnehmer2': xml.Match[1].link,
-                            'Teilnehmer3': xml.Match[2].link,
-                            'Teilnehmer4': xml.Match[3].link
+ 	                        'Teilnehmer': xml.Match.link[0],
+                            'Teilnehmer2': xml.Match.link[1],
+                            'Teilnehmer3': xml.Match.link[2],
+                            'Teilnehmer4': xml.Match.link[3]
                           	                    });
                     
 	                res.set("Location", "/Match/" + id);

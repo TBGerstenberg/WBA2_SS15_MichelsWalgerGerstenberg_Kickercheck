@@ -26,6 +26,8 @@
     
     <xsd:element name="Zustand" type="xsd:string"/> 
     
+    <xsd:element name="Austragungsort" type="AustragungsType"/> 
+    
 	<xsd:element name="Modell" type="xsd:string"/>
 	
 	<xsd:element name="Benutzer" type="BenutzerTyp"/>
@@ -36,6 +38,14 @@
 <!--Das Rootelement <kickercheck> kann entfernt werden , dann kann auf dem Server gecheckt werden ob das Root element z.B Benutzer ist, bei einer Validierung wird dann automatisch gegen das passende Element  -->	
 	
 <!-- Dieses Element wird unter dem Namen Atom.xsd includiert -->
+
+<xsd:complexType name="AustragungsType">
+                        <xsd:all>
+
+                         <xsd:element ref="link" />
+
+                        </xsd:all>
+                    </xsd:complexType>
  
  <xsd:complexType name="linkType">
 		<xsd:annotation>
@@ -112,9 +122,10 @@
         <xsd:sequence>  
             <xsd:element ref="Datum"/>
             <xsd:element ref="Uhrzeit"/>
+            <xsd:element ref="Austragungsort" />
 <!-- 			<xsd:element ref="Spielstand"/> -->
 			<!--Ein Match kann auch leer angelegt werden , hat aber maximal 4 Teilnehmer + seinen Austragungsort    -->
-            <xsd:element ref="link" minOccurs="0" maxOccurs="5"/>
+            <xsd:element ref="link" minOccurs="0" maxOccurs="4"/>
         </xsd:sequence>
     </xsd:complexType>
     
