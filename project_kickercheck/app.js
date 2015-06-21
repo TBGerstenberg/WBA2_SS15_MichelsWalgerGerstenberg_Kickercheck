@@ -653,10 +653,125 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	// / MATCH // 
 	// / MATCH //
 
+//Lokalitaet
+
+    app.get('/Lokalitaet/:LokalitaetId/Kickertisch', function(req, res) {
+        
+        
+        var LokalitaetId = req.params.LokalitaetId;
+
+	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+	    client.exists('Lokalitaet ' + LokalitaetId, function(err, IdExists) {
+                //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
+	            if (!IdExists) {
+                        res.status(404).send("Die Ressource wurde nicht gefunden.");
+	                    res.end();
+                }
+                else{
+                    var acceptedTypes = req.get('Accept');
+                    switch (acceptedTypes) {
+
+	                case "application/atom+xml":
+                            
+                        client.hgetall('Match ' + MatchId,function(err,obj) {
+		                   
+		                var LokalitaetZu = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
+.ele(obj)
+.end({ pretty: true });
+	                    
+	                    //Server antwortet mit einer Lokalitaetrepräsentation 
+							res.set("Content-Type","application/atom+xml");
+							//Antworte mit Content Type 200 - OK , schreibe Lokalitaetrepräsentation in den Body 
+	                        res.status(200).write(' '+LokalitaetZu);
+	                        //Antwort beenden        
+							res.end();
+	                       });
+                        break;
+
+	                 default:
+	                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
+	                        res.status(406).send("Content Type wird nicht unterstuetzt");
+	                        //Antwort beenden        
+							res.end();
+	                    break;
+
+	            }
+
+	            res.end();
+	        }
+	    });
+
+
+	});
+
+        
+    
+
+    
+
+    app.post('/Lokalitaet/:LokalitaetId', parseXML, function(req, res) {
+        
+        //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
+        var contentType = req.get('Content-Type');
+
+        //Check ob der Content Type der Anfrage xml ist 
+        if (contentType != "application/atom+xml") {
+	            res.set("Accepts", "application/atom+xml");
+	            res.status(406).send("Content Type is not supported");
+	            res.end();
+        }
+        else{
+            //Req.body als XML Parsen 
+            var parsedXML = libxml.parseXml(req.body);    
+	       
+            //Das geparste XML gegen das XSD validieren 
+            var validateAgXSD = parsedXML.validate(xsdDoc);
+                
+            if(validateAgXSD) {
+
+                // Parser Modul um req.body von XML in JSON zu wandeln
+                xml2jsParser.parseString(req.body, function(err, xml) {
+           
+				    // LokalitaetId in redis erhöhen, atomare Aktion 
+                    client.incr('LokalitaetId', function(err, id) {
+	                    
+                        // Setze Hashset auf Key "Benutzer BenutzerId" 
+                        client.hmset('Lokalitaet ' + id,{
+                            'Name' : xml.Lokalitaet.Name,
+                            'Beschreibung' : xml.Lokalitaet.Beschreibung,
+                            'Kickertisch' : xml.Lokalitaet.link
+                        });
+                    });
+                                
+                    //Setze Contenttype der Antwort auf application/atom+xml
+                    res.set("Content-Type", 'application/atom+xml');
+           
+                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
+	                res.set("Location", "/Benutzer/" + id).status(201);
+	                
+                    //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
+                    res.write(' '+req.body);
+                    
+	                //Anfrage beenden 
+	                res.end();
+	               });
+	           }
+        }
+    });
+
+
+
+
+
+
+
+
+
 	// KICKERTISCH // 
 	// KICKERTISCH // 
 
 	//Kickertisch Methoden 
+
 
 	app.get('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId', function(req, res) {
 
