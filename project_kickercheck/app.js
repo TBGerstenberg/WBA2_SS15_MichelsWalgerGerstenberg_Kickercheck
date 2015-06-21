@@ -728,16 +728,90 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	});
 
+    app.put('/Lokalitaet/:LokalitaetId', parseXML, function(req, res)) {
+            
+            var contentType = req.get('Content-Type');
+
+	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+	       if (contentType != "application/atom+xml") {
+
+               //Teile dem Client einen unterstuetzten Type mit 
+               res.set("Accepts", "application/atom+xml");
+
+               //Zeige über den Statuscode und eine Nachricht 
+               res.status(406).send("Content Type is not supported");
+               
+               //Antwort beenden
+               res.end();
+	        
+           } else {
+		    
+		     var LokalitaetId = req.params.LokalitaetId;
+
+	            //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+	            client.exists('Lokalitaet ' + LokalitaetId, function(err, IdExists) {
+
+	                //client.exists hat false geliefert 
+	                if (!IdExists) {
+
+	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
+	                    res.end();
 
 
-
-
+	                }
+	                 else {
+                        //Req.body als XML Parsen 
+                        var parsedXML = libxml.parseXml(req.body);
         
-    
+	       
+                         //Das geparste XML gegen das XSD validieren 
+                         var validateAgXSD = parsedXML.validate(xsdDoc);
+        
+                         // Verschicktes XML nach XSD Schema gültig
+                         if(validateAgXSD) {
+                             // Parser Modul um req.body von XML in JSON zu wandeln
+                             xml2jsParser.parseString(req.body, function(err, xml) {
+
+                                 client.hmset('Match ' + matchId, {
+                                     'Name' : xml.Lokalitaet.Name,
+                                     'Beschreibung' : xml.Lokalitaet.Beschreibung
+                                 });
+                                 
+                                 for(int i = 1; i< xml.Lokalitaet.link.length; i++){
+                                 client.hmset('Match ' + matchId, {
+                                     'Kickertisch '+i : xml.Lokalitaet.link[i]
+                                 });
+                                 }
+	                    
+                            //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
+                             res.status(200).set('Content-Type', 'application/atom+xml');
+                             
+                             //Liefere Repräsentation der geänderten Ressource zurück 
+							res.write(' '+req.body);
+
+                            //Antwort beenden
+	                        res.end();
+	                });
+	                }
+	                 else {
+		     console.log(parsedXML.validationErrors);
+		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+                res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
+                
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                res.end();
+	    }
+	                }
+	                 });
+	            }
+	});
+	
 
     
+    
 
-    app.post('/Lokalitaet/:LokalitaetId', parseXML, function(req, res) {
+
+    app.post('/Lokalitaet/:Lokalitaet', parseXML, function(req, res) {
         
         //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
         var contentType = req.get('Content-Type');
