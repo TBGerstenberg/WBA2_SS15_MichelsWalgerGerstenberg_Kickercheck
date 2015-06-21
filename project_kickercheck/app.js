@@ -728,6 +728,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	});
 
+
+
+
+
         
     
 
@@ -782,6 +786,33 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	           }
         }
     });
+
+
+
+    app.delete('/Match/:MatchId', function(req, res) {
+
+        var LokalitaetId = req.params.LokalitaetId;
+
+        client.exists('Match ' + matchId, function(err, IdExists) {
+               
+               if(IdExists) {
+	           
+                    client.del('Lokalitaet ' + LokalitaetId);
+                    
+                    //Alles ok , sende 200 
+                    res.status(200).send("Das hat funktioniert! Lokalitaet mit alle Tischen gelöscht");
+                    
+                    //Antwort beenden
+                    res.end();
+                }
+                else {
+	               
+	                res.status(404).send("Die Ressource wurde nicht gefunden.");
+                    res.end();
+                }
+            });
+	    });
+
 
 
 
