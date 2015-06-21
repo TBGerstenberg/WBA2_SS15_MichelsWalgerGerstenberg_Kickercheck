@@ -35,11 +35,11 @@
 
 	//Setup für Datenbank , diese Werte werden inkrementiert um eindeutige IDs in den URI Templates zu generieren 
 	client.SETNX("BenutzerId", "0");
+	client.SETNX("MatchId", "0");
+	client.SETNX("LokalitaetId", "0");
 	client.SETNX("ForderungsId", "0");
 	client.SETNX("KickertischId", "0");
-	client.SETNX("MatchId", "0");
-	client.SETNX("StandortId", "0");
-	client.SETNX("AccountId", "0");
+// 	client.SETNX("AccountId", "0");
 	client.SETNX("TurnierId", "0");
 	
 	//XML-Schema zur Validierung einlesen , Synchrone Variante gewählt weil dies eine Voraussetzung für den Erfolg anderer Methoden ist 
@@ -431,7 +431,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    });
 	});
 	
-		// MATCH // 
 	// MATCH //
 
 	//Match Methoden
@@ -441,7 +440,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Match ' + matchId, function(err, IdExists) {
-                //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
+                //Das Match existiert im System 
 	            if (!IdExists) {
                         res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                    res.end();
@@ -462,7 +461,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                    
 	                    //Server antwortet mit einer Matchrerpräsentation 
 							res.set("Content-Type","application/atom+xml");
-							//Antworte mit Content Type 200 - OK , schreibe Benutzerrepräsentation in den Body 
+							//Antworte mit Content Type 200 - OK , schreibe Matchrepräsentation in den Body 
 	                        res.status(200).write(' '+MatchZu);
 	                        //Antwort beenden        
 							res.end();
@@ -488,7 +487,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	app.post('/Match', parseXML, function(req, res) {
 
 
-	    //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
+	    //Abruf eines Matches, nur dann wenn client html verarbeiten kann 
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
@@ -523,7 +522,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 			
 			
 	            client.incr('MatchId', function(err, id) {
-					// Durch alle "Match" und "Spieler" XML Tags iterieren
+				
 
 
 	                    client.hmset('Match ' + id, {
@@ -544,7 +543,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                //Setze Contenttype der Antwort auf application/atom+xml
                     res.set("Content-Type", 'application/atom+xml');
            
-                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
+                    //Schicke das URI-Template für das angelegte Match via Location-Header zurück
 	                res.set("Location", "/Match/" + id).status(201);
 	                
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
@@ -560,7 +559,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                 res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
                 
-                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
                 res.end();
 	    }
 	  }
@@ -642,7 +641,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                 res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
                 
-                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
                 res.end();
 	    }
 	                }
@@ -653,9 +652,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	app.delete('/Match/:MatchId', function(req, res) {
 
         var matchId = req.params.MatchId;
-
+		
+		
         client.exists('Match ' + matchId, function(err, IdExists) {
-               
+               // Match unter der angegebenen ID existiert in der DB
                if(IdExists == 1) {
 	           
                     client.del('Match ' + matchId);
@@ -679,7 +679,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 //Lokalitaet
 
-    app.get('/Lokalitaet/:LokalitaetId/Kickertisch', function(req, res) {
+    app.get('/Lokalitaet/:LokalitaetId/', function(req, res) {
         
         
         var LokalitaetId = req.params.LokalitaetId;
@@ -697,9 +697,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	                case "application/atom+xml":
                             
-                        client.hgetall('Match ' + MatchId,function(err,obj) {
+                        client.hgetall('Lokalitaet ' + LokalitaetId,function(err,obj) {
 		                   
-		                var LokalitaetZu = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
+		                var LokalitaetZu = builder.create('Lokalitaet',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
 .ele(obj)
 .end({ pretty: true });
 	                    
@@ -727,6 +727,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 
 	});
+
 
     app.put('/Lokalitaet/:LokalitaetId', parseXML, function(req, res)) {
             
@@ -811,7 +812,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
     
 
 
-    app.post('/Lokalitaet/:Lokalitaet', parseXML, function(req, res) {
+
+    app.post('/Lokalitaet/', parseXML, function(req, res) {
+
         
         //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
         var contentType = req.get('Content-Type');
@@ -849,7 +852,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     res.set("Content-Type", 'application/atom+xml');
            
                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
-	                res.set("Location", "/Benutzer/" + id).status(201);
+	                res.set("Location", "/Lokalitaet/" + id).status(201);
 	                
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
                     res.write(' '+req.body);
@@ -863,18 +866,18 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 
 
-    app.delete('/Match/:MatchId', function(req, res) {
+    app.delete('/Lokalitaet/:LokalitaetId', function(req, res) {
 
         var LokalitaetId = req.params.LokalitaetId;
 
-        client.exists('Match ' + matchId, function(err, IdExists) {
+        client.exists('Match ' + LokalitaetId, function(err, IdExists) {
                
                if(IdExists) {
 	           
                     client.del('Lokalitaet ' + LokalitaetId);
                     
                     //Alles ok , sende 200 
-                    res.status(200).send("Das hat funktioniert! Lokalitaet mit alle Tischen gelöscht");
+                    res.status(200).send("Das hat funktioniert! Lokalitaet mit allen Tischen gelöscht");
                     
                     //Antwort beenden
                     res.end();
