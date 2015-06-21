@@ -649,6 +649,30 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                 });
 	            }
 	});
+	
+	app.delete('/Match/:MatchId', function(req, res) {
+
+        var matchId = req.params.MatchId;
+
+        client.exists('Match ' + matchId, function(err, IdExists) {
+               
+               if(IdExists == 1) {
+	           
+                    client.del('Match ' + matchId);
+                    
+                    //Alles ok , sende 200 
+                    res.status(200).send("Das hat funktioniert! Match gelöscht");
+                    
+                    //Antwort beenden
+                    res.end();
+                }
+                else {
+	               
+	                res.status(404).send("Die Ressource wurde nicht gefunden.");
+                    res.end();
+                }
+            });
+	    });
 
 	// / MATCH // 
 	// / MATCH //
