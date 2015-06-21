@@ -494,6 +494,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 
 	                    client.hmset('Match ' + id, {
+                            
 		                    'Datum' : xml.Match.Datum,
 		                    'Uhrzeit': xml.Match.Uhrzeit,
                             'Austragungsort': xml.Match.Austragungsort, 
@@ -507,9 +508,16 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             
                           	                    });
                     
-	                res.set("Location", "/Match/" + id);
-	                res.status(201).send("Match angelegt!");
-	                //Antwort beenden 
+	                //Setze Contenttype der Antwort auf application/atom+xml
+                    res.set("Content-Type", 'application/atom+xml');
+           
+                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
+	                res.set("Location", "/Match/" + id).status(201);
+	                
+                    //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
+                    res.write(' '+req.body);
+                    
+	                //Anfrage beenden 
 	                res.end();
 	            });
 	        });
@@ -541,7 +549,21 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	        //Antwort beenden
 	        res.end();
 	    } else {
-		// Parser Modul um req.body von XML in JSON zu wandeln
+            //Req.body als XML Parsen 
+            var parsedXML = libxml.parseXml(req.body);
+        
+	       
+	       //Das geparste XML gegen das XSD validieren 
+            var validateAgXSD = parsedXML.validate(xsdDoc);
+        
+/*
+            console.log("XML Validierungsfehler:");
+           console.log(parsedXML.validationErrors);
+*/
+	
+            // Verschicktes XML nach XSD Schema gültig
+            if(validateAgXSD) {
+		    // Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 
 	            var matchId = req.params.MatchId;
@@ -558,27 +580,40 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	                } else {
 
-	                    // Durch alle "Match" und "Spieler" XML Tags iterieren 
-	                    for (var i = 0; i < xml.kickercheck.Match.length; i++) {
 
-	                        client.hmset('Match ' + matchId, {
-	                            'Spieler': xml["kickercheck"]["Match"][i]["Spieler"],
-	                            'Kickertisch': xml["kickercheck"]["Match"][0]["Kickertisch"],
-	                            'Datum': xml["kickercheck"]["Match"][0]["Datum"],
-	                            'Uhrzeit': xml["kickercheck"]["Match"][0]["Uhrzeit"],
-	                            'Spielstand': xml["kickercheck"]["Match"][0]["Spielstand"]
-	                        });
-	                    }
+                        client.hmset('Match ' + id, {
+                            
+		                    'Datum' : xml.Match.Datum,
+		                    'Uhrzeit': xml.Match.Uhrzeit,
+                            'Austragungsort': xml.Match.Austragungsort, 
+                            
+ 	                        'Teilnehmer': xml.Match.link[0],
+                            'Teilnehmer2': xml.Match.link[1],
+                            'Teilnehmer3': xml.Match.link[2],
+                            'Teilnehmer4': xml.Match.link[3],
+                          	                    });
+	                    
+                            //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
+                             res.status(200).set('Content-Type', 'application/atom+xml');
+                             
+                             //Liefere Repräsentation der geänderten Ressource zurück 
+							res.write(' '+req.body);
 
-	                    //Alles ok , sende 200 
-	                    res.status(200).send("Das hat funktioniert! Match geändert.");
-
-	                    //Antwort beenden
-	                    res.end();
+                            //Antwort beenden
+	                        res.end();
 	                }
 	            });
 	        });
 	    }
+        else {
+		     console.log(parsedXML.validationErrors);
+		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+                res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
+                
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                res.end();
+	    }
+	  }
 	});
 
 	// / MATCH // 
