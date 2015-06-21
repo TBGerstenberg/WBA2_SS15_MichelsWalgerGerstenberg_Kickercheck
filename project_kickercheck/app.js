@@ -501,7 +501,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
  	                        'Teilnehmer': xml.Match.link[0],
                             'Teilnehmer2': xml.Match.link[1],
                             'Teilnehmer3': xml.Match.link[2],
-                            'Teilnehmer4': xml.Match.link[3]
+                            'Teilnehmer4': xml.Match.link[3],
+                            
+                            'Spielstand' : xml.Match.link[4]
+                            
                           	                    });
                     
 	                res.set("Location", "/Match/" + id);
