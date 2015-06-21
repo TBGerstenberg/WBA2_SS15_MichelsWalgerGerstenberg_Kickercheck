@@ -418,29 +418,39 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Match ' + matchId, function(err, IdExists) {
+                //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
+	            if (!IdExists) {
+                        res.status(404).send("Die Ressource wurde nicht gefunden.");
+	                    res.end();
+                }
+                else{
 
-	        //client.exists hat false geliefert 
-	        if (!IdExists) {
+           
+                    var acceptedTypes = req.get('Accept');
+                    switch (acceptedTypes) {
 
-	            res.status(404).send("Die Ressource wurde nicht gefunden.");
-	            res.end();
+	                case "application/atom+xml":
+                            
+                        client.hgetall('Match ' + MatchId,function(err,obj) {
+		                   
+		                var MatchZu = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
+.ele(obj)
+.end({ pretty: true });
+	                    
+	                    //Server antwortet mit einer Matchrerpräsentation 
+							res.set("Content-Type","application/atom+xml");
+							//Antworte mit Content Type 200 - OK , schreibe Benutzerrepräsentation in den Body 
+	                        res.status(200).write(' '+MatchZu);
+	                        //Antwort beenden        
+							res.end();
+	                       });
+                        break;
 
-	        }
-            else {
-
-	            var acceptedTypes = req.get('Accept');
-	            switch (acceptedTypes) {
-
-	                case "text/html":
-	                    //Html repr. bauen
-	                    res.status(200).send("Match: " + matchId);
-
-	                    break;
-
-
-	                default:
-	                    //We cannot send a representation that is accepted by the client 
-	                    res.status(406).send("Content Type wird nicht unterstuetzt");
+	                 default:
+	                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
+	                        res.status(406).send("Content Type wird nicht unterstuetzt");
+	                        //Antwort beenden        
+							res.end();
 	                    break;
 
 	            }
