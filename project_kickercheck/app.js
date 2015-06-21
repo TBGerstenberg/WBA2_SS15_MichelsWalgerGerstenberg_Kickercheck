@@ -431,7 +431,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    });
 	});
 	
-		// MATCH // 
 	// MATCH //
 
 	//Match Methoden
@@ -441,7 +440,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Match ' + matchId, function(err, IdExists) {
-                //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
+                //Das Match existiert im System 
 	            if (!IdExists) {
                         res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                    res.end();
@@ -462,7 +461,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                    
 	                    //Server antwortet mit einer Matchrerpräsentation 
 							res.set("Content-Type","application/atom+xml");
-							//Antworte mit Content Type 200 - OK , schreibe Benutzerrepräsentation in den Body 
+							//Antworte mit Content Type 200 - OK , schreibe Matchrepräsentation in den Body 
 	                        res.status(200).write(' '+MatchZu);
 	                        //Antwort beenden        
 							res.end();
@@ -488,7 +487,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	app.post('/Match', parseXML, function(req, res) {
 
 
-	    //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
+	    //Abruf eines Matches, nur dann wenn client html verarbeiten kann 
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
@@ -523,7 +522,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 			
 			
 	            client.incr('MatchId', function(err, id) {
-					// Durch alle "Match" und "Spieler" XML Tags iterieren
+				
 
 
 	                    client.hmset('Match ' + id, {
@@ -544,7 +543,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                //Setze Contenttype der Antwort auf application/atom+xml
                     res.set("Content-Type", 'application/atom+xml');
            
-                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
+                    //Schicke das URI-Template für das angelegte Match via Location-Header zurück
 	                res.set("Location", "/Match/" + id).status(201);
 	                
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
@@ -560,7 +559,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                 res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
                 
-                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
                 res.end();
 	    }
 	  }
@@ -642,7 +641,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                 res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
                 
-                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
                 res.end();
 	    }
 	                }
@@ -653,9 +652,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	app.delete('/Match/:MatchId', function(req, res) {
 
         var matchId = req.params.MatchId;
-
+		
+		
         client.exists('Match ' + matchId, function(err, IdExists) {
-               
+               // Match unter der angegebenen ID existiert in der DB
                if(IdExists == 1) {
 	           
                     client.del('Match ' + matchId);
