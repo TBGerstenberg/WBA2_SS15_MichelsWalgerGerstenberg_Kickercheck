@@ -169,7 +169,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                    
 	                    client.hgetall('Benutzer ' + benutzerId,function(err,obj) {
 		                   
-		                var benutzerZu = builder.create('kickercheck',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:atom',atomNS).att('xmlns:kickercheck', kickerNS)
+		                var benutzerZu = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
 .ele(obj)
 .end({ pretty: true });
 
@@ -548,7 +548,23 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	        //Antwort beenden
 	        res.end();
+	        
 	    } else {
+		    
+		     var matchId = req.params.MatchId;
+
+	            //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+	            client.exists('Match ' + matchId, function(err, IdExists) {
+
+	                //client.exists hat false geliefert 
+	                if (!IdExists) {
+
+	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
+	                    res.end();
+
+
+	                }
+	                 else {
             //Req.body als XML Parsen 
             var parsedXML = libxml.parseXml(req.body);
         
@@ -565,21 +581,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             if(validateAgXSD) {
 		    // Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
-
-	            var matchId = req.params.MatchId;
-
-	            //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-	            client.exists('Match ' + matchId, function(err, IdExists) {
-
-	                //client.exists hat false geliefert 
-	                if (!IdExists) {
-
-	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
-	                    res.end();
-
-
-	                } else {
-
 
                         client.hmset('Match ' + matchId, {
                             
@@ -601,11 +602,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
                             //Antwort beenden
 	                        res.end();
+	                });
 	                }
-	            });
-	        });
-	    }
-        else {
+	                 else {
 		     console.log(parsedXML.validationErrors);
 		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                 res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
@@ -613,7 +612,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
                 res.end();
 	    }
-	  }
+	                }
+	                 });
+	            }
 	});
 
 	// / MATCH // 

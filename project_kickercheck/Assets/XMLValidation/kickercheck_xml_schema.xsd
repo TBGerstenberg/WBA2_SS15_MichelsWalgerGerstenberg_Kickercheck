@@ -125,7 +125,7 @@
             <xsd:element ref="Austragungsort" />
 <!-- 			<xsd:element ref="Spielstand"/> -->
 			<!--Ein Match kann auch leer angelegt werden , hat aber maximal 4 Teilnehmer + seinen Austragungsort    -->
-            <xsd:element ref="link" minOccurs="0" maxOccurs="4"/>
+            <xsd:element ref="link" minOccurs="0" maxOccurs="5"/>
         </xsd:sequence>
     </xsd:complexType>
     
