@@ -455,11 +455,22 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                case "application/atom+xml":
                             
                         client.hgetall('Match ' + matchId,function(err,obj) {
+	                        
+                        console.log(util.inspect(obj, {showHidden: false, depth: null}));
+	                       
+/*
+	                        builder2 = new xml2js.Builder();
+	                        
+	                        
 		                   
+		                   var MatchZu = builder2.buildObject(obj);
+						
+*/
+
 		                var MatchZu = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
 .ele(obj)
 .end({ pretty: true });
-	                    
+
 	                    //Server antwortet mit einer Matchrerpräsentation 
 							res.set("Content-Type","application/atom+xml");
 							//Antworte mit Content Type 200 - OK , schreibe Matchrepräsentation in den Body 
@@ -518,20 +529,17 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 			
 			
-			console.log(util.inspect(xml, {showHidden: false, depth: null}));
-			
-			
-			
+// 			console.log(util.inspect(xml, {showHidden: false, depth: null}));
+
 	            client.incr('MatchId', function(err, id) {
 				
 
 
-	                    client.hmset('Match ' + id, {
+	                client.hmset('Match ' + id, {
                             
 		                    'Datum' : xml.Match.Datum,
 		                    'Uhrzeit': xml.Match.Uhrzeit,
                             'Austragungsort': xml.Match.Austragungsort, 
-                            
  	                        'Teilnehmer': xml.Match.link[0],
                             'Teilnehmer2': xml.Match.link[1],
                             'Teilnehmer3': xml.Match.link[2],
@@ -540,7 +548,15 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             'Spielstand' : xml.Match.link[4]
                             
                           	                    });
-                    
+                          	     
+                          	     /*
+	                          	     
+	                          	     redis mag keine objekte, link[0] ist ein nested json das man in redis nicht speichern kann bzw. später
+	                          	     nicht mehr anzeigen. alternativen? mongodb, aber sehr aufwendig
+	                          	     
+	                          	     */
+                          	                    
+                    	
 	                //Setze Contenttype der Antwort auf application/atom+xml
                     res.set("Content-Type", 'application/atom+xml');
            
@@ -700,12 +716,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             
                         client.hgetall('Lokalitaet ' + LokalitaetId,function(err,obj) {
 	                        
-	                       
-	                
-/*
-	                  var builder2 = new xml2js.Builder({rootName:'Lokalitaet'});
-	                  
-*/
+	                    
 		          	                   
 		          
 		                var LokalitaetZu = builder.create('Lokalitaet',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
@@ -908,14 +919,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 }
             });
 	    });
-
-
-
-
-
-
-
-
 
 
 	// KICKERTISCH // 
