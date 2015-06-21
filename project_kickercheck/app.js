@@ -581,7 +581,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                } else {
 
 
-                        client.hmset('Match ' + id, {
+                        client.hmset('Match ' + matchId, {
                             
 		                    'Datum' : xml.Match.Datum,
 		                    'Uhrzeit': xml.Match.Uhrzeit,
