@@ -784,7 +784,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                       client.hmset('Lokalitaet ' + id,{
                             'Name' : xml.Lokalitaet.Name,
                             'Beschreibung' : xml.Lokalitaet.Beschreibung,
-                            'Kickertisch' : xml.Lokalitaet.link
+                            'Kickertisch' : 'Lokalitaet/'+id+'/Kickertisch'
                         });
                  
                  
@@ -864,13 +864,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                      'Name' : xml.Lokalitaet.Name,
                                      'Beschreibung' : xml.Lokalitaet.Beschreibung
                                  });
-                                 
-                                 for(var i = 1; i< xml.Lokalitaet.link.length; i++){
-                                 client.hmset('Lokalitaet ' + LokalitaetId, {
-                                    'Kickertisch' : xml.Lokalitaet.link[i]
-                                 });
-                                 }
-	                    
+
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
                              res.status(200).set('Content-Type', 'application/atom+xml');
                              
