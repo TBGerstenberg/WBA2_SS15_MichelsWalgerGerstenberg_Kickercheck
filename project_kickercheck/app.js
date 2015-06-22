@@ -549,8 +549,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 		    // Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
-						
-						
+							
  			console.log(util.inspect(xml.Match.Austragungsort[0].link[0].$.href, {showHidden: false, depth: null}));
 
 	            client.incr('MatchId', function(err, id) {
@@ -567,7 +566,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             'Spielstand' : 'http://localhost:3000/Match/'+id+'/Spielstand'
                         });
     
-                 
 	                //Setze Contenttype der Antwort auf application/atom+xml
                     res.set("Content-Type", 'application/atom+xml');
            
@@ -1497,18 +1495,67 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	//Server lauscht auf Anfragen auf Port 3000
 	app.listen(3000);
 
+    /*
+    Params: Ressource = String der die Ressource identifiziert, hier muss der String rein unter dem die Ressource auch in der Datenbank liegt
+            id = Id der Ressource 
+    
+    */
+
     function buildRep(Ressource,id){
         
         switch(Ressource){
-        
-            case Lokalitaet:
+                
+            case "Match":
+                
+                client.hgetall('Match '+id,function(err,obj){
+                                       
+                    var match_object={
+                        Match:{
+                            Datum:obj.Datum,
+                            Uhrzeit:obj.Uhrzeit,
+                            Austragungsort:austragungsortLinkElement,
+                            Teilnehmer1:generateLinkELementFromHref("Teilnehmer1",benutzerRel,obj.Teilnehmer1), 
+                            Teilnehmer2:generateLinkELementFromHref("Teilnehmer2",benutzerRel,obj.Teilnehmer2), 
+                            Teilnehmer3:generateLinkELementFromHref("Teilnehmer3",benutzerRel,obj.Teilnehmer3), 
+                            Teilnehmer4:generateLinkELementFromHref("Teilnehmer4",benutzerRel,obj.Teilnehmer4), 
+                            Spielstand:generateLinkELementFromHref("Spielstand",spielstandRel,obj.Spielstand)
+                        }
+                    }
+                    
+                    //Parse XML und return 
+                    
+                });
+                
+            break;   
+                
+           //Wir wollen eine Benutzerrepräsentation des Benutzers unter der ID bauen 
+           case "Benutzer":
+                
+               client.hgetall('Benutzer '+id,function(err,obj){
+                     
+                    //Objekt das später geparst wird 
+                     var benutzer_object = {  
+                        Benutzer: {
+                            Name: obj.Name,
+                            Alter: obj.Alter,
+                            Position: obj.Position,
+                            Bild: obj.Bild
+                        }
+                    }
+
+                     //Parse zu XML und return
+                });
+            break;
+                
+            //Wir wollen eine Lokalitaetsrepräsentation der Lokalitaet unter der ubergebenen URI zusammenbauen 
+            case "Lokalitaet":
                 
                 client.hgetall('Lokalitaet '+ id,function(err,obj){
                         
-                        //JS Objekt mit Daten aus der Datenbank füllen 
-                        var lokalitaet_object = {  
-                        Name: obj.Lokalitaet.Name,
-                        Beschreibung: obj.Lokalitaet.Beschreibung,
+                        //JS Objekt mit Daten aus der Datenbank füllen , das Root Element <lokalitaet> ist nicht in der DB, daher hier nicht                         benötigt um die Werte auszulesen  
+                        var lokalitaet_object ={  
+                        Name: obj.Name,
+                        Beschreibung: obj.Beschreibung,
                         Kickertisch: {
                         //URI unter der dieser Lokalitaet Tische hinzugefügt werden können 
                            "link" : {'#text':'NULL',                '@title':"TischeHinzufuegen",'@rel':kickertischRel,'@href':"http://localhost:3000/Lokalitaet/"+id+"/Kickertisch"}}
@@ -1535,9 +1582,13 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             }
                             
                             //Linkelement in das LokalitaetObjekt Pushen 
-                            lokalitaet_object.push("link",LinkElement);        
+                            lokalitaet_object.push("link",LinkElement);  
+                    
+                            //Parse als XML und return 
                 });
             break;
+                
+                
                     
         
         
@@ -1549,6 +1600,23 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
     
     
     }
+                               
+           
+/*Generates a Link Object that containt the attributes title , rel and href */                               
+function generateLinkELementFromHref(title,rel,href){
+    
+                    var LinkElement={
+                                '#text':'NULL',
+                                '@title':"title",
+                                '@rel':rel,
+                                '@href':href
+                    }
+                    
+                    return linkElement;
+}                
+                                      
+                               
+                               
 
 
 
