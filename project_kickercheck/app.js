@@ -55,6 +55,7 @@
 	var lokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
 	var spielstandRel = "http://www.kickercheck.de/rels/Spielstand";
 	var benutzerRel = "http://www.kickercheck.de/rels/Benutzer";
+    var kickertischRel="http://www.kickercheck.de/rels/Kickertisch";
 	 
 	var kickertisch_object = {  
     Kickertisch: {
@@ -1486,16 +1487,30 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	//Server lauscht auf Anfragen auf Port 3000
 	app.listen(3000);
 
-    function buildRep(RessourcenURI){
+    function buildRep(Ressource,id){
         
         switch(Ressource){
         
             case Lokalitaet:
-                var LokalitaetObj={
+                
+                client.hgetall('Lokalitaet '+ id,function(err,obj) {
                     
-                
-                
-                }
+                    
+                        var lokalitaet_object = {  
+                        Name: obj.Lokalitaet.Name,
+                        Beschreibung: obj.Lokalitaet.Beschreibung,
+                        Kickertisch: {
+                           "link" : {'#text':'NULL',                '@title':"TischeHinzufuegen",'@rel':kickertischRel,'@href':"http://localhost:3000/Lokalitaet/"+id+"/Kickertisch"}}
+                        }
+                        
+	                        
+                    for(var i=0;i<LAENGELINKLISTE;i++){
+                        lokalitaet_object.push("link",);
+                            
+
+                        
+};
+                    }
         
         
         
