@@ -97,12 +97,11 @@
     <xsd:element name="Lokalitaet" type="LokalitaetTyp"/>
     
     <xsd:complexType name="LokalitaetTyp">
-        <xsd:all>
+         <xsd:choice maxOccurs="unbounded">
             <xsd:element ref="Name"/>
             <xsd:element ref="Beschreibung"/>
-            <!-- Link auf mind. 1 Kickertisch -->
-            <xsd:element ref="link" minOccurs="1"/>
-        </xsd:all>
+            <xsd:element ref="link" minOccurs="0"/>
+        </xsd:choice>
     </xsd:complexType>
 
     <!--Im Doppel kann entweder Sturm oder Verteidigung gespielt werden -->
