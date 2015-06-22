@@ -784,7 +784,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                       client.hmset('Lokalitaet ' + id,{
                             'Name' : xml.Lokalitaet.Name,
                             'Beschreibung' : xml.Lokalitaet.Beschreibung,
-                            'Kickertisch' : 'Lokalitaet/'+id+'/Kickertisch'
+                            'Kickertisch' : 'Lokalitaet/'+id+'/Kickertisch'        
                         });
                  
                  
@@ -862,8 +862,16 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
                                  client.hmset('Lokalitaet ' + LokalitaetId, {
                                      'Name' : xml.Lokalitaet.Name,
-                                     'Beschreibung' : xml.Lokalitaet.Beschreibung
+                                     'Beschreibung' : xml.Lokalitaet.Beschreibung,
+                                     'Kickertisch' : 'Lokalitaet/'+LokalitaetId+'/Kickertisch',
                                  });
+                                 
+                                 client.LPUSH('Lokalitaet' +LokalitaetId + 'Tische' , {
+                                    "xml.Lokalitaet.link[xml.Lokalitaet.link.length-1].$.href"
+                                 }
+                                              
+                                
+                                
 
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
                              res.status(200).set('Content-Type', 'application/atom+xml');
@@ -978,6 +986,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                    'Modell': xml["kickercheck"]["Kickertisch"][0]["Modell"],
 	                    'Zustand': xml["kickercheck"]["Kickertisch"][0]["Zustand"],
 	                    'Bild': xml["kickercheck"]["Kickertisch"][0]["Bild"]
+                        
 	                });
                     
 	                res.set("Location", "/Kickertisch/" + id);
