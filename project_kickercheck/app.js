@@ -642,15 +642,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
                         client.hmset('Match ' + matchId, {
                             
-		                    'Datum' : xml.Match.Datum,
+		                   'Datum' : xml.Match.Datum,
 		                    'Uhrzeit': xml.Match.Uhrzeit,
-                            'Austragungsort': xml.Match.Austragungsort, 
-                            
- 	                        'Teilnehmer': xml.Match.link[0],
-                            'Teilnehmer2': xml.Match.link[1],
-                            'Teilnehmer3': xml.Match.link[2],
-                            'Teilnehmer4': xml.Match.link[3],
-                          	                    });
+                            'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
+ 	                        'Teilnehmer1': xml.Match.link[0].$.href,
+                            'Teilnehmer2': xml.Match.link[1].$.href,
+                            'Teilnehmer3': xml.Match.link[2].$.href,
+                            'Teilnehmer4': xml.Match.link[3].$.href,
+                            'Spielstand' : 'http://localhost:3000/Match/'+matchId+'/Spielstand'                          	                    });
 	                    
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
                              res.status(200).set('Content-Type', 'application/atom+xml');
