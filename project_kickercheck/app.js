@@ -532,7 +532,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		    // Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
 						
-// 			console.log(util.inspect(xml, {showHidden: false, depth: null}));
+						
+ 			console.log(util.inspect(xml.Match.Austragungsort[0].link[0].$.href, {showHidden: false, depth: null}));
 
 	            client.incr('MatchId', function(err, id) {
 				
@@ -540,7 +541,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             
 		                    'Datum' : xml.Match.Datum,
 		                    'Uhrzeit': xml.Match.Uhrzeit,
-                            'Austragungsort': xml.Match.Austragungsort, 
+                            'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
  	                        'Teilnehmer': xml.Match.link[0],
                             'Teilnehmer2': xml.Match.link[1],
                             'Teilnehmer3': xml.Match.link[2],
