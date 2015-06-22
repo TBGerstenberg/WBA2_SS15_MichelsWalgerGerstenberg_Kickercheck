@@ -1503,24 +1503,42 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
         
             case Lokalitaet:
                 
-                client.hgetall('Lokalitaet '+ id,function(err,obj) {
-                    
-                    
+                client.hgetall('Lokalitaet '+ id,function(err,obj){
+                        
+                        //JS Objekt mit Daten aus der Datenbank füllen 
                         var lokalitaet_object = {  
                         Name: obj.Lokalitaet.Name,
                         Beschreibung: obj.Lokalitaet.Beschreibung,
                         Kickertisch: {
+                        //URI unter der dieser Lokalitaet Tische hinzugefügt werden können 
                            "link" : {'#text':'NULL',                '@title':"TischeHinzufuegen",'@rel':kickertischRel,'@href':"http://localhost:3000/Lokalitaet/"+id+"/Kickertisch"}}
                         }
                         
-	                        
-                    for(var i=0;i<LAENGELINKLISTE;i++){
-                        lokalitaet_object.push("link",);
+                        //Key unter dem die Liste der Kickertischlinks zu dieser Lokalitaet zu finden sind 
+                        var listenKey='Lokalitaet'+id+'Tische';
+                    
+                        //Länge der Liste der gespeicherten Links 
+                        var listenLaenge=client.LLEN listenKey; 
+	                   
+                        //Baue alle vorhandenen Links in das JS Objekt 
+                        for(var i=0; i<listenLaenge; i++){
                             
-
-                        
-};
-                    }
+                            //In der DB werden nur die HREFS gespeichert 
+                            var linkHref=client.LINDEX listenKey i;
+                            
+                            //Linkelement zusammenbauen 
+                            var LinkElement={
+                                '#text':'NULL',
+                                '@title':"Kickertisch",
+                                '@rel':kickertischRel,
+                                '@href':linkHref}
+                            }
+                            
+                            //Linkelement in das LokalitaetObjekt Pushen 
+                            lokalitaet_object.push("link",LinkElement);        
+                });
+            break;
+                    
         
         
         
