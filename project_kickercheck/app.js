@@ -546,7 +546,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             'Teilnehmer2': xml.Match.link[1].$.href,
                             'Teilnehmer3': xml.Match.link[2].$.href,
                             'Teilnehmer4': xml.Match.link[3].$.href,
-                            'Spielstand' : 'Match/'+id+'/Spielstand'
+                            'Spielstand' : 'http://localhost:3000/Match/'+id+'/Spielstand'
                         });
     
                           	     /*
@@ -1481,6 +1481,27 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	//Server lauscht auf Anfragen auf Port 3000
 	app.listen(3000);
+
+    function buildRep(RessourcenURI){
+        
+        switch(Ressource){
+        
+            case Lokalitaet:
+                var LokalitaetObj={
+                    
+                
+                
+                }
+        
+        
+        
+        
+        
+        }
+    
+    
+    
+    }
 
 
 
