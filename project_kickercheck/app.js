@@ -94,13 +94,14 @@ gültige Benutzeranfrage
 };
 
  var lokalitaet_object = {  
-  Lokalitaet: {
     Name: "NULL",
 	Beschreibung: "NULL",
-	"atom:link" : {'#text':'NULL', '@title':"NULL",'@rel':lokalitaetRel,'@href':"NULL"}
-  
+	Kickertisch: {
+	"link" : {'#text':'NULL', '@title':"NULL",'@rel':lokalitaetRel,'@href':"NULL"}
   }
 };
+
+ //console.log(util.inspect(lokalitaet_object, {showHidden: false, depth: null}));
 
  var match_object = {  
   Match: [
