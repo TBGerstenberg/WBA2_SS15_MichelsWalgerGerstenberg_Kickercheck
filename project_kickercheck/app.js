@@ -544,12 +544,11 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
  	                        'Teilnehmer': xml.Match.link[0],
                             'Teilnehmer2': xml.Match.link[1],
                             'Teilnehmer3': xml.Match.link[2],
-                            'Teilnehmer4': xml.Match.link[3],
+                            'Teilnehmer4': xml.Match.link[3]
                             
-                            'Spielstand' : xml.Match.link[4]
+//                             'Spielstand' : xml.Match.link[4]
                         });
-                });
-                          	     
+    
                           	     /*
 	                          	     
 	                          	     redis mag keine objekte, link[0] ist ein nested json das man in redis nicht speichern kann bzw. später
@@ -569,8 +568,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                //Anfrage beenden 
 	                res.end();
 	            });
-	        });
-	    }
+	            });
+	        }
 	    else {
 		     console.log(parsedXML.validationErrors);
 		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
