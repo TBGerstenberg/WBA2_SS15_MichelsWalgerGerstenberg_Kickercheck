@@ -542,12 +542,11 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		                    'Datum' : xml.Match.Datum,
 		                    'Uhrzeit': xml.Match.Uhrzeit,
                             'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
- 	                        'Teilnehmer': xml.Match.link[0],
-                            'Teilnehmer2': xml.Match.link[1],
-                            'Teilnehmer3': xml.Match.link[2],
-                            'Teilnehmer4': xml.Match.link[3]
-                            
-//                             'Spielstand' : xml.Match.link[4]
+ 	                        'Teilnehmer': xml.Match.link[0].$.href,
+                            'Teilnehmer2': xml.Match.link[1].$.href,
+                            'Teilnehmer3': xml.Match.link[2].$.href,
+                            'Teilnehmer4': xml.Match.link[3].$.href,
+                            'Spielstand' : 'Match/'+id+'/Spielstand'
                         });
     
                           	     /*
