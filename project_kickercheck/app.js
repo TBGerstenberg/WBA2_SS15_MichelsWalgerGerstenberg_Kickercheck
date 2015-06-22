@@ -94,13 +94,14 @@ gültige Benutzeranfrage
 };
 
  var lokalitaet_object = {  
-  Lokalitaet: {
     Name: "NULL",
 	Beschreibung: "NULL",
-	"atom:link" : {'#text':'NULL', '@title':"NULL",'@rel':lokalitaetRel,'@href':"NULL"}
-  
+	Kickertisch: {
+	"link" : {'#text':'NULL', '@title':"NULL",'@rel':lokalitaetRel,'@href':"NULL"}
   }
 };
+
+ //console.log(util.inspect(lokalitaet_object, {showHidden: false, depth: null}));
 
  var match_object = {  
   Match: [
@@ -459,20 +460,36 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             
                         client.hgetall('Match ' + matchId,function(err,obj) {
 	                        
-                        console.log(util.inspect(obj, {showHidden: false, depth: null}));
-	                       
+//                         console.log(util.inspect(obj, {showHidden: false, depth: null}));
+							
+							
+							
+							var antwortObj= {  
+   Datum: obj.Datum ,
+	Uhrzeit: obj.Uhrzeit ,
+	'#list': [
+		{ "Austragungsort":
+	{ "link" : {'#text':'', '@title':"Austragungsort",'@rel':lokalitaetRel,'@href':obj.Austragungsort } } },
+	{ "link" : {'#text':'', '@title':"Teilnehmer 1",'@rel':benutzerRel,'@href':obj.Teilnehmer1} },
+	{ "link" : {'#text':'', '@title':"Teilnehmer 2",'@rel':benutzerRel,'@href':obj.Teilnehmer2} },
+	{ "link" : {'#text':'', '@title':"Teilnehmer 3",'@rel':benutzerRel,'@href':obj.Teilnehmer3} },
+	{ "link" : {'#text':'', '@title':"Teilnehmer 4",'@rel':benutzerRel,'@href':obj.Teilnehmer4} }
+   ]
+  };
+
+								
+								
+						                       
 /*
-	                        builder2 = new xml2js.Builder();
-	                        
-	                        
-		                   
-		                   var MatchZu = builder2.buildObject(obj);
-						
+	                       builder2 = new xml2js.Builder();
+		                   var MatchZu = builder2.buildObject(obj);						
 */
 
+
 		                var MatchZu = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
-.ele(obj)
+.ele(antwortObj)
 .end({ pretty: true });
+
 
 	                    //Server antwortet mit einer Matchrerpräsentation 
 							res.set("Content-Type","application/atom+xml");
@@ -542,20 +559,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		                    'Datum' : xml.Match.Datum,
 		                    'Uhrzeit': xml.Match.Uhrzeit,
                             'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
- 	                        'Teilnehmer': xml.Match.link[0].$.href,
+ 	                        'Teilnehmer1': xml.Match.link[0].$.href,
                             'Teilnehmer2': xml.Match.link[1].$.href,
                             'Teilnehmer3': xml.Match.link[2].$.href,
                             'Teilnehmer4': xml.Match.link[3].$.href,
                             'Spielstand' : 'http://localhost:3000/Match/'+id+'/Spielstand'
                         });
     
-                          	     /*
-	                          	     
-	                          	     redis mag keine objekte, link[0] ist ein nested json das man in redis nicht speichern kann bzw. später
-	                          	     nicht mehr anzeigen. alternativen? mongodb, aber sehr aufwendig
-	                          	     
-	                          	     */
-                          	                    
+                 
 	                //Setze Contenttype der Antwort auf application/atom+xml
                     res.set("Content-Type", 'application/atom+xml');
            
@@ -632,15 +643,14 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
                         client.hmset('Match ' + matchId, {
                             
-		                    'Datum' : xml.Match.Datum,
+		                   'Datum' : xml.Match.Datum,
 		                    'Uhrzeit': xml.Match.Uhrzeit,
-                            'Austragungsort': xml.Match.Austragungsort, 
-                            
- 	                        'Teilnehmer': xml.Match.link[0],
-                            'Teilnehmer2': xml.Match.link[1],
-                            'Teilnehmer3': xml.Match.link[2],
-                            'Teilnehmer4': xml.Match.link[3],
-                          	                    });
+                            'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
+ 	                        'Teilnehmer1': xml.Match.link[0].$.href,
+                            'Teilnehmer2': xml.Match.link[1].$.href,
+                            'Teilnehmer3': xml.Match.link[2].$.href,
+                            'Teilnehmer4': xml.Match.link[3].$.href,
+                            'Spielstand' : 'http://localhost:3000/Match/'+matchId+'/Spielstand'                          	                    });
 	                    
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
                              res.status(200).set('Content-Type', 'application/atom+xml');
@@ -784,7 +794,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                       client.hmset('Lokalitaet ' + id,{
                             'Name' : xml.Lokalitaet.Name,
                             'Beschreibung' : xml.Lokalitaet.Beschreibung,
-                            'Kickertisch' : xml.Lokalitaet.link
+                            'Kickertisch' : 'Lokalitaet/'+id+'/Kickertisch'
                         });
                  
                  
@@ -864,13 +874,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                      'Name' : xml.Lokalitaet.Name,
                                      'Beschreibung' : xml.Lokalitaet.Beschreibung
                                  });
-                                 
-                                 for(var i = 1; i< xml.Lokalitaet.link.length; i++){
-                                 client.hmset('Lokalitaet ' + LokalitaetId, {
-                                    'Kickertisch' : xml.Lokalitaet.link[i]
-                                 });
-                                 }
-	                    
+
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
                              res.status(200).set('Content-Type', 'application/atom+xml');
                              
