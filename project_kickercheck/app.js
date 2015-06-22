@@ -130,10 +130,10 @@ gültige Matchanfrage PUT
     <Datum>2012-04-12</Datum>
     <Uhrzeit>12:25:00</Uhrzeit>
     <Austragungsort><link title="Austragungsort" rel="http://www.kickercheck.de/rels/Lokalitaet" href="" /></Austragungsort>
- <link title="Teilnehmer 1" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/1" />
-  <link title="Teilnehmer 2" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/2" />
-      <link title="Teilnehmer 3" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/3" />
-  <link title="Teilnehmer 4" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/4" />
+<link title="Teilnehmer 1" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/1" />
+<link title="Teilnehmer 2" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/2" />
+<link title="Teilnehmer 3" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/3" />
+<link title="Teilnehmer 4" rel="http://www.kickercheck.de/rels/Benutzer" href="http://localhost:3000/Benutzer/4" />
 </Match>
 
 */
@@ -264,7 +264,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                
 /*
 	                console.log(xml);
-	                
 	                console.log(xml.Benutzer.Name);
 */
 	                
@@ -286,7 +285,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
 	                res.set("Location", "/Benutzer/" + id).status(201);
 	                
-	         
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
                     res.write(' '+req.body);
                     
@@ -301,7 +299,12 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	            //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                 res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
                 
-                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt
+                /*	var benutzerZu = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',                    kickerNS).ele('link',{'rel':"Kickercheck/rels/Benutzer"},{'title':"Korrekte Form einer Benutzeranfrage"}).end({ pretty: true }); */
+               
+               
+               // res.write(''+benutzerZu);
+               
                 res.end();
             }
         }
@@ -494,8 +497,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    if (contentType != "application/atom+xml") {
 	        res.set("Accepts", "application/atom+xml");
 	        res.status(406).send("Content Type is not supported");
-	        res.end();
-	    } else {
+	        res.end();    
+	    } 
+        
+        else {
 		    
 		    	//Req.body als XML Parsen 
             var parsedXML = libxml.parseXml(req.body);
@@ -512,19 +517,13 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             // Verschicktes XML nach XSD Schema gültig
             if(validateAgXSD) {
 
-
-		// Parser Modul um req.body von XML in JSON zu wandeln
+		    // Parser Modul um req.body von XML in JSON zu wandeln
 	        xml2jsParser.parseString(req.body, function(err, xml) {
-			
 			
 			console.log(util.inspect(xml, {showHidden: false, depth: null}));
 			
-			
-			
 	            client.incr('MatchId', function(err, id) {
 				
-
-
 	                    client.hmset('Match ' + id, {
                             
 		                    'Datum' : xml.Match.Datum,
@@ -538,7 +537,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             
                             'Spielstand' : xml.Match.link[4]
                             
-                          	                    });
+                        });
                     
 	                //Setze Contenttype der Antwort auf application/atom+xml
                     res.set("Content-Type", 'application/atom+xml');
