@@ -873,14 +873,15 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                  client.hmset('Lokalitaet ' + LokalitaetId, {
                                      'Name' : xml.Lokalitaet.Name,
                                      'Beschreibung' : xml.Lokalitaet.Beschreibung,
-                                     'Kickertisch' : 'Lokalitaet/'+LokalitaetId+'/Kickertisch',
+                                     'Kickertisch' : 'Lokalitaet/'+LokalitaetId+'/Kickertisch'
                                  });
                                  
-                                 client.LPUSH('Lokalitaet' +LokalitaetId + 'Tische' , {
-                                    "xml.Lokalitaet.link[xml.Lokalitaet.link.length-1].$.href"
-                                 }
+                                 client.LPUSH('Lokalitaet' +LokalitaetId + 'Tische' , 
+                                    xml.Lokalitaet.link[xml.Lokalitaet.link.length-1].$.href
+                                 );
                                               
                                 
+                              
                                 
 
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
