@@ -669,23 +669,15 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	});
 	
 	app.delete('/Match/:MatchId', function(req, res) {
-        
-        //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/atom+xml") {
-	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/atom+xml");
-	        //Zeige über den Statuscode und eine Nachricht 
-	        res.status(406).send("Content Type is not supported");
-	        //Antwort beenden
-	        res.end();  
-	    } 
-        
+                
         var matchId = req.params.MatchId;
 
         client.exists('Match ' + matchId, function(err, IdExists) {
+            
                // Match unter der angegebenen ID existiert in der DB
                if(IdExists == 1) {
 	           
+                    //Lösche Eintrag aus der DB
                     client.del('Match ' + matchId);
                     
                     //Alles ok , sende 200 
@@ -694,6 +686,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     //Antwort beenden
                     res.end();
                 }
+            
+                // Match existierte nicht 
                 else {
 	               
 	                res.status(404).send("Die Ressource wurde nicht gefunden.");
@@ -708,6 +702,16 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 //Lokalitaet
 
     app.get('/Lokalitaet/:LokalitaetId', function(req, res) {
+        
+        //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+	    if (contentType != "application/atom+xml") {
+	        //Teile dem Client einen unterstuetzten Type mit 
+	        res.set("Accepts", "application/atom+xml");
+	        //Zeige über den Statuscode und eine Nachricht 
+	        res.status(406).send("Content Type is not supported");
+	        //Antwort beenden
+	        res.end();  
+	    } 
         
         //Angefragte Id extrahieren 
         var LokalitaetId = req.params.LokalitaetId;
@@ -726,46 +730,38 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 var acceptedTypes = req.get('Accept');
                 
                 switch (acceptedTypes) {
+                        
+                    //Client erwartet content type application/atom+xml
                     case "application/atom+xml":
-                            
-                        client.hgetall('Lokalitaet ' + LokalitaetId,function(err,obj) {
-	                        
-	                    
-		          	                   
-		          
-		                var LokalitaetZu = builder.create('Lokalitaet',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
-.ele(obj)
-.end({ pretty: true });
-
- console.log(util.inspect(LokalitaetZu, {showHidden: false, depth: null}));
-	                    
-	                    //Server antwortet mit einer Lokalitaetrepräsentation 
+                        
+                        //Baue Lokalitaetrepräsentation 
+                        buildRep("Lokalitaet",LokalitaetId,function(err,lokalitaetXml){
+                                          
+	                        //Server antwortet mit einer Lokalitaetrepräsentation 
 							res.set("Content-Type","application/atom+xml");
 							
 							//Antworte mit Content Type 200 - OK , schreibe Lokalitaetrepräsentation in den Body 
-	                        res.status(200).write(' '+LokalitaetZu);
+	                        res.status(200).write(''+lokalitaetXml);
+                            
 	                        //Antwort beenden        
 							res.end();
-	                       });
-                        break;
+                        });
+                            
+                    break;
 
-	                 default:
-	                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
-	                        res.status(406).send("Content Type wird nicht unterstuetzt");
-	                        //Antwort beenden        
-							res.end();
-	                    break;
-
+	                default:
+	                   //Der gesendete Accept header enthaelt kein unterstuetztes Format 
+	                   res.status(406).send("Content Type wird nicht unterstuetzt");
+	                   //Antwort beenden        
+                       res.end();
+	                break;
 	            }
 	        }
 	    });
-
-
 	});
 
     app.post('/Lokalitaet/', parseXML, function(req, res) {
 
-        
         //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
         var contentType = req.get('Content-Type');
 
@@ -775,154 +771,183 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	            res.status(406).send("Content Type is not supported");
 	            res.end();
         }
+        
         else{
             //Req.body als XML Parsen 
             var parsedXML = libxml.parseXml(req.body);   
            
-	       
             //Das geparste XML gegen das XSD validieren 
             var validateAgXSD = parsedXML.validate(xsdDoc);
                 
+            //Xml-Instanzdokument war valide
             if(validateAgXSD) {
 
                 // Parser Modul um req.body von XML in JSON zu wandeln
                 xml2jsParser.parseString(req.body, function(err, xml) {
 	                
-	              
-	                
-	                console.log(util.inspect(xml, {showHidden: false, depth: null}));
-           
 				    // LokalitaetId in redis erhöhen, atomare Aktion 
                     client.incr('LokalitaetId', function(err, id) {
 	                    
                         // Setze Hashset auf Key "Benutzer BenutzerId" 
-                      client.hmset('Lokalitaet ' + id,{
+                        client.hmset('Lokalitaet ' + id,{
                             'Name' : xml.Lokalitaet.Name,
                             'Beschreibung' : xml.Lokalitaet.Beschreibung,
-                            'Kickertisch' : 'Lokalitaet/'+id+'/Kickertisch'        
+                            'Kickertisch' : generateLinkELementFromHref("Kickertische hinzufuegen",kickertischRel,'Lokalitaet/'+id+'/Kickertisch')       
                         });
                  
-                 
-                                
-                    //Setze Contenttype der Antwort auf application/atom+xml
-                    res.set("Content-Type", 'application/atom+xml');
+                        //Setze Contenttype der Antwort auf application/atom+xml
+                        res.set("Content-Type", 'application/atom+xml');
            
-                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
-	                res.set("Location", "/Lokalitaet/" + id).status(201);
+                        //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück und zeige mit Statuscode 201 erfolgreiches anlegen an 
+	                    res.set("Location", "/Lokalitaet/" + id).status(201);
 	                
-                    //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                    res.write(' '+req.body);
+                        buildRep("Lokalitaet",id,function(LokalitaetXml){
                     
-	                //Anfrage beenden 
-	                res.end();
-	               });
-	                  });
-	           }
-	           else {
-		     console.log(parsedXML.validationErrors);
-		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
-                
+                            //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
+                            res.write(''+LokalitaetXml);
+                    
+                            //Anfrage beenden 
+	                        res.end();
+                        });
+                    });
+	           });
+	       }
+	       
+           //Xml-Instanzdokument war nicht gültig 
+           else {
+		      console.log(parsedXML.validationErrors);
+               
+              generateHelpForMalformedRequests("Lokalitaet",function(lokalitaetXml){
+                  
+                //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+                res.status(400).write(''+lokalitaetXml);
+              
                 //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
                 res.end();
-	    }
+              });
+	       }
         }
     });
     
      app.put('/Lokalitaet/:LokalitaetId', parseXML, function(req, res) {
             
-            var contentType = req.get('Content-Type');
+        var contentType = req.get('Content-Type');
+         
+        //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+	    if (contentType != "application/atom+xml") {
+            //Teile dem Client einen unterstuetzten Type mit 
+            res.set("Accepts", "application/atom+xml");
+            //Zeige über den Statuscode und eine Nachricht 
+            res.status(406).send("Content Type is not supported"); 
+            //Antwort beenden
+            res.end();   
+        } 
+         
+        else {    
+            //Extrahiere Id aus der Anfrage 
+            var LokalitaetId = req.params.LokalitaetId;
 
-	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	       if (contentType != "application/atom+xml") {
+	        //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+	        client.exists('Lokalitaet ' + LokalitaetId, function(err, IdExists) {
 
-               //Teile dem Client einen unterstuetzten Type mit 
-               res.set("Accepts", "application/atom+xml");
-
-               //Zeige über den Statuscode und eine Nachricht 
-               res.status(406).send("Content Type is not supported");
-               
-               //Antwort beenden
-               res.end();
-	        
-           } else {
-		    
-		     var LokalitaetId = req.params.LokalitaetId;
-
-	            //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-	            client.exists('Lokalitaet ' + LokalitaetId, function(err, IdExists) {
-
-	                //client.exists hat false geliefert 
-	                if (!IdExists) {
-
+	           //client.exists hat false geliefert 
+	           if (!IdExists) {
 	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                    res.end();
-
-
-	                }
-	               
-                    else {
-                        //Req.body als XML Parsen 
-                        var parsedXML = libxml.parseXml(req.body);
+	           }
+	           
+               //Ressource existiert     
+               else {
+                    //Req.body als XML Parsen 
+                    var parsedXML = libxml.parseXml(req.body);
            
-                         //Das geparste XML gegen das XSD validieren 
-                         var validateAgXSD = parsedXML.validate(xsdDoc);
+                    //Das geparste XML gegen das XSD validieren 
+                    var validateAgXSD = parsedXML.validate(xsdDoc);
         
-                         // Verschicktes XML nach XSD Schema gültig
-                         if(validateAgXSD) {
-                             // Parser Modul um req.body von XML in JSON zu wandeln
-                             xml2jsParser.parseString(req.body, function(err, xml) {
-	                             
-	                             console.log(util.inspect(xml, {showHidden: false, depth: null}));
-
-                                 client.hmset('Lokalitaet ' + LokalitaetId, {
-                                     'Name' : xml.Lokalitaet.Name,
-                                     'Beschreibung' : xml.Lokalitaet.Beschreibung,
-                                     'Kickertisch' : 'Lokalitaet/'+LokalitaetId+'/Kickertisch'
-                                 });
+                    // Verschicktes XML nach XSD Schema gültig
+                    if(validateAgXSD) {
+                        
+                        // Parser Modul um req.body von XML in JSON zu wandeln
+                        xml2jsParser.parseString(req.body, function(err, xml) {
+	                        
+                            //Aendere Einträge in der Datenbank mit gelieferten Werten 
+                            client.hmset('Lokalitaet ' + LokalitaetId, {
+                                'Name' : xml.Lokalitaet.Name,
+                                'Beschreibung' : xml.Lokalitaet.Beschreibung,
+                                'Kickertisch' : 'Lokalitaet/'+LokalitaetId+'/Kickertisch'
+                            });
                                  
-                                 client.LPUSH('Lokalitaet'+LokalitaetId+'Tische', 
-                                    xml.Lokalitaet.link[xml.Lokalitaet.link.length-1].$.href
-                                 );
+                            //Jede Lokalitaet bekommt intern eine Liste mit ihren Kickertischen, es wird bei jeder Anfrage der Letzte Link 
+                            //dieser Liste hinzugefügt 
+                            client.LPUSH('Lokalitaet'+LokalitaetId+'Tische', 
+                                xml.Lokalitaet.link[xml.Lokalitaet.link.length-1].$.href
+                            );
                                               
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
-                             res.status(200).set('Content-Type', 'application/atom+xml');
-                             
-                             //Liefere Repräsentation der geänderten Ressource zurück 
-							res.write(' '+req.body);
+                            res.status(200).set('Content-Type', 'application/atom+xml');
+                            
+                            //Baue Repräsentation der Lokalitaet zusammen und schriebe sie in res.body 
+                            buildRep("Lokalitaet",LokalitaetId,function(lokalitaetXml){
+                                
+                                //Liefere Repräsentation der geänderten Ressource zurück 
+				                res.write(''+lokalitaetXml);
 
-                            //Antwort beenden
-	                        res.end();
-	                       });
-	                   }
-                        
-	                   else {
-                       console.log(parsedXML.validationErrors);
-                         
-		                //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                        res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
-                
-                        //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
-                        res.end();
-	                   }
+                                //Antwort beenden
+	                            res.end();
+                            });
+                            
+	                   });
 	               }
-	           });
-	       }
+                    
+                   //Anfrage hat Validation nicht bestanden 
+	               else {
+                       
+                        console.log(parsedXML.validationErrors);
+                       
+                        generateHelpForMalformedRequests("Lokalitaet",function(lokalitaetId){
+                            
+                            //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+                            res.status(400).write(LokalitaetId);
+                
+                            //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
+                            res.end();
+                        });
+	               }
+	           }
+	       });
+	   }
 	});
 	
-
     app.delete('/Lokalitaet/:LokalitaetId', function(req, res) {
 
+        //Extrahiere Id aus der Anfrage 
         var LokalitaetId = req.params.LokalitaetId;
 
-        client.exists('Match ' + LokalitaetId, function(err, IdExists) {
-               
-               if(IdExists) {
-	           
-                    client.del('Lokalitaet ' + LokalitaetId);
+        //Prüfe ob Lokalitaet existiert 
+        client.exists('Lokalitaet ' + LokalitaetId, function(err, IdExists) {
+            
+            //Lokalitaet existiert 
+            if(IdExists) {
+                
+	            //Entferne EIntrag aus der Datenbank 
+                client.del('Lokalitaet ' + LokalitaetId);
+                
+                //Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
+                var listenKey="Loklitaet" + id + "Tische";
+                        
+                        //Länge der Liste der gespeicherten Links 
+                        client.LLEN(listenLaenge,function(err,obj){
+                            
+                            //Baue alle vorhandenen Links in das JS Objekt 
+                            for(var i=0; i<listenLaenge; i++){
+                                
+                            
+  
+                           }
+                        });
                     
-                    //Alles ok , sende 200 
-                    res.status(200).send("Das hat funktioniert! Lokalitaet mit allen Tischen gelöscht");
+                //Alles ok , sende 200 
+                res.status(200).send("Das hat funktioniert! Lokalitaet mit allen Tischen gelöscht");
                     
                     //Antwort beenden
                     res.end();
@@ -1399,10 +1424,15 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	//Server lauscht auf Anfragen auf Port 3000
 	app.listen(3000);
 
+
+
+    // Helper Functions 
     
-    //Params: 
-    //Ressource = String der die Ressource identifiziert, hier muss der String rein unter dem die Ressource auch in der Datenbank liegt
-    //id = Id der Ressource 
+
+    /* Erstellt eine XML Repräsentation einer Ressource 
+    Params: 
+    Ressource = String der die Ressource identifiziert, hier muss der String rein unter dem die Ressource auch in der Datenbank liegt
+    id = Id der Ressource */
     function buildRep(Ressource,id,callback){
         
         switch(Ressource){
