@@ -304,17 +304,16 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	            //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                 res.status(400);
                 
-                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt
-                var linkElement =generateLinkELementFromHref("korrekte Form einer Benutzeranfrage",benutzerRel,benutzerRel);
+                //Verweise auf eine Relpage mit der korrekten Form einer Benutzeranfrage 
+                generateHelpForMalformedRequests("Benutzer",function(benutzerXML){
+                              
+                    //Schreibe Linkelement in den Body der Anfrage 
+                    res.write(''+benutzerXML);
+                
+                    //Anfrage beenden
+                    res.end();
                
-                //Parse als XML 
-                var benutzerXML = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele('link',linkElement).end({ pretty: true }); 
-               
-                //Schreibe Linkelement in den Body der Anfrage 
-                res.write(''+benutzerXML);
-               
-                //Anfrage beenden
-                res.end();
+               });
             }
         }
     });
@@ -381,8 +380,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                 //Wenn Content-Type und Validierung gestimmt haben, schicke die geänderte Rep. zurück
                                 buildRep("Benutzer",benutzerId,function(err,benutzerXMLRep){
 
-                                    console.log(benutzerXMLRep);
-
                                     //Setze Contenttype der Antwort auf application/atom+xml
                                     res.set("Content-Type", 'application/atom+xml');
 
@@ -402,19 +399,17 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                            	    //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                                 res.status(400);
                 
-                                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt
-                                var linkElement =generateLinkELementFromHref("korrekte Form einer Benutzeranfrage",benutzerRel,benutzerRel);
+                               //Verweise im Body auf die korrekte Verwendung einer Benutzeranfrage 
+                               generateHelpForMalformedRequests("Benutzer" , function(benutzerXML){
+                                   
+                                    //Schreibe Linkelement in den Body der Anfrage 
+                                    res.write(''+benutzerXML);
 
-                                //Parse als XML 
-                                var benutzerXML = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele('link',linkElement).end({ pretty: true }); 
-
-                                //Schreibe Linkelement in den Body der Anfrage 
-                                res.write(''+benutzerXML);
-
-                                //Anfrage beenden
-                                res.end();  
-	                    }
-                    }
+                                    //Anfrage beenden
+                                    res.end();
+                               });
+	                      }
+                       }
 	                });  
 	            });            
         }
@@ -425,6 +420,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
         var benutzerId = req.params.BenutzerId;
 
         client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
+            
             client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
                
                if(IdExists == 1 && benutzerValid == 1) {
@@ -439,11 +435,13 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     res.end();
                 }
                 
+                //Es gab nie einen Benutzer mit dieser Id
                 else if(IdExists == 1 && benutzerValid == 0) {
 	                res.status(404).send("Die Ressource wurde nicht gefunden.");
                     res.end();
                 }
                 
+                //Der Benutzer wurde für den Zugriff von außen gesperrt 
                 else {
 	                res.status(404).send("Die Ressource wurde nicht gefunden.");
                     res.end();
@@ -461,135 +459,123 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Match ' + matchId, function(err, IdExists) {
-                //Das Match existiert im System 
+            
+                //Das Match existiert nicht im System 
 	            if (!IdExists) {
                         res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                    res.end();
                 }
+            
+                //Das Match existiert 
                 else{
 
+                    //Welchen Content Type kann der client verarbeiten? 
                     var acceptedTypes = req.get('Accept');
+                    
                     switch (acceptedTypes) {
 
-	                case "application/atom+xml":
-                            
-                        client.hgetall('Match ' + matchId,function(err,obj) {
-	                        
-//                         console.log(util.inspect(obj, {showHidden: false, depth: null}));
-							
-							var antwortObj= {  
-                                Datum: obj.Datum ,
-	                            Uhrzeit: obj.Uhrzeit ,
-	                            '#list': [
-		                              { "Austragungsort":
-                                            { "link" : {'#text':'', '@title':"Austragungsort",'@rel':lokalitaetRel,'@href':obj.Austragungsort } } },
-                                      { "link" : {'#text':'', '@title':"Teilnehmer 1",'@rel':benutzerRel,'@href':obj.Teilnehmer1} },
-                                      { "link" : {'#text':'', '@title':"Teilnehmer 2",'@rel':benutzerRel,'@href':obj.Teilnehmer2} },
-                                      { "link" : {'#text':'', '@title':"Teilnehmer 3",'@rel':benutzerRel,'@href':obj.Teilnehmer3} },
-                                      { "link" : {'#text':'', '@title':"Teilnehmer 4",'@rel':benutzerRel,'@href':obj.Teilnehmer4} }
-                                ]
-                            };
+                        case "application/atom+xml":
 
-		                  var MatchZu = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS)
-.ele(antwortObj)
-.end({ pretty: true });
+                            //XML Repräsentation bauen     
+                            buildRep("Match",matchId,function(err,MatchXML){
 
-
-	                    //Server antwortet mit einer Matchrerpräsentation 
-							res.set("Content-Type","application/atom+xml");
-							//Antworte mit Content Type 200 - OK , schreibe Matchrepräsentation in den Body 
-	                        res.status(200).write(' '+MatchZu);
-	                        //Antwort beenden        
-							res.end();
-	                       });
+                                //Server antwortet mit einer Matchrerpräsentation 
+                                res.set("Content-Type","application/atom+xml");
+                                
+                                //Antworte mit Content Type 200 - OK , schreibe Matchrepräsentation in den Body 
+                                res.status(200).write(''+MatchXML);
+                                
+                                //Antwort beenden        
+                                res.end();
+                            });
                         break;
 
-	                 default:
-	                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
-	                        res.status(406).send("Content Type wird nicht unterstuetzt");
-	                        //Antwort beenden        
-							res.end();
+	                    default:
+                            //Der gesendete Accept header enthaelt kein unterstuetztes Format 
+                            res.status(406).send("Content Type wird nicht unterstuetzt");
+                            //Antwort beenden        
+                            res.end();
 	                    break;
-
-	            }
-
-	            
-	        }
+                    }
+	           }  
 	    });
-
-
 	});
 
 	app.post('/Match', parseXML, function(req, res) {
-
-
-	    //Abruf eines Matches, nur dann wenn client html verarbeiten kann 
+        
+	    //Anlegen eines Matches, Anfrage muss den Content Type application/atom+xml haben 
 	    var contentType = req.get('Content-Type');
 
-	    //Check ob der Content Type der Anfrage xml ist 
+        //Content type ist nicht application/atom+xml , zeige im Accept Header gültige content types 
 	    if (contentType != "application/atom+xml") {
 	        res.set("Accepts", "application/atom+xml");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();    
 	    } 
         
+        //Content Type OK 
         else {
-		    
-		    	//Req.body als XML Parsen 
+		      
+            //Req.body als XML Parsen 
             var parsedXML = libxml.parseXml(req.body);
-        
-	       
-	       //Das geparste XML gegen das XSD validieren 
+           
+            //Das geparste XML gegen das XSD validieren 
             var validateAgXSD = parsedXML.validate(xsdDoc);
-        
-/*
-            console.log("XML Validierungsfehler:");
-           console.log(parsedXML.validationErrors);
-*/
-	
+        	
             // Verschicktes XML nach XSD Schema gültig
             if(validateAgXSD) {
 
-		    // Parser Modul um req.body von XML in JSON zu wandeln
-	        xml2jsParser.parseString(req.body, function(err, xml) {
-							
- 			console.log(util.inspect(xml.Match.Austragungsort[0].link[0].$.href, {showHidden: false, depth: null}));
+                // Parser Modul um req.body von XML in JSON zu wandeln
+                xml2jsParser.parseString(req.body, function(err, xml) {
 
-	            client.incr('MatchId', function(err, id) {
-				
-	                client.hmset('Match ' + id, {
-                            
-		                    'Datum' : xml.Match.Datum,
-		                    'Uhrzeit': xml.Match.Uhrzeit,
-                            'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
- 	                        'Teilnehmer1': xml.Match.link[0].$.href,
-                            'Teilnehmer2': xml.Match.link[1].$.href,
-                            'Teilnehmer3': xml.Match.link[2].$.href,
-                            'Teilnehmer4': xml.Match.link[3].$.href,
-                            'Spielstand' : 'http://localhost:3000/Match/'+id+'/Spielstand'
+                    //Erhöhe MatchIds in der DB , atomare Aktion 
+                    client.incr('MatchId', function(err, id) {
+
+                        //Pflege Daten aus Anfrage in die DB ein, von den Linkelementen wird lediglich das href Attribut gespeichert 
+                        client.hmset('Match ' + id, {
+                                'Datum' : xml.Match.Datum,
+                                'Uhrzeit': xml.Match.Uhrzeit,
+                                'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
+                                'Teilnehmer1': xml.Match.link[0].$.href,
+                                'Teilnehmer2': xml.Match.link[1].$.href,
+                                'Teilnehmer3': xml.Match.link[2].$.href,
+                                'Teilnehmer4': xml.Match.link[3].$.href,
+                                'Spielstand' : 'http://localhost:3000/Match/'+id+'/Spielstand'
                         });
-    
-	                //Setze Contenttype der Antwort auf application/atom+xml
-                    res.set("Content-Type", 'application/atom+xml');
-           
-                    //Schicke das URI-Template für das angelegte Match via Location-Header zurück
-	                res.set("Location", "/Match/" + id).status(201);
-	                
-                    //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                    res.write(' '+req.body);
-                    
-	                //Anfrage beenden 
-	                res.end();
-	            });
-	            });
-	        }
+
+                        //Baue Repräsentation des angelegten Mathes 
+                        buildRep("Match",id,function(err,MatchXML){
+
+                            //Setze Contenttype der Antwort auf application/atom+xml
+                            res.set("Content-Type", 'application/atom+xml');
+
+                            //Schicke das URI-Template für das angelegte Match via Location-Header zurück
+                            res.set("Location", "/Match/" + id).status(201);
+
+                            //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
+                            res.write(' '+req.body);
+
+                            //Anfrage beenden 
+                            res.end();
+
+                        });
+                    });
+               });
+	       }
+            
+        //XML entspricht nicht dem XML-Schema 
 	    else {
-		     console.log(parsedXML.validationErrors);
-		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
+		  console.log(parsedXML.validationErrors);
+          
+          //Füge Link in den Body ein der die korrekte Form einer Matchanfrage zeigt 
+          generateHelpForMalformedRequests("Match",function(matchXml){
                 
-                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
-                res.end();
+                    //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+                    res.status(400).write(''+matchXml);
+                
+                    //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
+                    res.end();
+          });
 	    }
 	  }
 	});
@@ -600,88 +586,102 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
 	    if (contentType != "application/atom+xml") {
-
 	        //Teile dem Client einen unterstuetzten Type mit 
 	        res.set("Accepts", "application/atom+xml");
-
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
-
 	        //Antwort beenden
-	        res.end();
-	        
-	    } else {
-		    
-		     var matchId = req.params.MatchId;
+	        res.end();  
+	    } 
+        
+        else {  
+		        var matchId = req.params.MatchId;
 
 	            //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	            client.exists('Match ' + matchId, function(err, IdExists) {
 
-	                //client.exists hat false geliefert 
+	                //Die angeforderte Ressource existiert nicht im System 
 	                if (!IdExists) {
-
 	                    res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                    res.end();
-
-
 	                }
-	                 else {
-            //Req.body als XML Parsen 
-            var parsedXML = libxml.parseXml(req.body);
-        
-	       
-	       //Das geparste XML gegen das XSD validieren 
-            var validateAgXSD = parsedXML.validate(xsdDoc);
-        
-/*
-            console.log("XML Validierungsfehler:");
-           console.log(parsedXML.validationErrors);
-*/
-	
-            // Verschicktes XML nach XSD Schema gültig
-            if(validateAgXSD) {
-		    // Parser Modul um req.body von XML in JSON zu wandeln
-	        xml2jsParser.parseString(req.body, function(err, xml) {
+                    
+	                else {
+                        //Req.body als XML Parsen 
+                        var parsedXML = libxml.parseXml(req.body);
 
-                        client.hmset('Match ' + matchId, {
-                            
-		                   'Datum' : xml.Match.Datum,
-		                    'Uhrzeit': xml.Match.Uhrzeit,
-                            'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
- 	                        'Teilnehmer1': xml.Match.link[0].$.href,
-                            'Teilnehmer2': xml.Match.link[1].$.href,
-                            'Teilnehmer3': xml.Match.link[2].$.href,
-                            'Teilnehmer4': xml.Match.link[3].$.href,
-                            'Spielstand' : 'http://localhost:3000/Match/'+matchId+'/Spielstand'                          	                    });
-	                    
-                            //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
-                             res.status(200).set('Content-Type', 'application/atom+xml');
-                             
-                             //Liefere Repräsentation der geänderten Ressource zurück 
-							res.write(' '+req.body);
 
-                            //Antwort beenden
-	                        res.end();
-	                });
-	                }
-	                 else {
-		     console.log(parsedXML.validationErrors);
-		     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                res.status(400).send("Die Anfrage enthielt keine gütlige Matchrepräsentation.");
-                
-                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
-                res.end();
-	    }
-	                }
-	                 });
-	            }
+                       //Das geparste XML gegen das XSD validieren 
+                        var validateAgXSD = parsedXML.validate(xsdDoc);
+
+                        // Erhaltenes XML nach XSD Schema gültig
+                        if(validateAgXSD) {
+
+                            // Parser Modul um req.body von XML in JSON zu wandeln
+                            xml2jsParser.parseString(req.body, function(err, xml) {
+
+                                client.hmset('Match ' + matchId, {
+
+                                    'Datum' : xml.Match.Datum,
+                                    'Uhrzeit': xml.Match.Uhrzeit,
+                                    'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
+                                    'Teilnehmer1': xml.Match.link[0].$.href,
+                                    'Teilnehmer2': xml.Match.link[1].$.href,
+                                    'Teilnehmer3': xml.Match.link[2].$.href,
+                                    'Teilnehmer4': xml.Match.link[3].$.href,
+                                    'Spielstand' : 'http://localhost:3000/Match/'+matchId+'/Spielstand'                          	                    });
+
+                                    //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
+                                    res.status(200).set('Content-Type', 'application/atom+xml');
+
+                                    //Baue eine XML Repräsentation der angelegten Ressource und schreibe diese in die den Antwortbody
+                                    buildRep("Match",matchId,function(err,matchXml){
+
+                                        //Liefere Repräsentation der geänderten Ressource zurück 
+                                        res.write(''+matchXml);
+
+                                        //Antwort beenden
+                                        res.end();
+                                });
+                            });
+                        }
+
+                       // Erhaltenes XML nach XSD Schema ungültig
+                       else {
+
+                           console.log(parsedXML.validationErrors);
+                           
+                           generateHelpForMalformedRequests("Match",function(matchXml){
+                           
+                                //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+                                res.status(400);
+                               
+                               //Fülle body mit einem Link der die korrekte Form einer Matchanfrage zeigt 
+                                res.write(''+matchXml);
+
+                               //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
+                                res.end();
+                           });
+                       }
+	               }
+	           });
+	       }
 	});
 	
 	app.delete('/Match/:MatchId', function(req, res) {
-
+        
+        //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+	    if (contentType != "application/atom+xml") {
+	        //Teile dem Client einen unterstuetzten Type mit 
+	        res.set("Accepts", "application/atom+xml");
+	        //Zeige über den Statuscode und eine Nachricht 
+	        res.status(406).send("Content Type is not supported");
+	        //Antwort beenden
+	        res.end();  
+	    } 
+        
         var matchId = req.params.MatchId;
-		
-		
+
         client.exists('Match ' + matchId, function(err, IdExists) {
                // Match unter der angegebenen ID existiert in der DB
                if(IdExists == 1) {
@@ -709,21 +709,24 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
     app.get('/Lokalitaet/:LokalitaetId', function(req, res) {
         
-        
+        //Angefragte Id extrahieren 
         var LokalitaetId = req.params.LokalitaetId;
-
+    
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Lokalitaet ' + LokalitaetId, function(err, IdExists) {
-                //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
-	            if (!IdExists) {
-                        res.status(404).send("Die Ressource wurde nicht gefunden.");
-	                    res.end();
-                }
-                else{
-                    var acceptedTypes = req.get('Accept');
-                    switch (acceptedTypes) {
-
-	                case "application/atom+xml":
+            
+            //Die Lokalitaet existiert im System und ist nicht für den Zugriff von außen gesperrt
+	        if (!IdExists) {
+                res.status(404).send("Die Ressource wurde nicht gefunden.");
+	            res.end();
+            }
+            
+            //Angefragte Ressource existiert 
+            else{
+                var acceptedTypes = req.get('Accept');
+                
+                switch (acceptedTypes) {
+                    case "application/atom+xml":
                             
                         client.hgetall('Lokalitaet ' + LokalitaetId,function(err,obj) {
 	                        
@@ -1409,20 +1412,21 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 client.hgetall('Match '+id,function(err,obj){
                     
                     var match_object={
-                        Match:{
                             Datum:obj.Datum,
                             Uhrzeit:obj.Uhrzeit,
-                            Austragungsort:austragungsortLinkElement,
+                            Austragungsort:generateLinkELementFromHref("Austragungsort",lokalitaetRel,obj.Austragungsort),
                             Teilnehmer1:generateLinkELementFromHref("Teilnehmer1",benutzerRel,obj.Teilnehmer1), 
                             Teilnehmer2:generateLinkELementFromHref("Teilnehmer2",benutzerRel,obj.Teilnehmer2), 
                             Teilnehmer3:generateLinkELementFromHref("Teilnehmer3",benutzerRel,obj.Teilnehmer3), 
                             Teilnehmer4:generateLinkELementFromHref("Teilnehmer4",benutzerRel,obj.Teilnehmer4), 
                             Spielstand:generateLinkELementFromHref("Spielstand",spielstandRel,obj.Spielstand)
-                        }
-                    } 
+                    }
+                    
                   //Parse zu XML und return
                   var MatchXMLRep = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS).ele(match_object).end({ pretty: true }); 
-                  return match_object;
+                  
+                  //Rufe Callback mit dem Ergebnis auf  
+                  callback(err,MatchXMLRep);
                 });  
                 
             break;   
@@ -1442,7 +1446,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
  
                     //Parse zu XML und return
                     var BenutzerXMLRep = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele(benutzer_object).end({ pretty: true }); 
-                               
+                     
+                    //Rufe Callback mit dem Ergebnis auf 
                     callback(err,BenutzerXMLRep);
                 });      
             break;
@@ -1452,21 +1457,22 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 
                 client.hgetall('Lokalitaet '+ id,function(err,obj){
                         
-                        //JS Objekt mit Daten aus der Datenbank füllen , das Root Element <lokalitaet> ist nicht in                                             //der DB, daher hier nicht benötigt um die Werte auszulesen  
-                        var lokalitaet_object ={  
-                            Name: obj.Name,
-                            Beschreibung: obj.Beschreibung,
-                            Kickertisch: {
-                            //URI unter der dieser Lokalitaet Tische hinzugefügt werden können 
-                            "link":generateLinkELementFromHref("Tische Hinzufuegen",kickertischRel,"http://localhost:3000/Lokalitaet/"+id+"/Kickertisch")
-                            }
+                    //JS Objekt mit Daten aus der Datenbank füllen , das Root Element <lokalitaet> ist nicht in                                             //der DB, daher hier nicht benötigt um die Werte auszulesen  
+                    var lokalitaet_object ={  
+                        Name: obj.Name,
+                        Beschreibung: obj.Beschreibung,
+                        Kickertisch: {
+                        //URI unter der dieser Lokalitaet Tische hinzugefügt werden können 
+                        "link":generateLinkELementFromHref("Tische Hinzufuegen",kickertischRel,"http://localhost:3000/Lokalitaet/"+id+"/Kickertisch")
                         }
-                            
-                        var listenKey="Loklitaet" + id + "Tische";
-                        console.log(listenKey);
+                    }
+                    
+                    //Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
+                    var listenKey="Loklitaet" + id + "Tische";
                         
                         //Länge der Liste der gespeicherten Links 
                         client.LLEN(listenLaenge,function(err,obj){
+                            
                             //Baue alle vorhandenen Links in das JS Objekt 
                             for(var i=0; i<listenLaenge; i++){
                             
@@ -1484,10 +1490,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                                    
                         //Parse zu XML und return
                         var LokalitaetXMLRep = builder.create('Lokalitaet',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS).ele(lokalitaet_object).end({ pretty: true }); 
-                    return LokalitaetXMLRep;
+                        callback(err,LokalitaetXMLRep);
                 });
             break;
-        }
+        } //EndSwitch
     }
       
 
@@ -1495,12 +1501,43 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 function generateLinkELementFromHref(title,rel,href){
     
     var linkElement={
-        'text':'NULL',
-        'title':"title",
-        'rel':rel,
-        'href':href
+        Link:{
+        '#text':'NULL',
+        '@title':title,
+        '@rel':rel,
+        '@href':href
+        }
     }
                     
     return linkElement;
-}              
+}   
+
+/*Generiert XML-Payloads die übermittelt werden falls ein Request malformed war 
+, diese Dokumente enthalten Links auf die Rel-Seiten des Dienstes 
+um einem Client die korrekte Formatierung einer Anfrage 
+aufzuzeigen
+Parameter : Ressource Typ : String  */
+function generateHelpForMalformedRequests(Ressource,callback){
+    
+    if (typeof Ressource != 'string' && !(Ressource instanceof String)){
+        console.trace();
+        throw "Ressourcenname in generateHelpForMalformedRequests ist kein String";
+        return;
+    }
+    
+     //Um die Richtigen Variablennamen anzusprechen in folgenden AUsdrücken muss der Ressourcenname klein geschrieben sein 
+     Ressource=Ressource.toLowerCase();
+    
+     //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt
+     var linkElement =generateLinkELementFromHref("korrekte Form einer" + Ressource + "Anfrage" ,eval(Ressource+"Rel"),eval(Ressource+"Rel"));
+    console.log(eval(Ressource+"Rel"));
+               
+    //Parse als XML 
+    var RessourceXML = builder.create(Ressource,{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele('link',linkElement).end({ pretty: true }); 
+
+    console.log(RessourceXML);
+    
+    //Rufe Callback Function mit dem Ergebnis auf 
+    callback(RessourceXML);    
+}
                                     
