@@ -429,7 +429,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     client.hmset('Benutzer ' + benutzerId, "isActive", 0);
                     
                     //Alles ok , sende 200 
-                    res.status(200).send("Das hat funktioniert! Benutzer gelöscht");
+                    res.status(204).send("Das hat funktioniert! Benutzer gelöscht");
                     
                     //Antwort beenden
                     res.end();
@@ -681,7 +681,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     client.del('Match ' + matchId);
                     
                     //Alles ok , sende 200 
-                    res.status(200).send("Das hat funktioniert! Match gelöscht");
+                    res.status(204).send("Das hat funktioniert! Match gelöscht");
                     
                     //Antwort beenden
                     res.end();
@@ -947,7 +947,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                         });
                     
                 //Alles ok , sende 200 
-                res.status(200).send("Das hat funktioniert! Lokalitaet mit allen Tischen gelöscht");
+                res.status(204).send("Das hat funktioniert! Lokalitaet mit allen Tischen gelöscht");
                     
                     //Antwort beenden
                     res.end();
