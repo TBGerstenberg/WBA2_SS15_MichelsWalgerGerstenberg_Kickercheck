@@ -195,19 +195,24 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             
 	                    case "application/atom+xml":
                                
-                        var BenutzerXmlRep=buildRep("Benutzer",benutzerId);
-	                    
-	                    client.hgetall('Benutzer ' + benutzerId,function(err,obj) {
-		                   
-		                var benutzerZu = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS).ele(obj).end({ pretty: true });
+                            //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
+                            buildRep("Benutzer",benutzerId,function(err,benutzerXMLRep){
 
-   							//Server antwortet mit einer Benutzerrerpräsentation 
-							res.set("Content-Type","application/atom+xml");
-							//Antworte mit Content Type 200 - OK , schreibe Benutzerrepräsentation in den Body 
-	                        res.status(200).write(' '+benutzerZu);
-	                        //Antwort beenden        
-							res.end();
-	                   });
+                                console.log(benutzerXMLRep);
+
+                                //Setze Contenttype der Antwort auf application/atom+xml
+                                res.set("Content-Type", 'application/atom+xml');
+
+                                //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
+                                res.status(200);
+
+                                res.write(''+benutzerXMLRep);
+
+                                //Anfrage beenden 
+                                res.end();
+
+                            }); 
+                            
                         break;
                             
 	                    default:
@@ -264,28 +269,32 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 				    // BenutzerId in redis erhöhen, atomare Aktion 
                     client.incr('BenutzerId', function(err, id) {
 	                    
-                    // Setze Hashset auf Key "Benutzer BenutzerId" 
-                    client.hmset('Benutzer ' + id,{
-                        'Name': xml.Benutzer.Name,
-                        'Alter': xml.Benutzer.Alter,
-                        'Position': xml.Benutzer.Position,
-                        'Bild': xml.Benutzer.Bild,
-                        'isActive': 1
-                    });
+                        // Setze Hashset auf Key "Benutzer BenutzerId" 
+                        client.hmset('Benutzer ' + id,{
+                            'Name': xml.Benutzer.Name,
+                            'Alter': xml.Benutzer.Alter,
+                            'Position': xml.Benutzer.Position,
+                            'Bild': xml.Benutzer.Bild,
+                            'isActive': 1
+                        });
                     
-                    //Setze Contenttype der Antwort auf application/atom+xml
-                    res.set("Content-Type", 'application/atom+xml');
-           
-                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
-	                res.set("Location", "/Benutzer/" + id).status(201);
-	                
-                    //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                    var benutzerXML=buildRep("Benutzer",id);    
+                        //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
+                        buildRep("Benutzer",id,function(err,benutzerXMLRep){
                         
-                    res.write(benutzerXML);
-                    
-	                //Anfrage beenden 
-	                res.end();
+                            console.log(benutzerXMLRep);
+
+                            //Setze Contenttype der Antwort auf application/atom+xml
+                            res.set("Content-Type", 'application/atom+xml');
+
+                            //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
+                            res.set("Location", "/Benutzer/" + id).status(201);
+
+                            res.write(''+benutzerXMLRep);
+
+                            //Anfrage beenden 
+                            res.end();
+                             
+                        });       
 	               });
 	           });
 	       }
@@ -356,28 +365,36 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             // Verschicktes XML nach XSD Schema gültig
                             if(validateAgXSD) {
 	                            
-	                          // Parser Modul um req.body von XML in JSON zu wandeln
-							  xml2jsParser.parseString(req.body, function(err, xml) {
+                                  // Parser Modul um req.body von XML in JSON zu wandeln
+                                  xml2jsParser.parseString(req.body, function(err, xml) {
 
-                                client.hmset('Benutzer ' + benutzerId, {
-	                                	                                
-                                    'Name': xml.Benutzer.Name,
-                                    'Alter': xml.Benutzer.Alter,
-                                    'Position': xml.Benutzer.Position,
-                                    'Bild': xml.Benutzer.Bild,
-                                    'isActive': 1
-                                });  
-                             });
-							
-				            //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
-                            res.status(200).set('Content-Type', 'application/atom+xml');
-                             
-                             //Liefere Repräsentation der geänderten Ressource zurück 
-							res.write(' '+req.body);
+                                    client.hmset('Benutzer ' + benutzerId, {
 
-                            //Antwort beenden
-	                        res.end();
-	                        
+                                        'Name': xml.Benutzer.Name,
+                                        'Alter': xml.Benutzer.Alter,
+                                        'Position': xml.Benutzer.Position,
+                                        'Bild': xml.Benutzer.Bild,
+                                        'isActive': 1
+                                    });  
+                                  });
+                                   
+                                //Wenn Content-Type und Validierung gestimmt haben, schicke die geänderte Rep. zurück
+                                buildRep("Benutzer",benutzerId,function(err,benutzerXMLRep){
+
+                                    console.log(benutzerXMLRep);
+
+                                    //Setze Contenttype der Antwort auf application/atom+xml
+                                    res.set("Content-Type", 'application/atom+xml');
+
+                                    //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
+                                    res.status(200);
+
+                                    res.write(''+benutzerXMLRep);
+
+                                    //Anfrage beenden 
+                                    res.end();
+
+                                });                  
 	                        }    
                        
                            //Das gesendete XML war bezüglich des XML-Schemas ungültig
@@ -397,7 +414,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                 //Anfrage beenden
                                 res.end();  
 	                    }
-	                 
                     }
 	                });  
 	            });            
@@ -1384,7 +1400,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
     //Params: 
     //Ressource = String der die Ressource identifiziert, hier muss der String rein unter dem die Ressource auch in der Datenbank liegt
     //id = Id der Ressource 
-    function buildRep(Ressource,id){
+    function buildRep(Ressource,id,callback){
         
         switch(Ressource){
                 
@@ -1426,8 +1442,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
  
                     //Parse zu XML und return
                     var BenutzerXMLRep = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele(benutzer_object).end({ pretty: true }); 
-                    
-                return BenutzerXMLRep;
+                               
+                    callback(err,BenutzerXMLRep);
                 });      
             break;
                 
