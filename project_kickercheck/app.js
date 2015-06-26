@@ -52,11 +52,11 @@
     //Namespaces und Rels, werden später in die Linkelemente der Ressourcenrepräsentationen eingebuat 
     var atomNS = "http://www.w3.org/2005/Atom";
 	var kickerNS = "http://www.kickercheck.de/namespace";
-	var matchRel = "http://www.kickercheck.de/rels/Match";
-	var lokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
-	var spielstandRel = "http://www.kickercheck.de/rels/Spielstand";
-	var benutzerRel = "http://www.kickercheck.de/rels/Benutzer";
-    var kickertischRel="http://www.kickercheck.de/rels/Kickertisch";
+	var MatchRel = "http://www.kickercheck.de/rels/Match";
+	var LokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
+	var SpielstandRel = "http://www.kickercheck.de/rels/Spielstand";
+	var BenutzerRel = "http://www.kickercheck.de/rels/Benutzer";
+    var KickertischRel="http://www.kickercheck.de/rels/Kickertisch";
 	 
 
 	var kickertisch_object = {  
@@ -90,7 +90,7 @@ gültige Benutzeranfrage
 	Typ: "NULL",
 	Austragungszeitraum: "NULL",
 	
-	"atom:link" : {'#text':'NULL', '@title':"NULL",'@rel':matchRel,'@href':"NULL"}
+	"atom:link" : {'#text':'NULL', '@title':"NULL",'@rel':MatchRel,'@href':"NULL"}
   
   }
 };
@@ -99,7 +99,7 @@ gültige Benutzeranfrage
     Name: "NULL",
 	Beschreibung: "NULL",
 	Kickertisch: {
-	"link" : {'#text':'NULL', '@title':"NULL",'@rel':lokalitaetRel,'@href':"NULL"}
+	"link" : {'#text':'NULL', '@title':"NULL",'@rel':LokalitaetRel,'@href':"NULL"}
   }
 };
 
@@ -109,8 +109,8 @@ gültige Benutzeranfrage
   Match: [
    {Datum: "NULL" },
 	{Uhrzeit: "NULL" },
-    {"atom:link" : {'#text':'NULL', '@title':"Teilnehmer",'@rel':benutzerRel,'@href':"NULL"} },
-	{"atom:link" : {'#text':'NULL', '@title':"Austragungsort",'@rel':lokalitaetRel,'@href':"NULL" } }
+    {"atom:link" : {'#text':'NULL', '@title':"Teilnehmer",'@rel':BenutzerRel,'@href':"NULL"} },
+	{"atom:link" : {'#text':'NULL', '@title':"Austragungsort",'@rel':LokalitaetRel,'@href':"NULL" } }
   ]};
   
 /*  gültige Matchanfrage POST
@@ -527,7 +527,12 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
                 // Parser Modul um req.body von XML in JSON zu wandeln
                 xml2jsParser.parseString(req.body, function(err, xml) {
+					
+					 console.log(util.inspect(xml, {showHidden: false, depth: null}));
 
+
+//				 console.log(util.inspect('POKPOK'+xml.Match.Austragungsort[0].$.href, {showHidden: false, depth: null}));
+					 
                     //Erhöhe MatchIds in der DB , atomare Aktion 
                     client.incr('MatchId', function(err, id) {
 
@@ -535,11 +540,11 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                         client.hmset('Match ' + id, {
                                 'Datum' : xml.Match.Datum,
                                 'Uhrzeit': xml.Match.Uhrzeit,
-                                'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
-                                'Teilnehmer1': xml.Match.link[0].$.href,
-                                'Teilnehmer2': xml.Match.link[1].$.href,
-                                'Teilnehmer3': xml.Match.link[2].$.href,
-                                'Teilnehmer4': xml.Match.link[3].$.href,
+                                'Austragungsort': xml.Match.Austragungsort[0].$.href, 
+                                'Teilnehmer1': xml.Match.Teilnehmer1[0].$.href,
+                                'Teilnehmer2': xml.Match.Teilnehmer2[0].$.href,
+                                'Teilnehmer3': xml.Match.Teilnehmer3[0].$.href,
+                                'Teilnehmer4': xml.Match.Teilnehmer4[0].$.href,
                                 'Spielstand' : 'http://localhost:3000/Match/'+id+'/Spielstand'
                         });
 
@@ -1421,11 +1426,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	    }
 	});
 
-	//Server lauscht auf Anfragen auf Port 3000
-	app.listen(3000);
-
-
-
     // Helper Functions 
     
 
@@ -1444,12 +1444,12 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     var match_object={
                             Datum:obj.Datum,
                             Uhrzeit:obj.Uhrzeit,
-                            Austragungsort:generateLinkELementFromHref("Austragungsort",lokalitaetRel,obj.Austragungsort),
-                            Teilnehmer1:generateLinkELementFromHref("Teilnehmer1",benutzerRel,obj.Teilnehmer1), 
-                            Teilnehmer2:generateLinkELementFromHref("Teilnehmer2",benutzerRel,obj.Teilnehmer2), 
-                            Teilnehmer3:generateLinkELementFromHref("Teilnehmer3",benutzerRel,obj.Teilnehmer3), 
-                            Teilnehmer4:generateLinkELementFromHref("Teilnehmer4",benutzerRel,obj.Teilnehmer4), 
-                            Spielstand:generateLinkELementFromHref("Spielstand",spielstandRel,obj.Spielstand)
+                            Austragungsort:generateLinkELementFromHref("Austragungsort",LokalitaetRel,obj.Austragungsort),
+                            Teilnehmer1:generateLinkELementFromHref("Teilnehmer1",BenutzerRel,obj.Teilnehmer1), 
+                            Teilnehmer2:generateLinkELementFromHref("Teilnehmer2",BenutzerRel,obj.Teilnehmer2), 
+                            Teilnehmer3:generateLinkELementFromHref("Teilnehmer3",BenutzerRel,obj.Teilnehmer3), 
+                            Teilnehmer4:generateLinkELementFromHref("Teilnehmer4",BenutzerRel,obj.Teilnehmer4), 
+                            Spielstand:generateLinkELementFromHref("Spielstand",SpielstandRel,obj.Spielstand)
                     }
                     
                   //Parse zu XML und return
@@ -1531,8 +1531,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 function generateLinkELementFromHref(title,rel,href){
     
     var linkElement={
-        Link:{
-        '#text':'NULL',
+        link:{
+        '#text':' ',
         '@title':title,
         '@rel':rel,
         '@href':href
@@ -1556,18 +1556,20 @@ function generateHelpForMalformedRequests(Ressource,callback){
     }
     
      //Um die Richtigen Variablennamen anzusprechen in folgenden AUsdrücken muss der Ressourcenname klein geschrieben sein 
-     Ressource=Ressource.toLowerCase();
+     
     
      //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt
-     var linkElement =generateLinkELementFromHref("korrekte Form einer" + Ressource + "Anfrage" ,eval(Ressource+"Rel"),eval(Ressource+"Rel"));
+     var linkElement =generateLinkELementFromHref("korrekte Form einer " + Ressource +  " Anfrage" ,eval(Ressource+"Rel"),eval(Ressource+"Rel"));
     console.log(eval(Ressource+"Rel"));
                
     //Parse als XML 
-    var RessourceXML = builder.create(Ressource,{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele('link',linkElement).end({ pretty: true }); 
+    var RessourceXML = builder.create(Ressource,{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele(linkElement).end({ pretty: true }); 
 
     console.log(RessourceXML);
     
     //Rufe Callback Function mit dem Ergebnis auf 
     callback(RessourceXML);    
 }
-                                    
+               
+	//Server lauscht auf Anfragen auf Port 3000
+	app.listen(3000);                     
