@@ -573,10 +573,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		  console.log(parsedXML.validationErrors);
           
           //Füge Link in den Body ein der die korrekte Form einer Matchanfrage zeigt 
-          generateHelpForMalformedRequests("Match",function(matchXml){
+          generateHelpForMalformedRequests("Match",function(MatchXml){
                 
                     //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                    res.status(400).write(''+matchXml);
+                    res.status(400).write(''+MatchXml);
                 
                     //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
                     res.end();
@@ -640,10 +640,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                     res.status(200).set('Content-Type', 'application/atom+xml');
 
                                     //Baue eine XML Repräsentation der angelegten Ressource und schreibe diese in die den Antwortbody
-                                    buildRep("Match",matchId,function(err,matchXml){
+                                    buildRep("Match",matchId,function(err,MatchXml){
 
                                         //Liefere Repräsentation der geänderten Ressource zurück 
-                                        res.write(''+matchXml);
+                                        res.write(''+MatchXml);
 
                                         //Antwort beenden
                                         res.end();
@@ -656,13 +656,13 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
                            console.log(parsedXML.validationErrors);
                            
-                           generateHelpForMalformedRequests("Match",function(matchXml){
+                           generateHelpForMalformedRequests("Match",function(MatchXml){
                            
                                 //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
                                 res.status(400);
                                
                                //Fülle body mit einem Link der die korrekte Form einer Matchanfrage zeigt 
-                                res.write(''+matchXml);
+                                res.write(''+MatchXml);
 
                                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
                                 res.end();

@@ -1,3 +1,11 @@
+		   /* 														*
+			*						TODO							*
+			*														*
+			*				XSD Validierung checken					*
+			*		funktioniert nicht mit xml vom Dienstnutzer		*
+			*														*/
+ 
+
 // server.js
 // load the things we need
 var http = require('http');
@@ -12,7 +20,6 @@ var jsonParser = bodyparser.json();
 //Zusatzmodul zum erstellen von xml-Repräsentationen 
 	var builder = require('xmlbuilder');
 	
-	var atomNS = "http://www.w3.org/2005/Atom";
 	var kickerNS = "http://www.kickercheck.de/namespace";
 
 	
