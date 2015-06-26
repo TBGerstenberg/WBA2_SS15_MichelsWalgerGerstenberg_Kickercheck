@@ -192,7 +192,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                var acceptedTypes = req.get('Accept');
                     //Es wird zunaechst nur text/html 
 	                switch (acceptedTypes) {
+                            
 	                    case "application/atom+xml":
+                               
+                        var BenutzerXmlRep=buildRep("Benutzer",benutzerId);
 	                    
 	                    client.hgetall('Benutzer ' + benutzerId,function(err,obj) {
 		                   
@@ -204,7 +207,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                        res.status(200).write(' '+benutzerZu);
 	                        //Antwort beenden        
 							res.end();
-	                       });
+	                   });
                         break;
                             
 	                    default:
@@ -249,7 +252,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 			//Req.body als XML Parsen 
             var parsedXML = libxml.parseXml(req.body);
         
-	       
 	       //Das geparste XML gegen das XSD validieren 
             var validateAgXSD = parsedXML.validate(xsdDoc);
         	
@@ -278,7 +280,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                res.set("Location", "/Benutzer/" + id).status(201);
 	                
                     //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                    res.write(' '+req.body);
+                    var benutzerXML=buildRep("Benutzer",id);    
+                        
+                    res.write(benutzerXML);
                     
 	                //Anfrage beenden 
 	                res.end();
@@ -289,10 +293,12 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
            //Das Übertragene XML-Schema war ungültig
            else{
 	            //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
+                res.status(400);
                 
                 //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt
                 var linkElement =generateLinkELementFromHref("korrekte Form einer Benutzeranfrage",benutzerRel,benutzerRel);
+               
+                //Parse als XML 
                 var benutzerXML = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele('link',linkElement).end({ pretty: true }); 
                
                 //Schreibe Linkelement in den Body der Anfrage 
@@ -338,7 +344,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                        res.end();
                         }
                         
-                         
                         //Der Benutzer existiert und kann bearbeitet werden 
                         else if (IdExists == 1 && benutzerValid == 1) {
 	                        									
@@ -364,8 +369,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                 });  
                              });
 							
-							 //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
-                             res.status(200).set('Content-Type', 'application/atom+xml');
+				            //Wenn Content-Type und Validierung gestimmt haben, schicke die geupdatete Datei zurück
+                            res.status(200).set('Content-Type', 'application/atom+xml');
                              
                              //Liefere Repräsentation der geänderten Ressource zurück 
 							res.write(' '+req.body);
@@ -375,17 +380,25 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                        
 	                        }    
                        
-                            
-                        //Das XML+Atom Schema war nicht gültig
-                        else {
-			               //Setze content Type auf 400 - Bad Request , 
-			               //der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-						   res.status(400).send("Die Anfrage enthielt keine gütlige Benutzerrepräsentation.");
-	                
-						   //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 				
-						   res.end();
+                           //Das gesendete XML war bezüglich des XML-Schemas ungültig
+                           else {
+                           	    //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
+                                res.status(400);
+                
+                                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt
+                                var linkElement =generateLinkELementFromHref("korrekte Form einer Benutzeranfrage",benutzerRel,benutzerRel);
+
+                                //Parse als XML 
+                                var benutzerXML = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele('link',linkElement).end({ pretty: true }); 
+
+                                //Schreibe Linkelement in den Body der Anfrage 
+                                res.write(''+benutzerXML);
+
+                                //Anfrage beenden
+                                res.end();  
 	                    }
-	                   }
+	                 
+                    }
 	                });  
 	            });            
         }
@@ -411,7 +424,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 }
                 
                 else if(IdExists == 1 && benutzerValid == 0) {
-	                 res.status(404).send("Die Ressource wurde nicht gefunden.");
+	                res.status(404).send("Die Ressource wurde nicht gefunden.");
                     res.end();
                 }
                 
@@ -1412,7 +1425,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     }
  
                     //Parse zu XML und return
-                    var BenutzerXMLRep = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS).ele(benutzer_object).end({ pretty: true }); 
+                    var BenutzerXMLRep = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck',kickerNS).ele(benutzer_object).end({ pretty: true }); 
                     
                 return BenutzerXMLRep;
                 });      
@@ -1465,20 +1478,13 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 /*Generates a Link Object that containt the attributes title , rel and href */                               
 function generateLinkELementFromHref(title,rel,href){
     
-    var LinkElement={
-        '#text':'NULL',
-        '@title':"title",
-        '@rel':rel,
-        '@href':href
+    var linkElement={
+        'text':'NULL',
+        'title':"title",
+        'rel':rel,
+        'href':href
     }
                     
     return linkElement;
 }              
-                                      
-                               
-                               
-
-
-
-	// / TURNIER // 
-	// / TURNIER //
+                                    
