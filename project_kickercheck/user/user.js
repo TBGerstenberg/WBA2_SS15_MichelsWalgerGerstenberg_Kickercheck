@@ -38,6 +38,8 @@ var jsonParser = bodyparser.json();
 var builder = require('xmlbuilder');
 //Namespace des Service
 var kickerNS = "http://www.kickercheck.de/namespace";
+var BenutzerRel = "http://www.kickercheck.de/rels/Benutzer";
+var LokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
 // xml2js für XML-JS Parsing
 var xml2js = require('xml2js');
 //Parser von xml2js 
@@ -69,7 +71,8 @@ app.post('/Match', jsonParser, function(req, res) {
 
     function matchAnlegen(callback) {
 
-     var responseString = '';
+	var responseLocation = '';
+    var responseString = '';
 
     // HTTP Header setzen
     var headers = {
@@ -87,13 +90,15 @@ app.post('/Match', jsonParser, function(req, res) {
 
     // Request an Server
     var anfrage = http.request(options, function(res){
-
+		
       res.on('data', function(data) {
         responseString += data;
+        responseLocation += JSON.stringify(res.headers.location);
+
       });
 
       res.on('end', function() {
-        callback(responseString);
+        callback(responseString,responseLocation);
       });
 
 
@@ -124,19 +129,19 @@ app.post('/Match', jsonParser, function(req, res) {
     var match_object = {  
        Datum: result.datum ,
         Uhrzeit: result.uhrzeit ,
-        Austragungsort: {'@href':result.austragungsort},
-         "Teilnehmer1" : {'@href':result.spieler1} ,
-         "Teilnehmer2" : {'@href':result.spieler2}, 
-         "Teilnehmer3" : {'@href':result.spieler3},
-         "Teilnehmer4" : {'@href':result.spieler4} 
+   Austragungsort: [{ "link" : {'#text':' ', '@title':"Austragungsort",'@rel':LokalitaetRel,'@href':result.austragungsort} }] ,
+	'#list': [{"link" : {'#text':' ', '@title':"Teilnehmer 1",'@rel':BenutzerRel,'@href':result.spieler1 } },
+	{"link" : {'#text':' ', '@title':"Teilnehmer 2",'@rel':BenutzerRel,'@href':result.spieler2 } },
+	{"link" : {'#text':' ', '@title':"Teilnehmer 3",'@rel':BenutzerRel,'@href':result.spieler3 } },
+	{"link" : {'#text':' ', '@title':"Teilnehmer 4",'@rel':BenutzerRel,'@href':result.spieler4 } }]
         };
 
 
-         var match_template = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att("xmlns:kickercheck",kickerNS)
+         var match_template = builder.create('Match',{version: '1.0', encoding: 'UTF-8'}).att("xmlns",kickerNS)
     .ele(match_object)
     .end({ pretty: true});
 
-     console.log(util.inspect(match_template, {showHidden: false, depth: null}));
+//      console.log(util.inspect(match_template, {showHidden: false, depth: null}));
 
 
         anfrage.write(match_template); 
@@ -146,7 +151,9 @@ app.post('/Match', jsonParser, function(req, res) {
     }
 
     // Callback Funktion für Request an Server 
-    matchAnlegen(function (responseString) {
+    matchAnlegen(function (responseString,responseLocation) {
+	    console.log(responseLocation);
+	    console.log(responseString);
         res.write(responseString);
         res.end();
     });

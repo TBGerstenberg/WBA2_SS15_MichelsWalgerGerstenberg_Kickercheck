@@ -540,11 +540,11 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                         client.hmset('Match ' + id, {
                                 'Datum' : xml.Match.Datum,
                                 'Uhrzeit': xml.Match.Uhrzeit,
-                                'Austragungsort': xml.Match.Austragungsort[0].$.href, 
-                                'Teilnehmer1': xml.Match.Teilnehmer1[0].$.href,
-                                'Teilnehmer2': xml.Match.Teilnehmer2[0].$.href,
-                                'Teilnehmer3': xml.Match.Teilnehmer3[0].$.href,
-                                'Teilnehmer4': xml.Match.Teilnehmer4[0].$.href,
+                                'Austragungsort': xml.Match.Austragungsort[0].link[0].$.href, 
+                                'Teilnehmer1': xml.Match.link[0].$.href,
+                                'Teilnehmer2': xml.Match.link[1].$.href,
+                                'Teilnehmer3': xml.Match.link[2].$.href,
+                                'Teilnehmer4': xml.Match.link[3].$.href,
                                 'Spielstand' : 'http://localhost:3000/Match/'+id+'/Spielstand'
                         });
 
