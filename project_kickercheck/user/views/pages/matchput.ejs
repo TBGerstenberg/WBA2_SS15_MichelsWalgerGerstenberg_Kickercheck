@@ -9,6 +9,8 @@
 				
 				$('form').submit(function(event) {
 				
+					var MatchId = $('#MatchId').val();
+
 					var formData =  {
 						
 						spieler1 : $('#spieler1').val(),
@@ -19,14 +21,12 @@
 						uhrzeit : $('#uhrzeit').val(),
 						austragungsort : $('#austragungsort').val()
 						};
-						
-						console.log(formData.spieler1);
-						
-						
+
 						alert('Ihre Anfrage wird verarbeitet');
+						
 							$.ajax({
-								type: 'POST',
-								url: 'http://localhost:3001/matchpost',
+								type: 'PUT',
+								url: 'http://localhost:3001/Match/'+MatchId,
 								crossDomain:true,
 								data: JSON.stringify(formData),
 								dataType: 'json',
@@ -51,8 +51,10 @@
             <div class="col-sm-8">
             
                 <div class="jumbotron">
-                    <h1>Match POST</h1>
-                   <form method="POST" name="matchAnlegen">
+                    <h1>Match PUT</h1>
+                   <form method="PUT" name="matchBearbeiten">
+         <label for="MatchId">Auf welches Match soll ein PUT abgesetzt werden?</label> <br>
+        <input type="text" id="MatchId" placeholder="z.B. '85'" maxlength="100" /><br>          
         <label for="spieler1">Spieler 1:</label> <br>
         <input type="text" id="spieler1" placeholder="z.B. pokpok" maxlength="100" /><br>
 		 <label for="spieler2">Spieler 2:</label> <br>
