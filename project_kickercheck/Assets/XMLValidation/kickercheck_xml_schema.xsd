@@ -28,11 +28,16 @@
     
     <xsd:element name="Austragungsort" type="AustragungsType"/> 
     
+    <!-- Modell eines Kickertischs --> 
 	<xsd:element name="Modell" type="xsd:string"/>
 	
 	<xsd:element name="Benutzer" type="BenutzerTyp"/>
 	
+    <!-- Eigene Variante eines Linkelements , Typedeclaration stammt aus dem atom namespace --> 
 	<xsd:element name="link" type="linkType"/>
+    
+    <!-- Adresse für Lokalitaeten --> 
+    <xsd:element name="Adresse" type="xsd:string"/>
     
     
 <!--Das Rootelement <kickercheck> kann entfernt werden , dann kann auf dem Server gecheckt werden ob das Root element z.B Benutzer ist, bei einer Validierung wird dann automatisch gegen das passende Element  -->	
@@ -40,12 +45,10 @@
 <!-- Dieses Element wird unter dem Namen Atom.xsd includiert -->
 
 <xsd:complexType name="AustragungsType">
-                        <xsd:all>
-
-                         <xsd:element ref="link" />
-
-                        </xsd:all>
-                    </xsd:complexType>
+    <xsd:all>
+        <xsd:element ref="link" />
+    </xsd:all>
+</xsd:complexType>
  
  <xsd:complexType name="linkType">
 		<xsd:annotation>
@@ -73,9 +76,7 @@
             <xsd:pattern value="[2|4|6|8][2|4|6|8]"/>
         </xsd:restriction>
     </xsd:simpleType>
-
-
-	
+    
     <xsd:complexType name="BenutzerTyp">
         <xsd:all>
             <xsd:element ref="Name"/>
@@ -100,10 +101,11 @@
          <xsd:choice maxOccurs="unbounded">
             <xsd:element ref="Name"/>
             <xsd:element ref="Beschreibung"/>
+            <xsd:element ref="Adresse"/>
             <xsd:element ref="link" minOccurs="0"/>
         </xsd:choice>
     </xsd:complexType>
-
+        
     <!--Im Doppel kann entweder Sturm oder Verteidigung gespielt werden -->
     <xsd:element name="Position" type="PositionTyp"/>
     
