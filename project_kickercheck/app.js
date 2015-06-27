@@ -213,7 +213,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                 //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
                                 res.status(200);
 
-                                res.write(''+benutzerXMLRep);
+                                res.write(' '+benutzerXMLRep);
 
                                 //Anfrage beenden 
                                 res.end();
@@ -293,7 +293,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
                             res.set("Location", "/Benutzer/" + id).status(201);
 
-                            res.write(''+benutzerXMLRep);
+                            res.write(' '+benutzerXMLRep);
 
                             //Anfrage beenden 
                             res.end();
@@ -312,7 +312,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 generateHelpForMalformedRequests("Benutzer",function(benutzerXML){
                               
                     //Schreibe Linkelement in den Body der Anfrage 
-                    res.write(''+benutzerXML);
+                    res.write(' '+benutzerXML);
                 
                     //Anfrage beenden
                     res.end();
@@ -390,7 +390,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
                                     res.status(200);
 
-                                    res.write(''+benutzerXMLRep);
+                                    res.write(' '+benutzerXMLRep);
 
                                     //Anfrage beenden 
                                     res.end();
@@ -407,7 +407,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                generateHelpForMalformedRequests("Benutzer" , function(benutzerXML){
                                    
                                     //Schreibe Linkelement in den Body der Anfrage 
-                                    res.write(''+benutzerXML);
+                                    res.write(' '+benutzerXML);
 
                                     //Anfrage beenden
                                     res.end();
@@ -466,7 +466,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 res.set("Content-Type","application/atom+xml");
 
                 //Schreibe XML in Antwort 
-                res.write(''+BenutzerListeXMLRep);
+                res.write(' '+benutzerListeXMLRep);
 
                 //Beende Antwort 
                 res.end();
@@ -667,7 +667,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                     buildRep("Match",matchId,function(err,MatchXml){
 
                                         //Liefere Repräsentation der geänderten Ressource zurück 
-                                        res.write(''+MatchXml);
+                                        res.write(' '+MatchXml);
 
                                         //Antwort beenden
                                         res.end();
@@ -686,7 +686,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                                 res.status(400);
                                
                                //Fülle body mit einem Link der die korrekte Form einer Matchanfrage zeigt 
-                                res.write(''+MatchXml);
+                                res.write(' '+MatchXml);
 
                                //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Matchrepräsentation zeigt 				
                                 res.end();
@@ -834,7 +834,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                         buildRep("Lokalitaet",id,function(LokalitaetXml){
                     
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                            res.write(''+LokalitaetXml);
+                            res.write(' '+LokalitaetXml);
                     
                             //Anfrage beenden 
 	                        res.end();
@@ -915,7 +915,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             buildRep("Lokalitaet",LokalitaetId,function(lokalitaetXml){
                                 
                                 //Liefere Repräsentation der geänderten Ressource zurück 
-				                res.write(''+lokalitaetXml);
+				                res.write(' '+lokalitaetXml);
 
                                 //Antwort beenden
 	                            res.end();
@@ -1570,19 +1570,45 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             break;
                 
             case "BenutzerListe":
-                
-                    //Hole Anzahl Benutzer aus DB
-                    client.get("BenutzerId",function(err,AnzahlBenutzer){
-
-
-                        console.log(" In AnzahlBenutzer steht: " + AnzahlBenutzer);
-
-                        //Hier werden später alle gefundenen Benutzer angezeigt 
-                        var benutzerListe={
-
+            
+              
+                 
+            
+            
+            var benutzerliste_object=[];
+            // Hole alle Benutzer x aus DB
+            
+            function benutzerKeys(callback) {
+            client.keys('Benutzer *',function(err,rep) {
+	            
+	                 
+	           // Wenn keine Benutzer
+	           if (rep.length==0) {
+		           console.log('keine Benutzer in Liste');
+		           return;
+	           }
+	           
+	           benutzerliste_object.push(JSON.stringify(rep));
+	       
+		callback();
+		             
+                        }); 
                         }
                         
-                        //Schliefen und Async Aufrufe vertragen sich nicht ohne weiteres 
+                        benutzerKeys(function() {
+	                        console.log(benutzerliste_object);
+                        })
+	                                    
+                        //Parse zu XML und return
+                    
+//                         var benutzerListeXMLRep = builder.create('Benutzer',{version: '1.0', encoding: 'UTF-8'}).att('xmlns', kickerNS).ele(benutzerliste_object).end({ pretty: true }); 
+                        var benutzerListeXMLRep='';
+                        callback(benutzerListeXMLRep);
+    
+		       
+		       
+	           
+	         //Schliefen und Async Aufrufe vertragen sich nicht ohne weiteres 
                         //Pseudocode : 
                             /*
                                 Für alle Nutzer in der DB 
@@ -1597,9 +1623,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             
                             
                             */
-                        
-                        
-                });
             break;
                 
             
