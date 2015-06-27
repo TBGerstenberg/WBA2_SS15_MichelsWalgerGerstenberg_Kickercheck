@@ -56,7 +56,7 @@
 	var LokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
 	var SpielstandRel = "http://www.kickercheck.de/rels/Spielstand";
 	var BenutzerRel = "http://www.kickercheck.de/rels/Benutzer";
-    var KickertischRel="http://www.kickercheck.de/rels/Kickertisch";
+    var kickertischRel="http://www.kickercheck.de/rels/Kickertisch";
 	 
 
 	var kickertisch_object = {  
@@ -941,11 +941,10 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 var listenKey="Loklitaet" + id + "Tische";
                         
                         //Länge der Liste der gespeicherten Links 
-                        client.LLEN(listenLaenge,function(err,obj){
+                        client.LLEN(listenKey,function(err,listenLaenge){
                             
-                            //Baue alle vorhandenen Links in das JS Objekt 
                             for(var i=0; i<listenLaenge; i++){
-                                
+                            
                             
   
                            }
@@ -954,10 +953,11 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 //Alles ok , sende 200 
                 res.status(204).send("Das hat funktioniert! Lokalitaet mit allen Tischen gelöscht");
                     
-                    //Antwort beenden
-                    res.end();
-                }
-                else {
+                //Antwort beenden
+                res.end();
+            }
+            
+            else {
 	               
 	                res.status(404).send("Die Ressource wurde nicht gefunden.");
                     res.end();
@@ -1491,17 +1491,15 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     var lokalitaet_object ={  
                         Name: obj.Name,
                         Beschreibung: obj.Beschreibung,
-                        Kickertisch: {
-                        //URI unter der dieser Lokalitaet Tische hinzugefügt werden können 
-                        "link":generateLinkELementFromHref("Tische Hinzufuegen",kickertischRel,"http://localhost:3000/Lokalitaet/"+id+"/Kickertisch")
-                        }
+                        //URI unter der dieser Lokalitaet Tische hinzugefügt werden können
+                        Kickertisch:generateLinkELementFromHref("Tische Hinzufuegen",kickertischRel,"http://localhost:3000/Lokalitaet/"+id+"/Kickertisch")
                     }
                     
                     //Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
                     var listenKey="Loklitaet" + id + "Tische";
                         
                         //Länge der Liste der gespeicherten Links 
-                        client.LLEN(listenLaenge,function(err,obj){
+                        client.LLEN(listenKey,function(err,listenLaenge){
                             
                             //Baue alle vorhandenen Links in das JS Objekt 
                             for(var i=0; i<listenLaenge; i++){
@@ -1519,8 +1517,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                         }); 
 	                                    
                         //Parse zu XML und return
+                    
                         var LokalitaetXMLRep = builder.create('Lokalitaet',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS).ele(lokalitaet_object).end({ pretty: true }); 
-                        callback(err,LokalitaetXMLRep);
+                        callback(LokalitaetXMLRep);
                 });
             break;
         } //EndSwitch
@@ -1537,8 +1536,7 @@ function generateLinkELementFromHref(title,rel,href){
         '@rel':rel,
         '@href':href
         }
-    }
-                    
+    }                
     return linkElement;
 }   
 
