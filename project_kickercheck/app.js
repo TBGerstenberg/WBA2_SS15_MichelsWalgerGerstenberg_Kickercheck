@@ -36,6 +36,8 @@
 
 
 	//Setup für Datenbank , diese Werte werden inkrementiert um eindeutige IDs in den URI Templates zu generieren 
+    //SETNX heißt set if not exists, so wird gewährleistet dass auch nach beendigung die Keys erhalten bleiben 
+    //und nur nach DB Wipe neu gesetzt werden 
 	client.SETNX("BenutzerId", "0");
 	client.SETNX("MatchId", "0");
 	client.SETNX("LokalitaetId", "0");
@@ -49,7 +51,7 @@
 	//XML-Schema parsen 
 	var xsdDoc = libxml.parseXml(xsd);
 	
-    //Namespaces und Rels, werden später in die Linkelemente der Ressourcenrepräsentationen eingebuat 
+    //Namespaces und Rels, werden später in die Linkelemente der Ressourcenrepräsentationen eingebaut 
     var atomNS = "http://www.w3.org/2005/Atom";
 	var kickerNS = "http://www.kickercheck.de/namespace";
 	var MatchRel = "http://www.kickercheck.de/rels/Match";
@@ -184,15 +186,20 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
+            
 			// hget return 0 wenn key auf false sonst 1
 	        client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
+                
                 //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
 	            if (IdExists == 1 && benutzerValid == 1) {
+                    
                     //Headerfeld Accept abfragen
 	                var acceptedTypes = req.get('Accept');
+                    
                     //Es wird zunaechst nur text/html 
 	                switch (acceptedTypes) {
-                            
+                        
+                        //client kann application/atom+xml verarbeiten     
 	                    case "application/atom+xml":
                                
                             //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
@@ -210,9 +217,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
                                 //Anfrage beenden 
                                 res.end();
-
-                            }); 
-                            
+                            });     
                         break;
                             
 	                    default:
@@ -233,7 +238,6 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 		             //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
 	                res.status(404).send("Die Ressource wurde nicht gefunden.");
 	                res.end();
-
 	            }
 	        });
 	    });
@@ -268,6 +272,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 	                	                
 				    // BenutzerId in redis erhöhen, atomare Aktion 
                     client.incr('BenutzerId', function(err, id) {
+                        
+                        console.log("Die BenutzerId nach hinzufügen eines Benutzers : " + id);
 	                    
                         // Setze Hashset auf Key "Benutzer BenutzerId" 
                         client.hmset('Benutzer ' + id,{
@@ -280,9 +286,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     
                         //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
                         buildRep("Benutzer",id,function(err,benutzerXMLRep){
-                        
-                            console.log(benutzerXMLRep);
-
+                            
                             //Setze Contenttype der Antwort auf application/atom+xml
                             res.set("Content-Type", 'application/atom+xml');
 
@@ -449,6 +453,26 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             });
 	    });
 	});
+
+    //Listenressource Benutzer 
+    app.get('/Benutzer',function(req,res){
+        
+        buildRep("BenutzerListe",0,function(benutzerListeXMLRep){
+            
+                //Abruf war erfolgreich , antworte mit Statuscode 200 
+                res.status(200);
+
+                //Setze content type der Antwort auf application/atom+xml 
+                res.set("Content-Type","application/atom+xml");
+
+                //Schreibe XML in Antwort 
+                res.write(''+BenutzerListeXMLRep);
+
+                //Beende Antwort 
+                res.end();
+            
+        });
+    });
 	
 	// MATCH //
 
@@ -997,8 +1021,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             
                             //Beende Antwort 
                             res.end();
-                        }); 
-                        
+                        });   
 	                break;
 
 	                default:
@@ -1127,7 +1150,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             //Anfrage ist bezüglich der XSD Valide 
             if(validateAgXSD){
                 
-                 var id = req.params.TischId;
+                //Extrahiere Tischid aus der Anfrage
+                var id = req.params.TischId;
                     
                 // Parser Modul um req.body von XML in JSON zu wandeln
                 xml2jsParser.parseString(req.body,function(err, xml){
@@ -1545,6 +1569,41 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                 });      
             break;
                 
+            case "BenutzerListe":
+                
+                    //Hole Anzahl Benutzer aus DB
+                    client.get("BenutzerId",function(err,AnzahlBenutzer){
+
+
+                        console.log(" In AnzahlBenutzer steht: " + AnzahlBenutzer);
+
+                        //Hier werden später alle gefundenen Benutzer angezeigt 
+                        var benutzerListe={
+
+                        }
+                        
+                        //Schliefen und Async Aufrufe vertragen sich nicht ohne weiteres 
+                        //Pseudocode : 
+                            /*
+                                Für alle Nutzer in der DB 
+                                     Prüfe ob isActive = 1 
+                                        Wenn ja
+                                            generiere Linkhref mit der Id des NUtzers  
+                                            generiere XML-Linkelemente mit diesem Href 
+                                            Pushe Linkelement in die Benutzerliste 
+                                
+                                Parse Liste als XML und Antworte 
+                            
+                            
+                            
+                            */
+                        
+                        
+                });
+            break;
+                
+            
+                
             //Wir wollen eine Lokalitaetsrepräsentation der Lokalitaet unter der ubergebenen URI zusammenbauen 
             case "Lokalitaet":
                 
@@ -1637,9 +1696,6 @@ function generateHelpForMalformedRequests(Ressource,callback){
         throw "Ressourcenname in generateHelpForMalformedRequests ist kein String";
         return;
     }
-    
-     //Um die Richtigen Variablennamen anzusprechen in folgenden AUsdrücken muss der Ressourcenname klein geschrieben sein 
-     
     
      //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt
      var linkElement =generateLinkELementFromHref("korrekte Form einer " + Ressource +  " Anfrage" ,eval(Ressource+"Rel"),eval(Ressource+"Rel"));
