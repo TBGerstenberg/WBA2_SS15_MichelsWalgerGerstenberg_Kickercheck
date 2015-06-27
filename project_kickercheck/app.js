@@ -58,7 +58,7 @@
 	var LokalitaetRel = "http://www.kickercheck.de/rels/Lokalitaet";
 	var SpielstandRel = "http://www.kickercheck.de/rels/Spielstand";
 	var BenutzerRel = "http://www.kickercheck.de/rels/Benutzer";
-    var kickertischRel="http://www.kickercheck.de/rels/Kickertisch";
+    var KickertischRel="http://www.kickercheck.de/rels/Kickertisch";
 	 
 
 	var kickertisch_object = {  
@@ -822,7 +822,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             'Name' : xml.Lokalitaet.Name,
                             'Beschreibung' : xml.Lokalitaet.Beschreibung,
                             'Adresse':xml.Lokalitaet.Adresse,
-                            'Kickertisch' : generateLinkELementFromHref("Kickertische hinzufuegen",kickertischRel,'Lokalitaet/'+id+'/Kickertisch')       
+                            'Kickertisch' : generateLinkELementFromHref("Kickertische hinzufuegen",KickertischRel,'Lokalitaet/'+id+'/Kickertisch')       
                         });
                  
                         //Setze Contenttype der Antwort auf application/atom+xml
@@ -966,6 +966,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             //Lösche alle Kickertische in dieser Liste 
                             for(var i=0; i<listenLaenge; i++){
                             
+                                
                             
   
                            }
@@ -1079,6 +1080,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             'Zustand': xml.Kickertisch.Zustand,
                             'Bild': xml.Kickertisch.Bild
                         });
+                        
+                        //Extrahiere LokalitaetId aus Anfrage 
+                        var LokalitaetId = req.params.LokalitaetId;
 
                         //Jede Lokalitaet hat intern eine Liste mit ihren Kickertischen,
                         //Bei jedem Post auf einen Tisch wird dieser Liste ein Eintrag hinzugefügt 
@@ -1095,6 +1099,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                             //Teile dem Client die URI der neu angelegten Ressource mit 
                             res.set("Location", "/Kickertisch/" + id);
                             
+                            //Setze content type der Antwort 
+							res.set("Content-Type","application/atom+xml");
+                            
                             //Zeige dem Client mit Statuscode 201 Erfolg beim anlegen an  
                             res.status(201).write(kickertischXml);
                             
@@ -1108,6 +1115,8 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
             //Anfrage ist nicht valide 
             else{
                 
+                console.log(parsedXML.validationErrors);
+                
                 //Verweise den Client auf die korrekte Form einer Kickertischanfrage
                 generateHelpForMalformedRequests("Kickertisch",function(kickertischXml){
                     
@@ -1115,7 +1124,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     res.status(400);
                 
                     //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 
-                    res.write(LokalitaetId);
+                    res.write(kickertischXml);
                 		
                     //Antwort beenden 
                     res.end();     
@@ -1166,9 +1175,9 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
 
                         //Baue Repräsentation des Kickertisches und schreibe diese in res.body 
                         buildRep("Kickertisch",id,function(kickertischXml){
-                                        
-                            //Teile dem Client die URI der neu angelegten Ressource mit 
-                            res.set("Location", "/Kickertisch/" + id);
+                                    
+                            //Setze content type der Antwort 
+							res.set("Content-Type","application/atom+xml");
                             
                             //Zeige dem Client mit Statuscode 201 Erfolg beim anlegen an  
                             res.status(201).write(kickertischXml);
@@ -1638,7 +1647,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                         Beschreibung: obj.Beschreibung,
                         Adresse:obj.Adresse,
                         //URI unter der dieser Lokalitaet Tische hinzugefügt werden können
-                        Kickertisch:generateLinkELementFromHref("Tische Hinzufuegen",kickertischRel,"http://localhost:3000/Lokalitaet/"+id+"/Kickertisch")
+                        Kickertisch:generateLinkELementFromHref("Tische Hinzufuegen",KickertischRel,"http://localhost:3000/Lokalitaet/"+id+"/Kickertisch")
                     }
                     
                     //Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
@@ -1686,7 +1695,7 @@ var match_template = builder.create('kickercheck',{version: '1.0', encoding: 'UT
                     var kickertischXml=builder.create('Kickertisch',{version: '1.0', encoding: 'UTF-8'}).att('xmlns:kickercheck', kickerNS).ele(kickertisch_object).end({ pretty: true }); 
                        
                     //Callback mit Ergebnis aufrufen 
-                    callback(LokalitaetXMLRep);
+                    callback(kickertischXml);
                 });    
             break;
         } //EndSwitch
@@ -1719,6 +1728,8 @@ function generateHelpForMalformedRequests(Ressource,callback){
         throw "Ressourcenname in generateHelpForMalformedRequests ist kein String";
         return;
     }
+    
+    
     
      //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt
      var linkElement =generateLinkELementFromHref("korrekte Form einer " + Ressource +  " Anfrage" ,eval(Ressource+"Rel"),eval(Ressource+"Rel"));
