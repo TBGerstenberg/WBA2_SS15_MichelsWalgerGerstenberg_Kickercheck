@@ -63,31 +63,20 @@
 	});
 
 
-	app.post('/Benutzer', parseXML, function(req, res) {
+	app.post('/Benutzer', jsonParser, function(req, res) {
 
 	    //Content Type der Anfrage abfragen 
 	    var contentType = req.get('Content-Type');
 
 	    //Check ob der Content Type der Anfrage xml ist 
-	    if (contentType != "application/atom+xml") {
-	        res.set("Accepts", "application/atom+xml");
+	    if (contentType != "application/json") {
+	        res.set("Accepts", "application/json");
 	        res.status(406).send("Content Type is not supported");
 	        res.end();
 	    } 
         
         else{
             
-			//Req.body als XML Parsen 
-            var parsedXML = libxml.parseXml(req.body);
-        
-	       //Das geparste XML gegen das XSD validieren 
-            var validateAgXSD = parsedXML.validate(xsdDoc);
-        	
-            // Verschicktes XML nach XSD Schema gültig
-            if(validateAgXSD) {
-
-                // Parser Modul um req.body von XML in JSON zu wandeln
-                xml2jsParser.parseString(req.body, function(err, xml) {
 	                	                
 				    // BenutzerId in redis erhöhen, atomare Aktion 
                     client.incr('BenutzerId', function(err, id) {
