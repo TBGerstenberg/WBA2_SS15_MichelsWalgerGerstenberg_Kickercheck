@@ -247,20 +247,17 @@ app.get('/:TischId/Belegung/:BelegungId', function(req, res) {
         
         else {
             
-                    //Inkrementiere Kickertischids in der DB , atomare Aktion 
-                    client.incr('BelegungId', function(err, id) {
-                        
                         //Pflege Daten über den Kickertisch in die DB ein 
-                        client.hmset('Belegung ' + id, {
+                        client.hmset('Belegung ' + tischId, {
                             'Teilnehmer 1': Belegung.Teilnehmer1,
                             'Teilnehmer 2': Belegung.Teilnehmer2,
                             'Teilnehmer 3': Belegung.Teilnehmer3,
                             'Teilnehmer 4': Belegung.Teilnehmer4,
-                            'Herausforderung': Belegung.Herausforderung
+                            'Herausforderung': [Belegung.Herausforderung]
                         });
                                                                 
                             //Teile dem Client die URI der neu angelegten Ressource mit 
-                            res.set("Location", "/Kickertisch/" + tischId +"/Belegung/" + id);
+                            res.set("Location", "/Kickertisch/" + tischId +"/Belegung");
                             
                             //Setze content type der Antwort 
 							res.set("Content-Type","application/json");
@@ -270,7 +267,7 @@ app.get('/:TischId/Belegung/:BelegungId', function(req, res) {
                             
                             //Antwort beenden 
                             res.end();
-                        });
+                       
                 }
             
     });
@@ -303,7 +300,7 @@ app.get('/:TischId/Belegung/:BelegungId', function(req, res) {
                             'Teilnehmer 2': Belegung.Teilnehmer2,
                             'Teilnehmer 3': Belegung.Teilnehmer3,
                             'Teilnehmer 4': Belegung.Teilnehmer4,
-                            'Herausforderung': Belegung.Herausforderung
+                            'Herausforderung': [Belegung.Herausforderung]
                         });
                                     
                             //Setze content type der Antwort 
