@@ -16,8 +16,6 @@
 
                                 //Anfrage beenden 
                                 res.end();
-                                
-                        break;
                             
 	                    default:
 	                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 

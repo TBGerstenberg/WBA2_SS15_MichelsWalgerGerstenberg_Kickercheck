@@ -5,7 +5,7 @@ global.client = redis.createClient();
 
 var bodyParser     = require('body-parser');
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 3001);
 
 app.use(bodyParser.json());
 
