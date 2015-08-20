@@ -7,5 +7,4 @@ var router = express.Router();
 router.use('/Benutzer', require('./routes/benutzer_ressource'));
 router.use('/Austragungsort', require('./routes/austragungsort_ressource'));
 
-
 module.exports = router;

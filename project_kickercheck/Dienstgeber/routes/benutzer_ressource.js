@@ -1,31 +1,16 @@
-	app.get('/:BenutzerId', function(req, res) {
+  app.get('/:BenutzerId', function(req, res) {
 
-        //BenutzerId aus der URI extrahieren
-	    var benutzerId = req.params.BenutzerId;
+            //BenutzerId aus der URI extrahieren
+            var benutzerId = req.params.BenutzerId;
 
-	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-	    client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
-            
-			// hget return 0 wenn key auf false sonst 1
-	        client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
-                
-                //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
-	            if (IdExists == 1 && benutzerValid == 1) {
-                    
-                    //Headerfeld Accept abfragen
-	                var acceptedTypes = req.get('Accept');
-                    
-                    //Es wird zunaechst nur text/html 
-	                switch (acceptedTypes) {
-                        
-                        //client kann application/atom+xml verarbeiten     
-	                    case "application/json":
+            //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+            client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
 
-                                //Setze Contenttype der Antwort auf application/atom+xml
-                                res.set("Content-Type", 'application/json');
+                // hget return 0 wenn key auf false sonst 1 , hier wird geprüft ob der Benutzer nach außen sichtbar sein möchte
+                client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
 
-                                //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
-                                res.status(200);
+                    //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
+                    if (IdExists == 1 && benutzerValid == 1) {
 
                                 res.json(req.body);
 
@@ -58,9 +43,58 @@
 	    });
 	});
 
+                        //Headerfeld Accept abfragen
+                        var acceptedTypes = req.get('Accept');
+
+                        //Es wird zunaechst nur text/html 
+                        switch (acceptedTypes) {
+
+
+                            //client kann application/json verarbeiten     
+                            case "application/json":
+
+                                    client.hgetall('Benutzer ' + benutzerId, function(err,BenutzerDaten){
+
+                                        //Setze Contenttype der Antwort auf application/json
+                                        res.set("Content-Type", 'application/json');
+
+                                       //Zeige über Statuscode 200 Erfolg an 
+                                        res.status(200);
+
+                                        //Schreibe die Daten des Nutzers unter <benutzerId> in den Body
+                                        res.write(req.body);
+
+                                        //Anfrage beenden 
+                                        res.end();
+                                    });
+
+                            break;
+
+                            default:
+                                //Der gesendete Accept header enthaelt kein unterstuetztes Format 
+                                res.status(406).send("Content Type wird nicht unterstuetzt");
+                                //Antwort beenden        
+                                res.end();
+                            break;
+                        }
+                   }
+
+                    else if(IdExists == 1 && benutzerValid == 0) {
+                        //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
+                        res.status(404).send("Die Ressource wurde für den Zugriff von außen gesperrt.");
+                        res.end();
+                    }
+
+                    else {
+                         //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
+                        res.status(404).send("Die Ressource wurde nicht gefunden.");
+                        res.end();
+                    }
+                });
+            });
+        });
 
 	app.post('/', function(req, res) {
-
 
 		var Benutzer = req.body;
 	    //Content Type der Anfrage abfragen 
