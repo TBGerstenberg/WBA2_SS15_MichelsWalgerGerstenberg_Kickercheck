@@ -1,4 +1,4 @@
-app.get('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId', function(req, res) {
+app.get('/:TischId', function(req, res) {
 
         //Extrahiere TischId
 	    var tischId = req.params.TischId;
@@ -14,34 +14,31 @@ app.get('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId', function(req, res) {
                 
 	            switch (acceptedTypes) {
 
-                    //Client kann application/atom+xml verarbeiten 
-	                case "application/atom+xml":
+                    //Client kann application/json verarbeiten 
+	                case "application/json":
                         
-                        //Baue XML Repr. des Kickertisches 
-	                    buildRep("Kickertisch",tischId,function(kickertischXml){
                             
                             //Server antwortet mit einer Lokalitaetrepräsentation 
-							res.set("Content-Type","application/atom+xml");
+							res.set("Content-Type","application/json");
                             
                             //Zeige mit Statuscode 200 Erfolg beim Abruf an 
-                            res.status(200).write(''+kickertischXml);
+                            res.status(200).json(req.body);
                             
                             //Beende Antwort 
                             res.end();
-                        });   
+                             
 	                break;
 
 	                default:
                         
 	                   //We cannot send a representation that is accepted by the client 
 	                   res.status(406);
-                       res.set("Accepts", "application/atom+xml");
+                       res.set("Accepts", "application/json");
                        res.end();
                         
 	                break;
-	           }
-            }
-
+	        }
+	        }       
             //Lokalitaet kennt keinen Tisch mit dieser Id 
             else {
 	            res.status(404).send("Die Ressource wurde nicht gefunden.");
@@ -50,43 +47,34 @@ app.get('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId', function(req, res) {
 	    });
 	});
 
-	app.post('/Lokalitaet/:LokalitaetId/Kickertisch', parseXML,function(req, res){
+	app.post('/',function(req, res){
+        
+        var Kickertisch = req.body;
         
         //Anlegen eines Tisches geht nur mit Content Type application/atom+xml
 	    var contentType = req.get('Content-Type');
         
         //Check ob der Content Type der Anfrage xml ist 
-        if (contentType != "application/atom+xml") {
-	       res.set("Accepts", "application/atom+xml");
+        if (contentType != "application/json") {
+	       res.set("Accepts", "application/json");
 	       res.status(406).send("Content Type is not supported");
 	       res.end();
 	    }
         
         else {
             
-            //Req.body als XML Parsen 
-            var parsedXML = libxml.parseXml(req.body);
-           
-            //Das geparste XML gegen das XSD validieren 
-            var validateAgXSD = parsedXML.validate(xsdDoc);
-            
-            //Anfrage ist bezüglich der XSD Valide 
-            if(validateAgXSD){
-                    
-                // Parser Modul um req.body von XML in JSON zu wandeln
-                xml2jsParser.parseString(req.body,function(err, xml){
-                    
                     //Inkrementiere Kickertischids in der DB , atomare Aktion 
                     client.incr('KickertischId', function(err, id) {
                         
                         //Pflege Daten über den Kickertisch in die DB ein 
                         client.hmset('Kickertisch ' + id, {
-                            'Tischhersteller': xml.Kickertisch.Tischhersteller,
-                            'Modell': xml.Kickertisch.Modell,
-                            'Zustand': xml.Kickertisch.Zustand,
-                            'Bild': xml.Kickertisch.Bild
+                            'Hersteller': Kickertisch.Hersteller,
+                            'Typ ': Kickertisch.Typ,
+                            'Zustand': Kickertisch.Zustand,
+                            'Bild': Kickertisch.Bild
                         });
                         
+/*
                         //Extrahiere LokalitaetId aus Anfrage 
                         var LokalitaetId = req.params.LokalitaetId;
 
@@ -99,55 +87,35 @@ app.get('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId', function(req, res) {
                             "http://kickercheck.de/Lokalitaet/" + LokalitaetId + "/Kickertisch/" + id
                         );
                         
-                        //Baue Repräsentation des Kickertisches und schreibe diese in res.body 
-                        buildRep("Kickertisch",id,function(kickertischXml){
+*/
                                         
                             //Teile dem Client die URI der neu angelegten Ressource mit 
                             res.set("Location", "/Kickertisch/" + id);
                             
                             //Setze content type der Antwort 
-							res.set("Content-Type","application/atom+xml");
+							res.set("Content-Type","application/json");
                             
                             //Zeige dem Client mit Statuscode 201 Erfolg beim anlegen an  
-                            res.status(201).write(kickertischXml);
+                            res.json(req.body);
                             
                             //Antwort beenden 
                             res.end();
                         });
-                    });
-                });
-            }
+                }
             
-            //Anfrage ist nicht valide 
-            else{
-                
-                console.log(parsedXML.validationErrors);
-                
-                //Verweise den Client auf die korrekte Form einer Kickertischanfrage
-                generateHelpForMalformedRequests("Kickertisch",function(kickertischXml){
-                    
-                    //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                    res.status(400);
-                
-                    //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 
-                    res.write(kickertischXml);
-                		
-                    //Antwort beenden 
-                    res.end();     
-                });
-            }
-        }
     });
 
 	/*Mit put kann das Bild eines Kickertischs und/oder seine Zustandsbeschreibung geändert werden*/
-	app.put('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId/', parseXML, function(req, res) {
+	app.put('/:TischId/', function(req, res) {
 
+		var Kickertisch = req.body;
+		
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
-	    if (contentType != "application/atom+xml") {
+	    if (contentType != "application/json") {
 	        //Teile dem Client einen unterstuetzten Type mit 
-	        res.set("Accepts", "application/atom+xml");
+	        res.set("Accepts", "application/json");
 	        //Zeige über den Statuscode und eine Nachricht 
 	        res.status(406).send("Content Type is not supported");
 	        //Antwort beenden
@@ -155,65 +123,31 @@ app.get('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId', function(req, res) {
 	    }
                 
         else {
-            
-            //Req.body als XML Parsen 
-            var parsedXML = libxml.parseXml(req.body);
-           
-            //Das geparste XML gegen das XSD validieren 
-            var validateAgXSD = parsedXML.validate(xsdDoc);
-            
-            //Anfrage ist bezüglich der XSD Valide 
-            if(validateAgXSD){
-                
+                         
                 //Extrahiere Tischid aus der Anfrage
                 var id = req.params.TischId;
-                    
-                // Parser Modul um req.body von XML in JSON zu wandeln
-                xml2jsParser.parseString(req.body,function(err, xml){
-                                            
+                                                           
                         //Pflege Daten über den Kickertisch in die DB ein 
                         client.hmset('Kickertisch ' + id, {
-                            'Tischhersteller': xml.Kickertisch.Tischhersteller,
-                            'Modell': xml.Kickertisch.Modell,
-                            'Zustand': xml.Kickertisch.Zustand,
-                            'Bild': xml.Kickertisch.Bild
+                            'Hersteller': Kickertisch.Hersteller,
+                            'Typ ': Kickertisch.Typ,
+                            'Zustand': Kickertisch.Zustand,
+                            'Bild': Kickertisch.Bild
                         });
-
-                        //Baue Repräsentation des Kickertisches und schreibe diese in res.body 
-                        buildRep("Kickertisch",id,function(kickertischXml){
                                     
                             //Setze content type der Antwort 
-							res.set("Content-Type","application/atom+xml");
+							res.set("Content-Type","application/json");
                             
                             //Zeige dem Client mit Statuscode 201 Erfolg beim anlegen an  
-                            res.status(201).write(kickertischXml);
+                            res.json(req.body);
                             
                             //Antwort beenden 
                             res.end();
-                        });
-                });
-            }
-            
-            //Anfrage ist nicht valide 
-            else{
-                
-                //Verweise den Client auf die korrekte Form einer Kickertischanfrage
-                generateHelpForMalformedRequests("Kickertisch",function(kickertischXml){
-                    
-                    //Setze content Type auf 400 - Bad Request , der Client sollte die gleiche Anfrage nicht erneut stellen ohne Den Content zu ändern 
-                    res.status(400);
-                
-                    //Setze ein Linkelement in den Body, dass dem Client die richtige Verwendung einer Benutzerrepräsentation zeigt 
-                    res.write(LokalitaetId);
-                		
-                    //Antwort beenden 
-                    res.end();     
-                });
-            }
-        }
+                        
+                }
 	});
 
-	app.delete('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId/', function(req, res) {
+	app.delete('/:TischId/', function(req, res) {
 
 	        var tischId = req.params.TischId;
         
@@ -239,3 +173,5 @@ app.get('/Lokalitaet/:LokalitaetId/Kickertisch/:TischId', function(req, res) {
 	            }
 	        });
 	});
+	
+module.exports = app;

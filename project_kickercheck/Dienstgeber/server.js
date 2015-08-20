@@ -1,8 +1,9 @@
-var express        = require('express');
-var bodyParser     = require('body-parser');
+global.express = require('express');
+global.redis = require('redis');
+global.app = express();
+global.client = redis.createClient();
+var bodyParser = require('body-parser');
 
-// Express instance
-var app = express();
 app.set('port', process.env.PORT || 3000);
 
 app.use(bodyParser.json());

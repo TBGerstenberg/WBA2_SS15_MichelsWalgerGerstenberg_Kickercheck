@@ -1,9 +1,3 @@
-var express = require('express');
-var redis = require('redis');
-var app = express.Router();
-var client = redis.createClient();
-
-
 	app.get('/:BenutzerId', function(req, res) {
 
         //BenutzerId aus der URI extrahieren
@@ -33,7 +27,7 @@ var client = redis.createClient();
                                 //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
                                 res.status(200);
 
-                                res.write(req.body);
+                                res.json(req.body);
 
                                 //Anfrage beenden 
                                 res.end();
@@ -43,6 +37,7 @@ var client = redis.createClient();
 	                    default:
 	                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
 	                        res.status(406).send("Content Type wird nicht unterstuetzt");
+	                        res.set("Accepts", "application/json");
 	                        //Antwort beenden        
 							res.end();
 	                    break;
@@ -111,6 +106,8 @@ var client = redis.createClient();
 
 	app.put('/:BenutzerId', function(req, res) {
 
+		var Benutzer = req.body;
+		
 	    var contentType = req.get('Content-Type');
 
 	    //Wenn kein XML+atom geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
@@ -160,7 +157,7 @@ var client = redis.createClient();
                                     //Schicke das URI-Template für den Angeleten Benutzer via Location-Header zurück
                                     res.status(200);
 
-                                    res.write(req.body);
+                                    res.json(req.body);
 
                                     //Anfrage beenden 
                                     res.end();
@@ -213,7 +210,7 @@ var client = redis.createClient();
             var response=[];    
 
             //returned ein Array aller Keys die das Pattern Benutzer* matchen 
-            client.keys('Benutzer*', function (err, benutzerKeys) {
+            client.keys('Benutzer *', function (err, benutzerKeys) {
                 //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
                 benutzerKeys.forEach(function (key, pos) {
                     client.hgetall(key, function (err, user) {
