@@ -26,9 +26,6 @@ var client = redis.createClient();
                         
                         //client kann application/atom+xml verarbeiten     
 	                    case "application/json":
-                               
-                            //Wenn Content-Type und Validierung gestimmt haben, schicke die angelete Datei zurück
-                            
 
                                 //Setze Contenttype der Antwort auf application/atom+xml
                                 res.set("Content-Type", 'application/json');
@@ -93,7 +90,6 @@ var client = redis.createClient();
                         client.hmset('Benutzer ' + id,{
                             'Name': Benutzer.Name,
                             'Alter': Benutzer.Alter,
-                            'Position': Benutzer.Position,
                             'Bild': Benutzer.Bild,
                             'isActive': 1
                         });
@@ -109,13 +105,8 @@ var client = redis.createClient();
 
                             //Anfrage beenden 
                             res.end();
-                             
-                        
 	               });
-	      
 	       }
-	       
-                   
     });
 
 	app.put('/:BenutzerId', function(req, res) {
@@ -157,16 +148,11 @@ var client = redis.createClient();
 	                        									
 							
                                     client.hmset('Benutzer ' + benutzerId, {
-
                                         'Name': Benutzer.Name,
                                         'Alter': Benutzer.Alter,
-                                        'Position': Benutzer.Position,
                                         'Bild': Benutzer.Bild,
                                         'isActive': 1
                                     });  
-                                 
-                                   
-                              
 
                                     //Setze Contenttype der Antwort auf application/atom+xml
                                     res.set("Content-Type", 'application/json');
@@ -180,9 +166,7 @@ var client = redis.createClient();
                                     res.end();
 
                                 }                  
-	                        });    
-                       
-                          
+	                        });       
 	                });  
 	            }            
     });
@@ -224,21 +208,32 @@ var client = redis.createClient();
 
     //Listenressource Benutzer 
     app.get('/',function(req,res){
-        
-        
+
+            //Speichert die alle Benutzer
+            var response=[];    
+
+            //returned ein Array aller Keys die das Pattern Benutzer* matchen 
+            client.keys('Benutzer*', function (err, benutzerKeys) {
+                //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+                benutzerKeys.forEach(function (key, pos) {
+                    client.hgetall(key, function (err, user) {
+                        response.push(user);
+                    });
+                });
+            });
+
+            //Abruf war erfolgreich , antworte mit Statuscode 200 
+            res.status(200);
+
+            //Setze content type der Antwort auf application/json 
+            res.set("Content-Type","application/json");
+
+            //Schreibe XML in Antwort 
+            res.write(JSON.stringify(response));
+
+            //Beende Antwort 
+            res.end();
             
-                //Abruf war erfolgreich , antworte mit Statuscode 200 
-                res.status(200);
-
-                //Setze content type der Antwort auf application/atom+xml 
-                res.set("Content-Type","application/json");
-
-                //Schreibe XML in Antwort 
-                res.write();
-
-                //Beende Antwort 
-                res.end();
-            
-        });
+});
     
 module.exports = app;
