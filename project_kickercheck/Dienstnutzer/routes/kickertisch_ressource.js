@@ -183,7 +183,7 @@ app.get('/:TischId/Belegung/:BelegungId', function(req, res) {
 
         //Extrahiere TischId
 	    var tischId = req.params.TischId;
-	    var belegungId = req.params.BelegungId
+	    var belegungId = req.params.BelegungId;
 
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Kickertisch ' + tischId, function(err, IdExists) {

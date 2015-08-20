@@ -11,6 +11,8 @@ app.use(bodyParser.json());
 
 app.use('/Kickertisch', require('./routes/kickertisch_ressource'));
 app.use('/Liveticker', require('./routes/liveticker_ressource'));
+app.use('/Community', require('./routes/community_ressource'));
+app.use('/Herausforderung', require('./routes/herausforderung_ressource'));
 
 
 // Start the server
