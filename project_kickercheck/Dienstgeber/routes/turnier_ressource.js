@@ -1,3 +1,5 @@
+var app = express.Router();
+
 	// TURNIER // 
 	// TURNIER //
 
@@ -170,3 +172,5 @@
 	        });
 	    }
 	});
+	
+module.exports = app;

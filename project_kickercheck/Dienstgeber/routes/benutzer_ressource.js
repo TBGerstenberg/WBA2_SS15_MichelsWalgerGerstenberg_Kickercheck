@@ -1,3 +1,5 @@
+var app = express.Router();
+
 app.get('/:BenutzerId', function(req, res) {
  
         //BenutzerId aus der URI extrahieren

@@ -1,3 +1,5 @@
+var app = express.Router();
+
 //Match Methoden
 	app.get('/:MatchId', function(req, res) {
 
@@ -466,3 +468,4 @@
 	    }
 	});
 
+module.exports = app;

@@ -1,9 +1,7 @@
-var router = express.Router();
+module.exports = function (app) {
 
-// Routes /api
-// =================
+	
+app.use('/Kickertisch', require('./routes/kickertisch_ressource'));
+app.use('/Liveticker', require('./routes/liveticker_ressource'));
 
-router.use('/Kickertisch', require('./routes/kickertisch_ressource'));
-
-
-module.exports = router;
+};

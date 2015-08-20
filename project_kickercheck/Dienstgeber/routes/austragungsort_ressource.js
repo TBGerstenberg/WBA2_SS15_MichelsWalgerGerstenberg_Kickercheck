@@ -1,3 +1,4 @@
+var app = express.Router();
 
 app.get('/:AustragungsortId', function(req, res) {
 
