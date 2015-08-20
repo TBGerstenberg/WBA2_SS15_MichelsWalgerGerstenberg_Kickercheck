@@ -1,5 +1,5 @@
 //Match Methoden
-	app.get('/Match/:MatchId', function(req, res) {
+	app.get('/:MatchId', function(req, res) {
 
 	    var matchId = req.params.MatchId;
 
@@ -20,10 +20,24 @@
                     
                     switch (acceptedTypes) {
 
-                        case "application/atom+xml":
+                        case "application/json":
+                            
+                            client.hgetall('Austragungsort' + AustragungsortId, function(err,AustragungsortDaten){
 
-                            //XML Repräsentation bauen     
-                            buildRep("Match",matchId,function(err,MatchXML){
+                            //Setze Contenttype der Antwort auf application/json
+                            res.set("Content-Type", 'application/json');
+
+                            //Zeige über Statuscode 200 Erfolg an 
+                            res.status(200);
+
+                            //Schreibe die Daten des Nutzers unter <benutzerId> in den Body
+                            res.json(AustragungsortDaten);
+
+                            //Anfrage beenden 
+                            res.end();
+                        });
+
+                            
 
                                 //Server antwortet mit einer Matchrerpräsentation 
                                 res.set("Content-Type","application/atom+xml");
@@ -33,7 +47,7 @@
                                 
                                 //Antwort beenden        
                                 res.end();
-                            });
+                        
                         break;
 
 	                    default:

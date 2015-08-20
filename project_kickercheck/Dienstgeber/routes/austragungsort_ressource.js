@@ -1,4 +1,3 @@
-//Lokalitaet
 
 app.get('/:AustragungsortId', function(req, res) {
 
@@ -6,7 +5,7 @@ app.get('/:AustragungsortId', function(req, res) {
     var AustragungsortId = req.params.AustragungsortId;
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-    client.exists('Austragungsort ' + AustragungsortId, function(err, IdExists) {
+    client.exists('Austragungsort ' + req.params.AustragungsortId, function(err, IdExists) {
 
         //Die Lokalitaet existiert im System und ist nicht für den Zugriff von außen gesperrt
         if (!IdExists) {
@@ -167,3 +166,5 @@ app.delete('/:AustragungsortId', function(req, res) {
         }
     });
 });
+
+module.exports = app;
