@@ -38,6 +38,7 @@ app.get('/:AustragungsortId', function(req, res) {
                         //Anfrage beenden 
                         res.end();
                     });
+                    
                     break;
 
                 default:
@@ -67,7 +68,7 @@ app.post('/',function(req, res) {
         // LokalitaetId in redis erhöhen, atomare Aktion 
         client.incr('AustragungsortId', function(err, id) {
 
-            // Setze Hashset auf Key "Benutzer BenutzerId" 
+            // Setze Hashset auf Key=Austragugnsort + Id
             client.hmset('Austragungsort ' + id,{
                 'Name' : req.body.Name,
                 'Beschreibung' : req.body.Beschreibung,
@@ -94,7 +95,7 @@ app.put('/:AustragungsortId', function(req, res) {
 
     var contentType = req.get('Content-Type');
 
-    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+    //Wenn kein JSON geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
     if (contentType != "application/json") {
         //Teile dem Client einen unterstuetzten Type mit 
         res.set("Accepts", "application/json");
