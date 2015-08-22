@@ -71,8 +71,8 @@ app.get('/:HerausforderungId', function(req, res) {
                         
                         //Pflege Daten über den Kickertisch in die DB ein 
                         client.hmset('Herausforderung ' + id, {
-                            'Herausforderer': Herausforderung.Herausforderer,
-                            'Herausgefordert': Herausforderung.Herausgefordert,
+                            'Herausforderer': [Herausforderung.Herausforderer],
+                            'Herausgefordert':[Herausforderung.Herausgefordert],
                             'Timestamp': Herausforderung.Timestamp,
                             'Match': Herausforderung.Match,
                             'Kurztext' : Herausforderung.Kurztext
@@ -119,8 +119,8 @@ app.get('/:HerausforderungId', function(req, res) {
                                                            
                         //Pflege Daten über den Kickertisch in die DB ein 
                         client.hmset('Herausforderung ' + id, {
-                            'Herausforderer': Herausforderung.Herausforderer,
-                            'Herausgefordert': Herausforderung.Herausgefordert,
+                            'Herausforderer': [Herausforderung.Herausforderer],
+                            'Herausgefordert':[Herausforderung.Herausgefordert],
                             'Timestamp': Herausforderung.Timestamp,
                             'Match': Herausforderung.Match,
                             'Kurztext' : Herausforderung.Kurztext

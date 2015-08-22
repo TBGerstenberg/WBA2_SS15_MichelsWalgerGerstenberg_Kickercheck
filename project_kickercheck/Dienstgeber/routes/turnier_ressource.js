@@ -49,15 +49,17 @@ app.post('/',function(req, res) {
     } 
 
     else {
-        client.incr('TurnierId', function(err, id) {
-
-            generiereLigaTurnierSpielplan(req.body.Teilnehmeranzahl,req.body.Teamgroesse,function(spielplan){
-
-                var turnierLink ='http://kickercheck.de/Turnier/'+TurnierId+'/Matches';
-                var turnierTeilnehmerHinzufügenLink = 'http://kickercheck.de/Turnier/'+TurnierId+'/Teilnehmer';
+	    
+	      client.incr('TurnierId', function(err, id) {
+ 
+ generiereLigaTurnierSpielplan(req.body.Teilnehmeranzahl,req.body.Teamgroesse,function(spielplan){
+  console.log(spielplan);
+	  
+    var turnierLink ='http://kickercheck.de/Turnier/'+id+'/Matches';
+    var turnierTeilnehmerHinzufügenLink = 'http://kickercheck.de/Turnier/'+id+'/Teilnehmer';
 
                 var turnierObj={
-                    'Teilnehmeranzahl': req.body.Teilnehmerzahl,
+                    'Teilnehmeranzahl': req.body.Teilnehmeranzahl,
                     'Teamgroesse' : req.body.Teamgroesse,
                     'Typ':req.body.Typ,
                     'TeilnehmerHinzufuegen':turnierTeilnehmerHinzufügenLink,
@@ -67,12 +69,17 @@ app.post('/',function(req, res) {
                     'Status':'angelegt',
                     'Spielplan':spielplan
                 }
+                
+                console.log(turnierObj);
 
                 client.hmset('Turnier ' + id,turnierObj);
-
-                res.set("Content-Type", 'application/json').set("Location", "/Turnier/" + id).status(201);.json(turnierObj).end();
+					
+                
             });
-        });
+           
+        
+  res.set("Content-Type", 'application/json').set("Location", "/Turnier/" + id).status(201).json('');
+          });
     } 
 });
 
@@ -178,16 +185,19 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 //WORK IN PROGRESS
 function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
 
+
     //Zu wenig Teilnehmer oder unzulässige Teamgröße
     if(teilnehmerzahl < 0 || teamGroesse %2 != 0){
+	 
         return -1;  
     }
 
     //Legt fest wieviele Teams es geben wird 
-    var anzahlTeams=teilnehmerzahl / teamGroesse
+    var anzahlTeams=teilnehmerzahl / teamGroesse;
 
     //Es gibt keine Spieler oder der Turnierplan geht nicht auf  
-    if(anzahlTeams < 0 || anzahlTeams != 0){
+    if(anzahlTeams < 0 || anzahlTeams == 0){
+	      
         return -1;
     }
 
@@ -197,34 +207,36 @@ function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
 
     //Enthält später den fertigen Spielplan 
     var spielPlan=[];
-    var i=0;
 
-    while(i < (anzahlTeams-1)){
+    var i=0;
+    var n = anzahlTeams;
+
+    while(i < (n-1)){
 
         spielPlan.push({
             "Team1":n-1,
             "Team2":i,
-            "Runde":i
+            "Runde":i+1
         });
 
         var j=1;
 
-        while(j<anzahlTeams/2){
+        while(j<n/2){
             var a=i-j;
             var b=i+j;
 
             if(a<0){
-                a=a+(anzahlTeams-1);
+                a=a+(n-1);
             }
 
             if(b>n-2){
-                b=b-(anzahlTeams-1);
+                b=b-(n-1);
             }
 
             spielPlan.push({
                 "Team1":a,
                 "Team2":b,
-                "Runde":i
+                "Runde":i+1
             });
             j++;
         }
@@ -236,7 +248,6 @@ function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
         var paarung=spielPlan[k];
         console.log("Runde"+paarung.Runde+"  "+paarung.Team1 + " vs   " + paarung.Team2);
     }*/
-
     callback(spielPlan);
 }
 

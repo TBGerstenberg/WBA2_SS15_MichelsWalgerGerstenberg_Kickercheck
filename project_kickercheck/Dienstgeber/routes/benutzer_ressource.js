@@ -57,12 +57,12 @@ app.post('/', function(req, res) {
     //Content Type der Anfrage abfragen 
     var contentType = req.get('Content-Type');
 
-    //Check ob der Content Type der Anfrage xml ist 
+    //Check ob der Content Type der Anfrage json ist 
     if (contentType != "application/json") {
         res.set("Accepts", "application/json").status(406).send("Content Type is not supported").end(); 
     } 
     
-    if(req.get('Accepts') != "application/json"){
+    if(req.get('Accept') != "application/json"){
         res.status(406).send("Content Type wird nicht unterstuetzt").end();
     }
 
@@ -174,9 +174,12 @@ app.get('/',function(req,res){
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Benutzer *', function (err, benutzerKeys) {
+	   
         //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
         benutzerKeys.forEach(function (key, pos) {
+	       
             client.hgetall(key, function (err, user) {
+	           
                 response.push(user);
             });
         });
