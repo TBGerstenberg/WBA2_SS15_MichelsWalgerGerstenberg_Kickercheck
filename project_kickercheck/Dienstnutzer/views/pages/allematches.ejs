@@ -13,16 +13,16 @@
             <div class="col-sm-12">
             
                 <div class="jumbotron">
-                    <h1>Liste aller Turniere</h1>
+                    <h1>Liste aller Matches</h1>
                    
         <br />
         
         <div class="list-group">
        
-        <% turniere.forEach(function(turnier) { %>
-	  <a href="/Turnier/<%= turnier.id %>" class="list-group-item"> <h4 class="list-group-item-heading"><%= turnier.Typ %></h4>
-	   <p class="list-group-item-text">Austragungszeitraum: <%= turnier.Austragungszeitraum %></p>
-	   <p class="list-group-item-text">Status: <%= turnier.Status %></p>
+        <% matches.forEach(function(match) { %>
+	  <a href="/Match/<%= match.id %>" class="list-group-item"> <h4 class="list-group-item-heading"><%= match.Austragungsort %></h4>
+	   <p class="list-group-item-text">Datum: <%= match.Datum %></p>
+	   <p class="list-group-item-text">Uhrzeit: <%= match.Uhrzeit %></p>
 	    </a>
    <% });  %>
 </div>

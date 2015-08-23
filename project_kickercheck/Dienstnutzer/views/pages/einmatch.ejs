@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partials/head %>
+</head>
+<script>
+$(document).ready(function() {
+	
+	$('#changeData').submit(function(e) {
+							e.preventDefault();
+			
+				 var datum = $('.datum').val();
+				 var uhrzeit = $('.uhrzeit').val();
+				 var status = $('.status').val();
+
+							if(!(datum && uhrzeit && status)) {
+								alert('Bitte Daten spezifizieren.');
+								return false;
+								}
+			 
+			 var formData = {Datum: datum,
+				 Uhrzeit: uhrzeit,
+				 Status: status
+			 };
+
+
+							$.ajax({
+								type: 'PUT',
+								url: '/Match/<%= match.id %>',
+								contentType: 'application/json',
+								data: JSON.stringify(formData),
+								success: function(data) {
+									
+									 $('#changeData').each(function() {
+                        this.reset();
+                   });
+                   
+                   
+
+							  $("#dat").text('Datum: '+data.Datum);
+							  $("#uhr").text('Uhrzeit: '+data.Uhrzeit);
+							   $("#stat").text('Status: '+data.Status);
+								
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});
+						});
+});
+</script>
+<body class="container">
+  <header>
+        <% include ../partials/header %>
+    </header>
+ <main>
+        <div class="row">
+            <div class="col-sm-8">
+            
+                <div class="jumbotron">
+                    <h1>Match <%= match.id %></h1>
+                   <br />
+                     <ul>
+            <li id="dat">Datum: <%= match.Datum %></li>
+              <li id="uhr"> Uhrzeit: <%= match.Uhrzeit %></li>
+               <li> Austragungsort: <%= match.Austragungsort %></li>
+              <li id="stat"> Status: <%= match.Status %></li>
+                    </ul> 
+                    <br />
+                 
+                    <div id="teiln">
+                    <p>Liste der Teilnehmer: </p>
+                   
+                    <ul>
+                    <% if (match.Teilnehmer) { %>
+                      <% for(var i=0; i < match.Teilnehmer.length; i++) { %>
+                    <li><%= match.Teilnehmer[i] %></li>
+                    <% }}; %>
+                    </ul>
+                    </div>
+                    <hr />
+                    
+
+                    <div id="divdata" class="margintop20">
+                    <p> Match ändern: </p>
+                    <form role="form" action="" method="POST" name="changeData" id="changeData"><div class="form-group"><label for="datum">Datum:</label><input type="text" class="datum form-control" name="datum"><label for="uhrzeit">Uhrzeit:</label><input type="text" class="uhrzeit form-control" name="uhrzeit"></div><div class="form-group"><label for="status">Status:</label><input type="text" class="status form-control" name="status"></div>
+           <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form></div>
+<br />
+<hr />
+<h4>Regeln</h4>
+<br />
+
+<%= match.Regelwerk %>
+  	       
+                </div>
+                
+            </div>
+           
+        </div>
+    </main>
+ <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>
