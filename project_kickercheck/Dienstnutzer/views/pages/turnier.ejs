@@ -33,7 +33,7 @@
 									 $('#turnierAnlegen').each(function() {
                         this.reset();
                     });
-							$('#divteilnehmer').show();
+						
 							$('.addid').append('<a href="/Turnier/'+data.id+'">Turnier <span class="turnierId">'+data.id+'</span> angelegt</a>.');
 									
 								}
@@ -54,15 +54,22 @@
             
                 <div class="jumbotron">
                     <h1>Turnier</h1>
-                   <form action="" method="POST" name="turnierAnlegen" id="turnierAnlegen">
+                   
+
+                   <form role="form" action="" method="POST" name="turnierAnlegen" id="turnierAnlegen">
+                    <div class="form-group">
         <label for="teilnehmer">Teilnehmer:</label> <br>
-        <input type="text" id="teilnehmer" placeholder="Wie viele Spieler?" maxlength="100" /><br>
+        <input type="text" id="teilnehmer" class="form-control" placeholder="Wie viele Spieler?" maxlength="100" /> 
+         </div>
+          <div class="form-group">
 		 <label for="teamgroesse">Teamgroesse:</label> <br>
-        <input type="text" id="teamgroesse" placeholder="Wie viele pro Team?" maxlength="100" /><br>
+        <input type="text" id="teamgroesse" class="form-control" placeholder="Wie viele pro Team?" maxlength="100" />
+         </div>
+         <div class="form-group">
          <label for="typ">Art des Turniers:</label> <br>
-        <input type="text" id="typ" placeholder="Art des Turniers" maxlength="100" /><br>
-			<br />
-        <input type="submit" name="send" value="Submit" />
+        <input type="text" id="typ"  class="form-control" placeholder="Art des Turniers" maxlength="100" />
+        </div>
+                <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
 
         </form>
         <br />

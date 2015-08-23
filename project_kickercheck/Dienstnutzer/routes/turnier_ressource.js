@@ -1,5 +1,34 @@
 var app = express.Router();
 
+app.get('/addTurnier', function(req, res) {
+    res.render('pages/turnier');
+});
+
+app.get('/alleTurniere', function(req, res) {
+	
+      var options = {
+        host: "localhost",
+        port: 3000,
+        path: "/Turnier",
+        method:"GET",
+        headers:{
+          accept:"application/json"
+        }
+      }
+      var externalRequest = http.request(options, function(externalResponse){
+      
+            externalResponse.on("data", function(chunk){
+
+                var turniere = JSON.parse(chunk);
+                res.render('pages/alleturniere',{turniere:turniere});
+                res.end();
+            });
+    
+  });
+         
+      externalRequest.end();
+});
+	
 
 app.post('/', function(req, res) {
 	

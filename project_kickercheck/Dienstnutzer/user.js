@@ -26,11 +26,6 @@ app.get('/', function(req, res) {
     res.render('pages/index');
 });
 
-// turnier page 
-app.get('/Turnier', function(req, res) {
-    res.render('pages/turnier');
-});
-
 
 app.use('/Kickertisch', require('./routes/kickertisch_ressource'));
 app.use('/Liveticker', require('./routes/liveticker_ressource'));

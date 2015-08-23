@@ -109,8 +109,10 @@ $(document).ready(function() {
               <li id="stat"> Status: <%= turnier.Status %></li>
                     </ul> 
                     <br />
-                    Teilnehmer hinzufügen:
+                 
                     <div id="teiln">
+                    <p>Liste der Teilnehmer: </p>
+                   
                     <ul>
                     <% if (turnier.Teilnehmer) { %>
                       <% for(var i=0; i < turnier.Teilnehmer.length; i++) { %>
@@ -118,15 +120,21 @@ $(document).ready(function() {
                     <% }}; %>
                     </ul>
                     </div>
+                    <hr />
+                    <div id="divteilnehmer" class="margintop20">
+                      <p> Teilnehmer hinzufügen: </p>
+                    <form role="form" action="" method="POST" name="addTeilnehmer" id="addTeilnehmer"><div class="form-group"><label for="teilnehmer">Teilnehmer:</label><br><input type="text" class="addTeilnehmer form-control" name="benutzer"></div>
                     
-                    <div id="divteilnehmer">
-                    <form action="" method="POST" name="addTeilnehmer" id="addTeilnehmer"><label for="teilnehmer">Teilnehmer:</label><br><input type="text" class="addTeilnehmer" name="benutzer"><input type="submit" name="send" value="Submit" /></form></div>
-                    <br />
-                     Turnierdaten ändern:
-                    <br />
-                    <div id="divdata">
-                    <form action="" method="POST" name="changeData" id="changeData"><label for="austragungszeitraum">Austragungszeitraum:</label><br><input type="text" class="austragungszeitraum" name="austragungszeitraum"><br /><label for="status">Status:</label><br><input type="text" class="status" name="status"><input type="submit" name="change" value="Submit" /></form></div>
+                    <input type="submit" class="btn btn-primary" name="send" value="Hinzufügen" /></form></div>
+                 
+                    
+                  <hr />
+                    <div id="divdata" class="margintop20">
+                    <p> Turnierdaten ändern: </p>
+                    <form role="form" action="" method="POST" name="changeData" id="changeData"><div class="form-group"><label for="austragungszeitraum">Austragungszeitraum:</label><br><input type="text" class="austragungszeitraum form-control" name="austragungszeitraum"></div><div class="form-group"><label for="status">Status:</label><input type="text" class="status form-control" name="status"></div>
+           <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form></div>
 <br />
+<hr />
 <h4>Spielplan</h4>
 <br />
 		   

@@ -3,6 +3,30 @@ var app = express.Router();
 // TURNIER // 
 // TURNIER //
 
+app.get('/',function(req,res){
+
+    //Speichert die alle Benutzer
+    var response=[];    
+
+    //returned ein Array aller Keys die das Pattern Benutzer* matchen 
+    client.keys('Turnier *', function (err, key) {
+	   
+	     client.mget(key, function (err, turnier) {
+		     
+        //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+        turnier.forEach(function (val) {
+	     
+       response.push(JSON.parse(val));
+            });
+            
+    
+    res.status(200).set("Content-Type","application/json").json(response).end();
+    
+    });
+       });
+        });
+            
+
 app.get('/:TurnierId', function(req, res) {
  
     var turnierId = req.params.TurnierId;
