@@ -36,7 +36,16 @@
 						
 							$('.addid').append('<a href="/Turnier/'+data.id+'">Turnier <span class="turnierId">'+data.id+'</span> angelegt</a>.');
 									
-								}
+								},
+								statusCode: {
+        400: function() {
+           alert('Die Anfrage war nicht korrekt.');
+        }
+        },
+        fail: function() {
+	        alert('Fehler');
+        }
+
 							});
 			
 						});

@@ -65,6 +65,10 @@ app.post('/', function(req, res) {
     
     var externalRequest = http.request(options, function(externalResponse) {
 
+if(externalResponse.statusCode == 400){
+	 res.status(400).end();
+	 };
+	 
   externalResponse.on('data', function (chunk) {
     
    var turnierplan = JSON.parse(chunk);

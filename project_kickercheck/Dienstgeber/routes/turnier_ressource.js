@@ -78,11 +78,13 @@ app.post('/',function(req, res) {
     } 
 
     else {
-	    
-	      client.incr('TurnierId', function(err, id) {
+	   
  
  generiereLigaTurnierSpielplan(req.body.Teilnehmeranzahl,req.body.Teamgroesse,function(spielplan){
 	  
+	   
+	      client.incr('TurnierId', function(err, id) {
+		      
     var turnierLink ='http://kickercheck.de/Turnier/'+id+'/Matches';
     var turnierTeilnehmerHinzufügenLink = 'http://kickercheck.de/Turnier/'+id+'/Teilnehmer';
 
