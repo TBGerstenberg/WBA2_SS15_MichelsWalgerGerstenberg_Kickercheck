@@ -1,19 +1,32 @@
 var app = express.Router();
 
 app.get('/:BenutzerId', function(req, res) {
-
+	
     //BenutzerId aus der URI extrahieren
-    var benutzerId = req.params.BenutzerId;
+    var benutzerId = req.params.BenutzerId;    
+/*
+	TODO
+	
+	  // hget return 0 wenn key auf false sonst 1 , hier wird geprüft ob der Benutzer nach außen sichtbar sein möchte
 
-    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-    client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
-
-        // hget return 0 wenn key auf false sonst 1 , hier wird geprüft ob der Benutzer nach außen sichtbar sein möchte
         client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
 
             //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
             if (IdExists == 1 && benutzerValid == 1) {
+*/
 
+  //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
+	    
+	    
+        //Das Match existiert nicht im System 
+        if (!IdExists) {
+            res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+        }
+
+        //Das Match existiert 
+        else  {
+	    
                 //Headerfeld Accept abfragen
                 var acceptedTypes = req.get('Accept');
 
@@ -23,10 +36,13 @@ app.get('/:BenutzerId', function(req, res) {
                         //client kann application/json verarbeiten     
                     case "application/json":
 
-                        client.hgetall('Benutzer ' + benutzerId, function(err,BenutzerDaten){
+                        client.mget('Benutzer ' + benutzerId, function(err,benutzerdata){
+
+							
+							  var Benutzerdaten = JSON.parse(benutzerdata);
 
                             //Setze Contenttype der Antwort auf application/json
-                            res.set("Content-Type", 'application/json').status(200).json(BenutzerDaten).end();
+                            res.set("Content-Type", 'application/json').status(200).json(Benutzerdaten).end();
                         });
 
                         break;
@@ -37,18 +53,22 @@ app.get('/:BenutzerId', function(req, res) {
                         break;
                 }
             }
+            
+/*
+	TODO
             else if(IdExists == 1 && benutzerValid == 0) {
                 //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
                 res.status(404).send("Die Ressource wurde für den Zugriff von außen gesperrt.").end();
             }
 
+
             else {
                 //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
                 res.status(404).send("Die Ressource wurde nicht gefunden.").end();
             }
+      */
         });
     });
-});
 
 
 app.post('/', function(req, res) {
@@ -61,26 +81,33 @@ app.post('/', function(req, res) {
     if (contentType != "application/json") {
         res.set("Accepts", "application/json").status(406).send("Content Type is not supported").end(); 
     } 
-    
-    if(req.get('Accept') != "application/json"){
-        res.status(406).send("Content Type wird nicht unterstuetzt").end();
-    }
 
     else{
         // BenutzerId in redis erhöhen, atomare Aktion 
         client.incr('BenutzerId', function(err, id) {
             console.log("Die BenutzerId nach hinzufügen eines Benutzers : " + id);
-
-            // Setze Hashset auf Key "Benutzer BenutzerId" 
-            client.hmset('Benutzer ' + id,{
-                'Name': Benutzer.Name,
+            
+             var Benutzer=req.body;
+            //Pflege Daten aus Anfrage in die DB ein
+         
+	            
+	             var benutzerObj={
+                //Set von Benutzern required
+                'id': id,
+                 'Name': Benutzer.Name,
                 'Alter': Benutzer.Alter,
                 'Bild': Benutzer.Bild,
                 'isActive': 1
-            });
+            };
+            
+               client.set('Benutzer ' + id, JSON.stringify(benutzerObj));
+               
+               console.log(benutzerObj);
 
             //Setze Contenttype der Antwort auf application/atom+xml
-            res.set("Content-Type", 'application/json').set("Location", "/Benutzer/" + id).status(201).json(req.body).end();
+            res.set("Content-Type", 'application/json').set("Location", "/Benutzer/" + id).status(201).json(benutzerObj).end();
+
+          
         });
     }
 });
@@ -95,12 +122,15 @@ app.put('/:BenutzerId', function(req, res) {
     } 
 
     else {
-        
-        //extrahiere BenutzerId aus Anfrage 
-        var benutzerId = req.params.BenutzerId;
+	    
+	     	var benutzerId = req.params.BenutzerId;
 
-        //Checke ob ein Eintrag in der DB unter dieser ID existiert 
+        //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
         client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
+            
+/*
+	
+	TODO
 
             //Checke ob bestehender EIntrag gelöscht bzw für den Zugriff von außen gesperrt wrude 
             client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
@@ -114,21 +144,41 @@ app.put('/:BenutzerId', function(req, res) {
                 //Der Benutzer existiert und kann bearbeitet werden 
                 else if (IdExists == 1 && benutzerValid == 1) {
                     
-                    var Benutzer = req.body;
-
-                    client.hmset('Benutzer ' + benutzerId, {
-                        'Name': Benutzer.Name,
-                        'Alter': Benutzer.Alter,
-                        'Bild': Benutzer.Bild,
-                        'isActive': 1
-                    });  
-
-                    //Setze Contenttype der Antwort auf application/atom+xml
-                    res.set("Content-Type", 'application/json').status(200).json(req.body).end();
+                  
                 }                  
-            });       
+            });      
+*/ 
+
+   //client.exists hat false geliefert 
+            if (!IdExists) {
+                res.status(404).end();
+            } 
+            
+
+            else {
+	            
+            //Lese aktuellen Zustand des Turniers aus DB
+                client.mget('Benutzer '+benutzerId,function(err,benutzerdata){
+
+				var Benutzerdaten = JSON.parse(benutzerdata);
+				
+                    //Aktualisiere änderbare Daten 
+                    Benutzerdaten.Name = req.body.Name;
+                      Benutzerdaten.Alter = req.body.Alter;
+
+
+                    //Schreibe Turnierdaten zurück 
+                    client.set('Benutzer ' + benutzerId,JSON.stringify(Benutzerdaten));
+           
+
+            //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+            res.set("Content-Type", 'application/json').status(201).json(Benutzerdaten).end();
+        
+
         });  
     }            
+});
+}
 });
 
 app.delete('/:BenutzerId', function(req, res) {
@@ -166,27 +216,28 @@ app.delete('/:BenutzerId', function(req, res) {
     });
 });
 
-//Listenressource Benutzer 
 app.get('/',function(req,res){
 
     //Speichert die alle Benutzer
     var response=[];    
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
-    client.keys('Benutzer *', function (err, benutzerKeys) {
+    client.keys('Benutzer *', function (err, key) {
 	   
+	     client.mget(key, function (err, benutzer) {
+		     
         //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-        benutzerKeys.forEach(function (key, pos) {
-	       
-            client.hgetall(key, function (err, user) {
-	           
-                response.push(user);
+        benutzer.forEach(function (val) {
+	     
+       response.push(JSON.parse(val));
             });
-        });
-    });
-
-    //Abruf war erfolgreich , antworte mit Statuscode 200 
+            
+    
     res.status(200).set("Content-Type","application/json").json(response).end();
-});
+    
+    });
+       });
+        });
+        
 
 module.exports = app;

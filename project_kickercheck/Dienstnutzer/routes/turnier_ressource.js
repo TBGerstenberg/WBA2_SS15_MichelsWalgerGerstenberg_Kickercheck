@@ -1,7 +1,7 @@
 var app = express.Router();
 
 app.get('/addTurnier', function(req, res) {
-    res.render('pages/turnier');
+    res.render('pages/addTurnier');
 });
 
 app.get('/alleTurniere', function(req, res) {

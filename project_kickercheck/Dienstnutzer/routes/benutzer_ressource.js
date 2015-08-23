@@ -1,15 +1,15 @@
 var app = express.Router();
 
-app.get('/addMatch', function(req, res) {
-    res.render('pages/addMatch');
+app.get('/addBenutzer', function(req, res) {
+    res.render('pages/addBenutzer');
 });
 
-app.get('/alleMatches', function(req, res) {
+app.get('/alleBenutzer', function(req, res) {
 	
       var options = {
         host: "localhost",
         port: 3000,
-        path: "/Match",
+        path: "/Benutzer",
         method:"GET",
         headers:{
           accept:"application/json"
@@ -19,8 +19,8 @@ app.get('/alleMatches', function(req, res) {
       
             externalResponse.on("data", function(chunk){
 
-                var matches = JSON.parse(chunk);
-                res.render('pages/allematches',{matches:matches});
+                var benutzerAll = JSON.parse(chunk);
+                res.render('pages/allebenutzer',{benutzerAll:benutzerAll});
                 res.end();
             });
     
@@ -30,12 +30,12 @@ app.get('/alleMatches', function(req, res) {
 });
 	
 
-app.get('/:MatchId', function(req, res) {
+app.get('/:BenutzerId', function(req, res) {
   
     var options = {
         host: 'localhost',
         port: 3000,
-        path: '/Match/'+req.params.MatchId,
+        path: '/Benutzer/'+req.params.BenutzerId,
         method: 'GET',
         headers: {
             accept: 'application/json'
@@ -45,11 +45,11 @@ app.get('/:MatchId', function(req, res) {
     var x = http.request(options, function(externalres){
         externalres.on('data', function(chunk){
            
-            var match = JSON.parse(chunk);
+            var benutzer = JSON.parse(chunk);
   
-             console.log(util.inspect(match, false, null));
+             console.log(util.inspect(benutzer, false, null));
              
-            res.render('pages/einmatch', { match: match });
+            res.render('pages/einbenutzer', { benutzer: benutzer });
         });
     });                     
     x.end();
@@ -58,20 +58,7 @@ app.get('/:MatchId', function(req, res) {
 app.post('/', function(req, res) {
 	
     // Speichert req.body
-    var MatchAnfrage = req.body;
-    
-    /*
-	    
-	    BODY:
-	    
-	    {
-	"Teilnehmeranzahl":10,
-	"Teamgroesse":2,
-	"Typ":"Kickerturnier"
-	}   
-	    
-	    
-	    */
+    var BenutzerAnfrage = req.body;
    
 
     // HTTP Header setzen
@@ -83,7 +70,7 @@ app.post('/', function(req, res) {
     var options = {
       host: 'localhost',
       port: 3000,
-      path: '/Match',
+      path: '/Benutzer',
       method: 'POST',
       headers: headers
     };
@@ -96,11 +83,11 @@ if(externalResponse.statusCode == 400){
 	 
   externalResponse.on('data', function (chunk) {
     
-   var match = JSON.parse(chunk);
+   var benutzer = JSON.parse(chunk);
 
-  console.log(util.inspect(match, false, null));
+  console.log(util.inspect(benutzer, false, null));
    
-    res.json(match);
+    res.json(benutzer);
     res.end();
    
 
@@ -109,19 +96,19 @@ if(externalResponse.statusCode == 400){
  });
  
  
-externalRequest.write(JSON.stringify(MatchAnfrage));
+externalRequest.write(JSON.stringify(BenutzerAnfrage));
 
 externalRequest.end();
 
 });
 
-app.put('/:MatchId', function(req, res) {
+app.put('/:BenutzerId', function(req, res) {
 
-		var MatchDaten = req.body;
-		var matchId = req.params.MatchId;
+		var BenutzerDaten = req.body;
+		var benutzerId = req.params.BenutzerId;
 		
     
-   console.log(util.inspect(MatchDaten, false, null));
+   console.log(util.inspect(BenutzerDaten, false, null));
 
     // HTTP Header setzen
     var headers = {
@@ -132,7 +119,7 @@ app.put('/:MatchId', function(req, res) {
     var options = {
       host: 'localhost',
       port: 3000,
-      path: '/Match/'+matchId,
+      path: '/Benutzer/'+benutzerId,
       method: 'PUT',
       headers: headers
     };
@@ -142,11 +129,11 @@ app.put('/:MatchId', function(req, res) {
 	 
   externalResponse.on('data', function (chunk) {
     
-   var changeMatch = JSON.parse(chunk);
+   var changeBenutzer = JSON.parse(chunk);
 
-  console.log(util.inspect(changeMatch, false, null));
+  console.log(util.inspect(changeBenutzer, false, null));
    
-    res.json(changeMatch);
+    res.json(changeBenutzer);
     res.end();
    
 
@@ -154,7 +141,7 @@ app.put('/:MatchId', function(req, res) {
 
  });
  
-externalRequest.write(JSON.stringify(MatchDaten));
+externalRequest.write(JSON.stringify(BenutzerDaten));
 
 externalRequest.end();
 
