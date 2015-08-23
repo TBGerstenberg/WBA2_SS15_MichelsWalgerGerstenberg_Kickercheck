@@ -4,7 +4,7 @@ var app = express.Router();
 // TURNIER //
 
 app.get('/:TurnierId', function(req, res) {
-
+ 
     var turnierId = req.params.TurnierId;
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
@@ -20,18 +20,23 @@ app.get('/:TurnierId', function(req, res) {
             switch (acceptedTypes) {
 
                 case "application/json":
-                    client.hgetall('Turnier ' + turnierId, function(err,turnierDaten){
+                    client.mget('Turnier ' + turnierId, function(err,turnierDaten){
                         //Setze Contenttype der Antwort auf application/json
-                        res.set("Content-Type", 'application/json').status(200).json(turnierDaten).end();
+                     
+                    var send = JSON.parse(turnierDaten);
+                     
+                      console.log(util.inspect(turnierDaten, false, null));
+                   
+                        res.set("Content-Type", 'application/json').status(200).json(send).end();
                     });
                     break;
 
                 default:
                     //We cannot send a representation that is accepted by the client 
                     res.status(406).send("Content Type wird nicht unterstuetzt");
+                    res.end();
                     break;
             }
-            res.end();
         }
     });
 });
@@ -53,33 +58,32 @@ app.post('/',function(req, res) {
 	      client.incr('TurnierId', function(err, id) {
  
  generiereLigaTurnierSpielplan(req.body.Teilnehmeranzahl,req.body.Teamgroesse,function(spielplan){
-  console.log(spielplan);
 	  
     var turnierLink ='http://kickercheck.de/Turnier/'+id+'/Matches';
     var turnierTeilnehmerHinzufügenLink = 'http://kickercheck.de/Turnier/'+id+'/Teilnehmer';
 
                 var turnierObj={
+	                'id' : id,
                     'Teilnehmeranzahl': req.body.Teilnehmeranzahl,
                     'Teamgroesse' : req.body.Teamgroesse,
                     'Typ':req.body.Typ,
                     'TeilnehmerHinzufuegen':turnierTeilnehmerHinzufügenLink,
-                    'Teilnehmer':[],
+                    'Teilnehmer': [],
                     'Matches':[],
                     'Austragungszeitraum':null,
                     'Status':'angelegt',
-                    'Spielplan':spielplan
+                    'Spielplan': spielplan
                 }
-                
-                console.log(turnierObj);
 
-                client.hmset('Turnier ' + id,turnierObj);
-					
-                
-            });
+                client.set('Turnier ' + id,JSON.stringify(turnierObj));
+			
            
         
-  res.set("Content-Type", 'application/json').set("Location", "/Turnier/" + id).status(201).json('');
+  res.set("Content-Type", 'application/json').set("Location", "/Turnier/" + id).status(201).json(turnierObj).end();
+                 
+            });
           });
+         
     } 
 });
 
@@ -103,20 +107,22 @@ app.put('/:TurnierId',function(req, res) {
 
             //client.exists hat false geliefert 
             if (!IdExists) {
-                res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+                res.status(404).end();
             } 
 
             else {
 
                 //Lese aktuellen Zustand des Turniers aus DB
-                client.hgetall('Turnier '+turnierId,function(err,Turnierdaten){
+                client.mget('Turnier '+turnierId,function(err,turnierdata){
 
+				var Turnierdaten = JSON.parse(turnierdata);
+				
                     //Aktualisiere änderbare Daten 
                     Turnierdaten.Austragungszeitraum = req.body.Austragungszeitraum;
                     Turnierdaten.Status=req.body.Status;
 
                     //Schreibe Turnierdaten zurück 
-                    client.hmset('Turnier ' + turnierId,Turnierdaten);
+                    client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
 
                     //Setze Contenttype der Antwort auf application/json..
                     res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
@@ -160,14 +166,18 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
         } 
 
         //Lese aktuellen Zustand des Turniers aus DB
-        client.hgetall('Turnier '+turnierId,function(err,Turnierdaten){
-
+        client.mget('Turnier '+turnierId,function(err,turnierdata){
+						
+						var Turnierdaten = JSON.parse(turnierdata);
+						
             //Hinzufügen eines Teilnehmers darf nur funktionierten solang die Teilnehmeranzahl nicht überschritten wird 
+            
             if(Turnierdaten.Teilnehmer.length < Turnierdaten.Teilnehmeranzahl){
+	            console.log(req.body.teilnehmer);
                 Turnierdaten.Teilnehmer.push(req.body.teilnehmer);
 
                 //Schreibe Turnierdaten zurück 
-                client.hmset('Turnier ' + turnierId,Turnierdaten);
+                client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
 
                 //Setze Contenttype der Antwort auf application/json..
                 res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
@@ -175,7 +185,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
             //Hinzufügen war unzulässig , sende einen 409-Conflict Status um anzuzeigen, dass keine Teilnehmer mehr hinzugefügt werden können
             else{
-                res.status(409).send("Teilnehmerzahl bereits erreicht").end();
+                res.status(409).end();
             }
         });
     });
@@ -206,7 +216,7 @@ function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
     //http://www.inf-schule.de/algorithmen/algorithmen/bedeutung/fallstudie_turnierplanung/station_algorithmen
 
     //Enthält später den fertigen Spielplan 
-    var spielPlan=[];
+    var spielPlan= [];
 
     var i=0;
     var n = anzahlTeams;

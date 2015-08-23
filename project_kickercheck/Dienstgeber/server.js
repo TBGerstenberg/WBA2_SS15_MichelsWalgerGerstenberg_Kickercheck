@@ -1,6 +1,8 @@
 global.express = require('express');
 global.redis = require('redis');
 global.client = redis.createClient();
+// nur zum debug
+global.util = require('util');
 
 var app = express();
 var bodyParser = require('body-parser');
