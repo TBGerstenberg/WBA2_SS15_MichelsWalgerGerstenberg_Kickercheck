@@ -1,7 +1,59 @@
 var app = express.Router();
 
 app.get('/addMatch', function(req, res) {
-    res.render('pages/addMatch');
+	
+	var benutzerAll,austragungsorte;
+	
+	 var options1 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Benutzer",
+        method:"GET",
+        headers:{
+          accept:"application/json"
+        }
+      }
+      
+       var options2 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Austragungsort",
+        method:"GET",
+        headers:{
+          accept:"application/json"
+        }
+      }
+      
+      var x = http.request(options1, function(externalResponse){
+	      
+	       var y = http.request(options2, function(externalrep){
+      
+            externalResponse.on("data", function(chunk){
+
+                var benutzerAll = JSON.parse(chunk);
+                
+                
+            externalrep.on("data", function(chunks){
+
+                var austragungsorte = JSON.parse(chunks);
+                
+                   res.render('pages/addMatch',{benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+       
+                res.end();
+            
+             
+            });
+    
+  });
+
+            });
+                   
+    
+      y.end();
+    
+  });
+    x.end();
+  
 });
 
 app.get('/alleMatches', function(req, res) {
@@ -49,10 +101,13 @@ app.get('/:MatchId', function(req, res) {
   
              console.log(util.inspect(match, false, null));
              
-            res.render('pages/einmatch', { match: match });
+             res.render('pages/einmatch', { match: match });
+           
         });
     });                     
     x.end();
+
+     
 });
 
 app.post('/', function(req, res) {

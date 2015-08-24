@@ -6,12 +6,18 @@
 <script>
 $(document).ready(function() {
 	
+		 var d = new Date();
+				var time = d.setDate(d.getDate()-1);
+			
+			   $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
+			    $('.timepick').datetimepicker({format:'HH:mm'});
+	
 	$('#changeData').submit(function(e) {
 							e.preventDefault();
 			
-				 var datum = $('.datum').val();
-				 var uhrzeit = $('.uhrzeit').val();
-				 var status = $('.status').val();
+				 var datum = $('#datum').val();
+				 var uhrzeit = $('#uhrzeit').val();
+				 var status = $('#status').val();
 
 							if(!(datum && uhrzeit && status)) {
 								alert('Bitte Daten spezifizieren.');
@@ -38,7 +44,7 @@ $(document).ready(function() {
                    
 
 							  $("#dat").text('Datum: '+data.Datum);
-							  $("#uhr").text('Uhrzeit: '+data.Uhrzeit);
+							  $("#uhr").text('Startzeitpunkt: '+data.Uhrzeit+ ' Uhr');
 							   $("#stat").text('Status: '+data.Status);
 								
 								},
@@ -63,7 +69,7 @@ $(document).ready(function() {
                    <br />
                      <ul>
             <li id="dat">Datum: <%= match.Datum %></li>
-              <li id="uhr"> Uhrzeit: <%= match.Uhrzeit %></li>
+              <li id="uhr"> Startzeitpunkt: <%= match.Uhrzeit %> Uhr</li>
                <li> Austragungsort: <%= match.Austragungsort %></li>
               <li id="stat"> Status: <%= match.Status %></li>
                     </ul> 
@@ -84,7 +90,24 @@ $(document).ready(function() {
 
                     <div id="divdata" class="margintop20">
                     <p> Match ändern: </p>
-                    <form role="form" action="" method="POST" name="changeData" id="changeData"><div class="form-group"><label for="datum">Datum:</label><input type="text" class="datum form-control" name="datum"><label for="uhrzeit">Uhrzeit:</label><input type="text" class="uhrzeit form-control" name="uhrzeit"></div><div class="form-group"><label for="status">Status:</label><input type="text" class="status form-control" name="status"></div>
+                    <form role="form" action="" method="POST" name="changeData" id="changeData">
+                    
+                      <div class="form-group">
+		 <label for="datum">Datum:</label> <br>
+		 <div class="row">
+		  <div class='col-sm-12'>
+                    <input type='text' id="datum" placeholder="Datum" class="form-control datepick" />
+                      </div>
+                      </div>
+                       <label for="uhrzeit">Uhrzeit:</label> <br>
+                      <div class="row">
+		  <div class='col-sm-12'>
+                    <input type='text' id="uhrzeit" placeholder="Uhrzeit" class="form-control timepick" />
+                      </div>
+                      </div>
+                      </div>
+                    
+             <div class="form-group"><label for="status">Status:</label><input type="text" id="status" class="form-control" name="status"></div>
            <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form></div>
 <br />
 <hr />

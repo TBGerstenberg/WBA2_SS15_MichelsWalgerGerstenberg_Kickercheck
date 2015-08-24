@@ -6,45 +6,72 @@
 <body class="container">
 <script type="text/javascript">
 			$(document).ready(function(){
+				
+				 var d = new Date();
+				var time = d.setDate(d.getDate()-1);
+			
+			   $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
+			    $('.timepick').datetimepicker({format:'HH:mm'});
 					
 				$('#matchAnlegen').submit(function(e) {
 							e.preventDefault();
 							$('.addid').html('');
-
-							var datum = $('#datum').val();
-							var uhrzeit = $('#uhrzeit').val();
-							var teilnehmer1 = $('#teilnehmer1').val();
-							var teilnehmer2 = $('#teilnehmer2').val();
-							var teilnehmer3 = $('#teilnehmer3').val();
-							var teilnehmer4 = $('#teilnehmer4').val();
-							var austragungsort = $('#austragungsort').val();
-							
-
-							if(!(datum && uhrzeit && austragungsort)) {
-								alert('Bitte Felder ausfüllen');
-								return false;
-								}
+	
+	
 								
-							if(!(teilnehmer1 || teilnehmer2 || teilnehmer3 || teilnehmer4)) {
+							var teilnehmer1 = $('#user1').val();
+							var teilnehmer2 = $('#user2').val();
+							var teilnehmer3 = $('#user3').val();
+							var teilnehmer4 = $('#user4').val();
+							
+							
+							if(teilnehmer1 == '0' && teilnehmer2 == '0' && teilnehmer3 == '0' && teilnehmer4 == '0') {
+								
 								alert('Mindestens 1 Teilnehmer');
 								return false;
 							}
+							
+						
+							
+							
+							var datum = $('#datum').val();
+							var uhrzeit = $('#uhrzeit').val();
+							
+							var austragungsort = $('#ato').val();
+							
+							if(!(datum && uhrzeit)) {
+								alert('Bitte Datum und Uhrzeit spezifizieren.');
+								return false;
+								}
+									
+									if(austragungsort == '0') {
+								alert('Bitte Austragungsort spezifizieren.');
+								return false;
+								}
+								
+								
+
+
 
 
 	var teilnehmerArray = [];
 	
-	if(teilnehmer1) {
+		
+	if(teilnehmer1 && teilnehmer1 != '0') {
 		teilnehmerArray.push(teilnehmer1);
 	}
-	if(teilnehmer2) {
+	if(teilnehmer2 && teilnehmer2 != '0') {
 		teilnehmerArray.push(teilnehmer2);
 	}
-	if(teilnehmer3) {
+	if(teilnehmer3 && teilnehmer3 != '0') {
 		teilnehmerArray.push(teilnehmer3);
 	}
-	if(teilnehmer4) {
+	if(teilnehmer4 && teilnehmer4 != '0') {
 		teilnehmerArray.push(teilnehmer4);
 	}
+		
+		
+	
 	
 	console.log(teilnehmerArray);
 
@@ -96,25 +123,63 @@
                 <div class="jumbotron">
                     <h1>Add Match</h1>
                    
+                   
 
                    <form role="form" action="" method="POST" name="matchAnlegen" id="matchAnlegen">
                     <div class="form-group">
-        <label for="teilnehmer">Teilnehmer 1:</label> <br>
-        <input type="text" id="teilnehmer1" class="form-control" placeholder="Spieler 1" maxlength="100" /> 
+          <label for="teilnehmer">Teilnehmer 1:</label> <br>
+
+    <select id="user1" class="form-control">
+	     <option value="0">Bitte wählen</option>
+	      <% benutzerAll.forEach(function(benutzer) { %>
+	 <option class="teilnehmer1" value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+   <% });  %>
+    </select>
+       
           <label for="teilnehmer">Teilnehmer 2:</label> <br>
-        <input type="text" id="teilnehmer2" class="form-control" placeholder="Spieler 2" maxlength="100" />
+          <select id="user2" class="form-control">
+	     <option value="0">Bitte wählen</option>
+	       <% benutzerAll.forEach(function(benutzer) { %>
+	 <option class="teilnehmer2" value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+   <% });  %>
+    </select>
           <label for="teilnehmer">Teilnehmer 3:</label> <br>
-        <input type="text" id="teilnehmer3" class="form-control" placeholder="Spieler 3" maxlength="100" />
+           <select id="user3" class="form-control">
+	     <option value="0">Bitte wählen</option>
+	       <% benutzerAll.forEach(function(benutzer) { %>
+	 <option class="teilnehmer3" value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+   <% });  %>
+    </select>
           <label for="teilnehmer">Teilnehmer 4:</label> <br>
-        <input type="text" id="teilnehmer4" class="form-control" placeholder="Spieler 4" maxlength="100" />
+          <select id="user4" class="form-control">
+	     <option value="0">Bitte wählen</option>
+	       <% benutzerAll.forEach(function(benutzer) { %>
+	 <option class="teilnehmer4" value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+   <% });  %>
+    </select>
          </div>
           <div class="form-group">
 		 <label for="datum">Datum:</label> <br>
-        <input type="text" id="datum" class="form-control" placeholder="Datum" maxlength="100" />
-         <label for="uhrzeit">Uhrzeit:</label> <br>
-        <input type="text" id="uhrzeit" class="form-control" placeholder="Uhrzeit" maxlength="100" />
+		 <div class="row">
+		  <div class='col-sm-12'>
+                    <input type='text' id="datum" placeholder="Datum" class="form-control datepick" />
+                      </div>
+                      </div>
+                       <label for="uhrzeit">Uhrzeit:</label> <br>
+                      <div class="row">
+		  <div class='col-sm-12'>
+                    <input type='text' id="uhrzeit" placeholder="Uhrzeit" class="form-control timepick" />
+                      </div>
+                      </div>
+                      </div>
+                      <div class="form-group">
          <label for="austragungsort">Austragungsort:</label> <br>
-        <input type="text" id="austragungsort" class="form-control" placeholder="Austragungsort" maxlength="100" />
+         <select id="ato" class="form-control">
+	     <option value="0">Bitte wählen</option>
+           <% austragungsorte.forEach(function(austragungsort) { %>
+         <option class="austragungsort" value="<%= austragungsort.Name %>"><%= austragungsort.Name %></option>
+         <% });  %>
+         </select>
          </div>
                 <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
 
