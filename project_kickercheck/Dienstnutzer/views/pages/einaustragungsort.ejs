@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partials/head %>
+</head>
+
+<body class="container">
+  <header>
+        <% include ../partials/header %>
+    </header>
+ <main>
+        <div class="row">
+            <div class="col-sm-12">
+            
+                <div class="jumbotron">
+                    <h1>Austragungsort <%= austragungsort.Name %></h1>
+                   <br />
+                     <ul>
+            <li>Adresse: <%= austragungsort.Adresse %></li>
+            <li>Beschreibung: <%= austragungsort.Beschreibung %></li>
+                    </ul> 
+                    <br />
+                 
+  	       
+                </div>
+                
+            </div>
+           
+        </div>
+    </main>
+ <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

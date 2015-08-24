@@ -27,6 +27,7 @@ app.get('/', function(req, res) {
 });
 
 app.use('/Benutzer', require('./routes/benutzer_ressource'));
+app.use('/Austragungsort', require('./routes/austragungsort_ressource'));
 app.use('/Kickertisch', require('./routes/kickertisch_ressource'));
 app.use('/Liveticker', require('./routes/liveticker_ressource'));
 app.use('/Community', require('./routes/community_ressource'));

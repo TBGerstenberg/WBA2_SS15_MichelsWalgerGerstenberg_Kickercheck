@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+<script type="text/javascript">
+			$(document).ready(function(){
+					
+				$('#austragungsortAnlegen').submit(function(e) {
+							e.preventDefault();
+							$('.addid').html('');
+
+							var name = $('#name').val();
+							var adresse = $('#adresse').val();
+							var beschreibung = $('#beschreibung').val();
+							
+							if(!(name && adresse && beschreibung)) {
+								alert('Bitte Felder ausfüllen');
+								return false;
+								}
+				
+
+	var formData = {
+							Name : name,
+							Adresse: adresse,
+							Beschreibung: beschreibung }
+
+							$.ajax({
+								type: 'POST',
+								contentType: 'application/json',
+								url: '/Austragungsort/',
+								
+								data: JSON.stringify(formData),
+								success: function(data) {
+									 $('#austragungsortAnlegen').each(function() {
+                        this.reset();
+                    });
+						
+							$('.addid').append('<a href="/Austragungsort/'+data.id+'">Austragungsort '+data.id+' angelegt</a>.');
+									
+								},
+								statusCode: {
+        400: function() {
+           alert('Die Anfrage war nicht korrekt.');
+        }
+        },
+        fail: function() {
+	        alert('Fehler');
+        }
+
+							});
+			
+						});
+		
+			});
+		</script>
+		
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="row">
+            <div class="col-sm-8">
+            
+                <div class="jumbotron">
+                    <h1>Add Austragungsort</h1>
+                   
+
+                   <form role="form" action="" method="POST" name="austragungsortAnlegen" id="austragungsortAnlegen">
+               <div class="form-group">
+		 <label for="name">Name:</label> <br>
+        <input type="text" id="name" class="form-control" placeholder="Name" maxlength="100" />
+        	</div>
+        	<div class="form-group">
+         <label for="adresse">Adresse:</label> <br>
+        <input type="text" id="adresse" class="form-control" placeholder="Adresse" maxlength="100" />
+         </div>
+         <div class="form-group">
+         <label for="beschreibung">Beschreibung:</label> <br>
+        <input type="text" id="beschreibung" class="form-control" placeholder="Beschreibung" maxlength="100" />
+         </div>
+                <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
+
+        </form>
+        <br />
+        <p class="addid"></p>
+                </div>
+                
+            </div>
+           
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

@@ -73,7 +73,6 @@ app.get('/:BenutzerId', function(req, res) {
 
 app.post('/', function(req, res) {
 
-    var Benutzer = req.body;
     //Content Type der Anfrage abfragen 
     var contentType = req.get('Content-Type');
 
