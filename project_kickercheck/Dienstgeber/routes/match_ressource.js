@@ -141,6 +141,7 @@ app.put('/:MatchId',function(req, res) {
                     Matchdaten.Datum = req.body.Datum;
                     Matchdaten.Uhrzeit = req.body.Uhrzeit;
                     Matchdaten.Austragungsort = req.body.Austragungsort;
+                     Matchdaten.Status = req.body.Status;
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Match ' + matchId,JSON.stringify(Matchdaten));

@@ -101,6 +101,7 @@ app.get('/:MatchId', function(req, res) {
            
      var match = JSON.parse(chunk);
      
+  
 
 	 var ortURI = match.Austragungsort.split("/");
 	 var ort = "/"+ortURI[1]+"/"+ortURI[2];

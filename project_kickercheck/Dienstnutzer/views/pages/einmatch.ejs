@@ -9,6 +9,8 @@ $(document).ready(function() {
 		 var d = new Date();
 				var time = d.setDate(d.getDate()-1);
 				
+				var stdStatus = 'vor_beginn';
+				
 				 var ortURI = "<%= match.Austragungsort %>".split("/");
 				 var ort = "/"+ortURI[1]+"/"+ortURI[2];
 				 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');
@@ -32,7 +34,8 @@ $(document).ready(function() {
 
 			 var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
-				 Austragungsort: tisch
+				 Austragungsort: tisch,
+				 Status: stdStatus
 			 };
 		
 
@@ -56,34 +59,42 @@ $(document).ready(function() {
 			    $('#startMatch').submit(function(e) {
 							e.preventDefault();
 
-			 var formData = {Status: 'aktiv'};
+							var tisch = $('#aort').attr('href');
+							var datum = $('#dat').text();
+							var uhrzeit = $('#uhr').text();
 
+ var formData = {Datum: datum,
+				 Uhrzeit: uhrzeit,
+				  Austragungsort: tisch,
+				  Status: 'aktiv'};
 
+			$.when(
+				
+			
 							$.ajax({
 								type: 'PUT',
 								url: '/Match/<%= match.id %>',
 								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
-						
+								data: JSON.stringify(formData)
+								})
+						).then(function() {
+								
 						window.location.reload(true);
 						
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
+						
+      
 						});
+						
+								
 						});
 	
 	$('#changeData').submit(function(e) {
 							e.preventDefault();
 			
-				 var datum = $('#datum').val();
-				 var uhrzeit = $('#uhrzeit').val();
-					var tisch = $('#aort').text();
-					
-					console.log(tisch);
+				var datum = $('#datum').val();
+				var uhrzeit = $('#uhrzeit').val();
+				var tisch = $('#aort').attr('href');
+				
 
 							if(!(datum && uhrzeit)) {
 								alert('Bitte Daten spezifizieren.');
@@ -92,7 +103,8 @@ $(document).ready(function() {
 			 
 			 var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
-				  Austragungsort: tisch
+				  Austragungsort: tisch,
+				   Status: stdStatus
 			 };
 
 
@@ -138,7 +150,7 @@ $(document).ready(function() {
             <li>Datum: <span id="dat"><%= match.Datum %></span></li>
               <li> Startzeitpunkt: <span id="uhr"><%= match.Uhrzeit %></span> Uhr</li>
                <li> Austragungsort:  <span id="tis"></span></li>
-                <span id="aort"><li><a href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li></span>
+                <li><a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li>
               <li id="stat"> Status: <%= match.Status %></li>
                     </ul> 
                     <br />
@@ -154,6 +166,8 @@ $(document).ready(function() {
                     </ul>
                     </div>
                     <hr />
+                    
+                     <% if (match.Status == 'vor_beginn') { %>
 
                      <form role="form" action="" method="POST" name="addTisch" id="addTisch">
                         <div class="form-group">
@@ -202,6 +216,11 @@ $(document).ready(function() {
  </form>
                     </div>
                     <hr />
+                    <% } else if (match.Status == 'aktiv') { %>
+	                    pokpok
+	                    <% } else { %>
+		                    not defined
+		                    <% }%>
            
 <br />
 <h4>Regeln</h4>
