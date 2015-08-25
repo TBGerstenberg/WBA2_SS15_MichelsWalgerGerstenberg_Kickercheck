@@ -20,7 +20,7 @@
         <div class="list-group">
        
         <% matches.forEach(function(match) { %>
-	  <a href="/Match/<%= match.id %>" class="list-group-item"> <h4 class="list-group-item-heading"><%= match.Austragungsort %></h4>
+	  <a href="/Match/<%= match.id %>" class="list-group-item"> <h4 class="list-group-item-heading">Match <%= match.id %></h4>
 	   <p class="list-group-item-text">Datum: <%= match.Datum %></p>
 	   <p class="list-group-item-text">Uhrzeit: <%= match.Uhrzeit %></p>
 	    </a>

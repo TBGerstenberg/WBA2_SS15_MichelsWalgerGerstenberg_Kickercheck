@@ -139,9 +139,8 @@ app.put('/:MatchId',function(req, res) {
 				
                     //Aktualisiere änderbare Daten 
                     Matchdaten.Datum = req.body.Datum;
-                     Matchdaten.Uhrzeit = req.body.Uhrzeit;
-                       Matchdaten.Status = req.body.Status;
-
+                    Matchdaten.Uhrzeit = req.body.Uhrzeit;
+                    Matchdaten.Austragungsort = req.body.Austragungsort;
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Match ' + matchId,JSON.stringify(Matchdaten));
