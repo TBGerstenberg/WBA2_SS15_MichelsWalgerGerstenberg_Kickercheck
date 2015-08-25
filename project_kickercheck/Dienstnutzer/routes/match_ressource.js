@@ -82,6 +82,20 @@ app.get('/alleMatches', function(req, res) {
 
 app.get('/:MatchId', function(req, res) {
 	
+	 var belegungen=[];   
+    
+      client.keys('Belegung *', function (err, key) {
+
+	client.mget(key,function(err,belegung){
+	
+		     
+        //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+       belegung.forEach(function (val) {
+	
+       belegungen.push(JSON.parse(val));
+       
+            });
+	
 	  
     var options1 = {
         host: 'localhost',
@@ -127,6 +141,8 @@ app.get('/:MatchId', function(req, res) {
           accept:"application/json"
         }
       }
+      
+ 
 	      
 	       var y = http.request(options2, function(externalrep){
                 
@@ -140,7 +156,7 @@ app.get('/:MatchId', function(req, res) {
 
                 var austragungsort = JSON.parse(chunkz);
                 
-               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort });
+               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort, belegungen: belegungen });
        
              
             });
@@ -148,20 +164,16 @@ app.get('/:MatchId', function(req, res) {
   });
   	z.end();
             });
-                   
-    
-    
-    
   });
-    y.end();
-
-
-     
+    y.end(); 
 });
 
 });
 x.end();
 });
+	});
+	
+	});
 
 app.post('/', function(req, res) {
 	

@@ -5,6 +5,7 @@
 </head>
 <script>
 $(document).ready(function() {
+
 	
 		 var d = new Date();
 				var time = d.setDate(d.getDate()-1);
@@ -67,19 +68,52 @@ $(document).ready(function() {
 				 Uhrzeit: uhrzeit,
 				  Austragungsort: tisch,
 				  Status: 'aktiv'};
+				  
+				var teilnehmer1 = $('#user0').text();
+				var teilnehmer2 = $('#user1').text();
+				var teilnehmer3 = $('#user2').text();
+				var teilnehmer4 = $('#user3').text();
+				
+				var teilnehmerArray = [];
+	
+		
+	if(teilnehmer1) {
+		teilnehmerArray.push(teilnehmer1);
+	}
+	if(teilnehmer2) {
+		teilnehmerArray.push(teilnehmer2);
+	}
+	if(teilnehmer3) {
+		teilnehmerArray.push(teilnehmer3);
+	}
+	if(teilnehmer4) {
+		teilnehmerArray.push(teilnehmer4);
+	}
+	
+		var anzahl = teilnehmerArray.length;
+		
+				  
+				  var teilnehmerData = {anzahl: anzahl, teilnehmer: teilnehmerArray,
+					 'Herausforderungen': []
+				  }
 
 			$.when(
-				
-			
 							$.ajax({
 								type: 'PUT',
 								url: '/Match/<%= match.id %>',
 								contentType: 'application/json',
 								data: JSON.stringify(formData)
+								}),
+								
+								$.ajax({
+								type: 'PUT',
+								url: '<%= match.Austragungsort %>Belegung/',
+								contentType: 'application/json',
+								data: JSON.stringify(teilnehmerData)
 								})
 						).then(function() {
 								
-						window.location.reload(true);
+	window.location.reload(true);
 						
 						
       
@@ -161,7 +195,7 @@ $(document).ready(function() {
                     <ul>
                     <% if (match.Teilnehmer) { %>
                       <% for(var i=0; i < match.Teilnehmer.length; i++) { %>
-                    <li><%= match.Teilnehmer[i] %></li>
+                    <li id="user<%= i %>"><%= match.Teilnehmer[i] %></li>
                     <% }}; %>
                     </ul>
                     </div>
@@ -174,9 +208,11 @@ $(document).ready(function() {
          <label for="kickertisch">Kickertisch:</label> <br>
          <select id="kit" class="form-control">
 	     <option value="0">Bitte wählen</option>
-           <% kickertische.forEach(function(tisch) { %>
-         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ  %></option>
-         <% });  %>
+           <% kickertische.forEach(function(tisch) { belegungen.forEach(function(belegung) { %>
+	               <% if(tisch.id == belegung.id) { %>
+         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung:
+         <% if (belegung.Anzahl != '0') { %> <%= belegung.Anzahl %> Spieler <% } %></option>
+         <% } }); });   %>
          </select>
          </div>
            <input type="submit" class="btn btn-primary" name="change" value="Kickertisch übernehmen" />
@@ -217,7 +253,7 @@ $(document).ready(function() {
                     </div>
                     <hr />
                     <% } else if (match.Status == 'aktiv') { %>
-	                    pokpok
+	                  pokpok
 	                    <% } else { %>
 		                    not defined
 		                    <% }%>
