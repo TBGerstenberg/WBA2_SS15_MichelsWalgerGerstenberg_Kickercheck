@@ -6,6 +6,29 @@
     <script>
         $(document).ready(function() {
 
+            //Klickt der Nutzer den generiereSpielplan button wird ein
+            //Get Request auf Turnier/:TurnierId/Spielplan abgesetzt 
+            $('#generiereSpielplan').click(function(e){
+                if(turnier.Teilnehmer.length != turnier.Teilnehmerzahl){
+                    return false;
+                }
+
+                else{
+                    $.ajax({
+                        type: 'GET',
+                        url: '/Turnier/<%= turnier.id %>/Spielplan',
+                        success: function(data) {
+                           
+                        },
+                        statusCode: {
+         
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+                    });
+                }
+            });
 
             $('#addTeilnehmer').submit(function(e) {
                 e.preventDefault();
@@ -18,9 +41,7 @@
                     return false;
                 }
 
-
                 var formData = {'teilnehmer' : teilnehmer};
-
 
                 $.ajax({
                     type: 'PUT',
@@ -43,7 +64,6 @@
                     fail: function() {
                         alert('Fehler');
                     }
-
                 });
             });
 
@@ -58,10 +78,10 @@
                     return false;
                 }
 
-                var formData = {Austragungszeitraum : austragungszeitraum,
-                                Status: status
-                               };
-
+                var formData = {
+                    Austragungszeitraum : austragungszeitraum,
+                    Status: status
+                };
 
                 $.ajax({
                     type: 'PUT',
@@ -165,12 +185,30 @@
 
                                     <% }; %> 
                                 </tbody>
-                            </table>   
+                            </table> 
 
+
+                            <!--Button um den Spielplan zu erstellen -->
+                            <input id="generiereSpielplan" type="button" value="Generiere Spielplan" />
+
+                            <!--Anzeige für den fertigen Spielplan -->
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Match</th>
+                                        <th>Runde</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for(var i=0; i < turnier.Matches.length i++) { %>
+                                    <tr>
+                                        <td><%= turnier.Matches[i] %></td>
+                                    </tr>
+                                    <% }; %> 
+                                </tbody>
+                            </table> 
                         </div>
-
                     </div>
-
                 </div>
                 </main>
             <footer>

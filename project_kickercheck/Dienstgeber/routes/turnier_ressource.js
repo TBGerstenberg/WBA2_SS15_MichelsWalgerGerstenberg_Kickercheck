@@ -218,8 +218,8 @@ app.post('/:TurnierId/Match',function(req,res){
                     //Füge Link zu diesem Match in die Repräsentation des Turniers ein 
                     turnier.Matches.push("/Match/" + id);
                     
-                    console.log("Turnierdaten bei Match_hinzufügen: ");
-                    console.log(util.inspect(turnier.Matches[0], false, null));
+                    //console.log("Turnierdaten bei Match_hinzufügen: ");
+                    //console.log(util.inspect(turnier.Matches[0], false, null));
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Turnier ' + turnierId,JSON.stringify(turnier));
