@@ -1,6 +1,7 @@
 var app = express.Router();
 
 app.get('/addTurnier', function(req, res) {
+    
     res.render('pages/addTurnier');
 });
 
@@ -90,8 +91,8 @@ externalRequest.end();
 });
 
 app.get('/:TurnierId', function(req, res) {
-  
-    var options = {
+	
+	 var options1 = {
         host: 'localhost',
         port: 3000,
         path: '/Turnier/'+req.params.TurnierId,
@@ -100,20 +101,56 @@ app.get('/:TurnierId', function(req, res) {
             accept: 'application/json'
         }
     };
-    
-    var x = http.request(options, function(externalres){
-        externalres.on('data', function(chunk){
-           
-            var turnier = JSON.parse(chunk);
-                        
-             console.log(util.inspect(turnier.Spielplan[0].Team1, false, null));
-             
-            res.render('pages/einturnier', {
-                turnier: turnier                      
+	
+	 var options2 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Benutzer",
+        method:"GET",
+        headers:{
+          accept:"application/json"
+        }
+      }
+      
+      
+         var x = http.request(options1, function(externalResponse){
+	         
+      var y = http.request(options2, function(externalrep){
+	      
+	    
+      
+            externalResponse.on("data", function(chunk){
+
+				
+				 var turnier = JSON.parse(chunk);
+				 
+
+                
+            externalrep.on("data", function(chunks){
+
+                var benutzerAll = JSON.parse(chunks);
+                
+                 res.render('pages/einturnier', {
+                turnier: turnier ,benutzerAll:benutzerAll                     
             });
-        });
-    });                     
+                     res.end();
+                
+                        
+            
+             
+            });
+    
+  });
+
+            });
+                   
+    
+      y.end();
+    
+  });
     x.end();
+  
+   
 });
 
 app.put('/:TurnierId/Teilnehmer', function(req, res) {

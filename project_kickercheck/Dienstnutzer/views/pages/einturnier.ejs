@@ -10,10 +10,10 @@ $(document).ready(function() {
 				$('#addTeilnehmer').submit(function(e) {
 							e.preventDefault();
 			
-				 var teilnehmer = $('.addTeilnehmer').val();
+				 var teilnehmer = $('#teilnehmer').val();
 				
 
-							if(!teilnehmer) {
+							if(teilnehmer == '0') {
 								alert('Bitte Teilnehmer spezifizieren.');
 								return false;
 								}
@@ -123,9 +123,17 @@ $(document).ready(function() {
                     <hr />
                     <div id="divteilnehmer" class="margintop20">
                       <p> Teilnehmer hinzufügen: </p>
-                    <form role="form" action="" method="POST" name="addTeilnehmer" id="addTeilnehmer"><div class="form-group"><label for="teilnehmer">Teilnehmer:</label><br><input type="text" class="addTeilnehmer form-control" name="benutzer"></div>
+                    <form role="form" action="" method="POST" name="addTeilnehmer" id="addTeilnehmer"><div class="form-group"><label for="teilnehmer">Teilnehmer:</label><br>
+                   
+                    <select id="teilnehmer" class="form-control">
+                    <option value="0">Bitte wählen</option>
+                     <% benutzerAll.forEach(function(benutzer) { %>
+	 <option value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+   <% });  %>
+   </select>
+                  </div>
                     
-                    <input type="submit" class="btn btn-primary" name="send" value="Hinzufügen" /></form></div>
+                    <input type="submit" class="btn btn-primary" name="send" value="Hinzufügen" /></form>
                  
                     
                   <hr />

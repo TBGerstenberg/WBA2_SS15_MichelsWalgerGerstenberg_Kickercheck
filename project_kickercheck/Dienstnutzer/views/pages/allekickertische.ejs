@@ -3,6 +3,7 @@
 <head>
     <% include ../partials/head %>
 </head>
+
 <body class="container">
     <header>
         <% include ../partials/header %>
@@ -13,16 +14,16 @@
             <div class="col-sm-12">
             
                 <div class="jumbotron">
-                    <h1>Liste aller Austragungsorte</h1>
+                    <h1>Liste aller Kickertische von <%= ort.Name %></h1>
                    
         <br />
         
         <div class="list-group">
        
-        <% austragungsorte.forEach(function(austragungsort) { %>
-	  <a href="/Austragungsort/<%= austragungsort.id %>/" class="list-group-item"> <h4 class="list-group-item-heading"><%= austragungsort.id %></h4>
-	  <p class="list-group-item-text">Name: <%= austragungsort.Name %></p>
-	   <p class="list-group-item-text">Adresse: <%= austragungsort.Adresse %></p>
+        <% kickertische.forEach(function(kickertisch) { %>
+	  <a href="<%= kickertisch.id %>" class="list-group-item"> <h4 class="list-group-item-heading"><%= kickertisch.Typ %></h4>
+	  <p class="list-group-item-text">Hersteller: <%= kickertisch.Hersteller %></p>
+	    <p class="list-group-item-text">Zustand: <%= kickertisch.Zustand %></p>
 	    </a>
    <% });  %>
 </div>

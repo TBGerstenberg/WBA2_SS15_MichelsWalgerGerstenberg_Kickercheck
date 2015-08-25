@@ -2,8 +2,6 @@ var app = express.Router();
 
 app.get('/addMatch', function(req, res) {
 	
-	var benutzerAll,austragungsorte;
-	
 	 var options1 = {
         host: "localhost",
         port: 3000,

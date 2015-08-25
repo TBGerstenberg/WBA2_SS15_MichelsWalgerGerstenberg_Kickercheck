@@ -3,11 +3,63 @@
 <head>
     <% include ../partials/head %>
 </head>
-
-<body class="container">
-  <header>
+ <header>
         <% include ../partials/header %>
     </header>
+<body class="container">
+<script>
+$(document).ready(function() {
+	
+	$('#kickertischAnlegen').submit(function(e) {
+							e.preventDefault();
+							$('.addid').html('');
+
+							var hersteller = $('#hersteller').val();
+							var typ = $('#typ').val();
+							var merkmale = $('#merkmale').val();
+							
+							if(!(hersteller && typ && merkmale)) {
+								alert('Bitte Felder ausfüllen');
+								return false;
+								}
+				
+
+	var formData = {
+							Hersteller : hersteller,
+							Typ : typ,
+							Zustand : 'Neu',
+							Ort : '<%= austragungsort.Name %>',
+							Merkmale : merkmale }
+
+							$.ajax({
+								type: 'POST',
+								contentType: 'application/json',
+								url: '/Austragungsort/<%= austragungsort.id %>/Kickertisch/',
+								
+								data: JSON.stringify(formData),
+								success: function(data) {
+									 $('#kickertischAnlegen').each(function() {
+                        this.reset();
+                    });
+						
+							$('.addid').append('<a href="/Austragungsort/<%= austragungsort.id %>/Kickertisch/'+data.id+'">Kickertisch '+data.id+' angelegt</a>.');
+									
+								},
+								statusCode: {
+        400: function() {
+           alert('Die Anfrage war nicht korrekt.');
+        }
+        },
+        fail: function() {
+	        alert('Fehler');
+        }
+
+							});
+			
+						});
+			});
+						</script>
+ 
  <main>
         <div class="row">
             <div class="col-sm-12">
@@ -20,7 +72,31 @@
             <li>Beschreibung: <%= austragungsort.Beschreibung %></li>
                     </ul> 
                     <br />
-                 
+                    <div class="row">
+                  
+                    <a href="Kickertisch/" class="btn btn-primary" role="button">Alle Tische dieses Ortes anzeigen</a>
+                    </div>
+                    <br />
+                 <div class="row">
+                 <form role="form" action="" method="POST" name="kickertischAnlegen" id="kickertischAnlegen">
+               <div class="form-group">
+		 <label for="hersteller">Hersteller:</label> <br>
+        <input type="text" id="hersteller" class="form-control" placeholder="Hersteller" maxlength="100" />
+        	</div>
+        	<div class="form-group">
+         <label for="typ">Typ:</label> <br>
+        <input type="text" id="typ" class="form-control" placeholder="Typ" maxlength="100" />
+         </div>
+         <div class="form-group">
+         <label for="Merkmale">Merkmale:</label> <br>
+        <input type="text" id="merkmale" class="form-control" placeholder="Merkmale" maxlength="100" />
+         </div>
+                <input type="submit" class="btn btn-primary" name="send" value="Tisch hinzufügen" />
+
+        </form> 
+        </div>
+<br />
+        <p class="addid"></p>
   	       
                 </div>
                 

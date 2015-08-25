@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partials/head %>
+</head>
+<script>
+$(document).ready(function() {
+	
+	
+	$('#changeData').submit(function(e) {
+							e.preventDefault();
+			
+				 var zustand = $('#zustand').val();
+				
+
+							if(!(zustand)) {
+								alert('Bitte Daten spezifizieren.');
+								return false;
+								}
+			 
+			 var formData = {Zustand: zustand
+			 };
+
+
+							$.ajax({
+								type: 'PUT',
+								url: '',
+								contentType: 'application/json',
+								data: JSON.stringify(formData),
+								success: function(data) {
+									
+									 $('#changeData').each(function() {
+                        this.reset();
+                   });
+                   
+                   
+
+							  $("#zus").text('Zustand: '+data.Zustand);
+				
+								
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});
+						});
+});
+</script>
+ <header>
+        <% include ../partials/header %>
+    </header>
+<body class="container">
+ 
+ <main>
+        <div class="row">
+            <div class="col-sm-8">
+            
+                <div class="jumbotron">
+                    <h1>Kickertisch <%= tisch.Typ %></h1>
+                   <br />
+                     <ul>
+            <li>Hersteller: <%= tisch.Hersteller %></li>
+             <li>Typ: <%= tisch.Typ %></li>
+              <li>Ort: <%= tisch.Ort %></li>
+              <li>Merkmale: <%= tisch.Merkmale %></li>
+            <li id="zus">Zustand: <%= tisch.Zustand %></li>
+             
+                    </ul> 
+                    <br />
+  
+                    <hr />
+                    
+  <p> Kickertisch ändern: </p>
+                    <div id="divdata" class="margintop20">
+                  
+                    <form role="form" action="" method="PUT" name="changeData" id="changeData">
+   
+             <div class="form-group"><label for="zustand">Zustand:</label><input type="text" id="zustand" class="form-control" name="zustand"></div>
+           <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form></div>
+<br />
+<hr />
+  	       
+                </div>
+                
+            </div>
+           
+        </div>
+    </main>
+ <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>
