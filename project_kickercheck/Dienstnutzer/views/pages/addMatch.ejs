@@ -177,7 +177,7 @@
          <select id="ato" class="form-control">
 	     <option value="0">Bitte wählen</option>
            <% austragungsorte.forEach(function(austragungsort) { %>
-         <option class="austragungsort" value="<%= austragungsort.Name %>"><%= austragungsort.Name %></option>
+         <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %></option>
          <% });  %>
          </select>
          </div>

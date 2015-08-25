@@ -81,8 +81,9 @@ app.get('/alleMatches', function(req, res) {
 	
 
 app.get('/:MatchId', function(req, res) {
-  
-    var options = {
+	
+	  
+    var options1 = {
         host: 'localhost',
         port: 3000,
         path: '/Match/'+req.params.MatchId,
@@ -91,21 +92,68 @@ app.get('/:MatchId', function(req, res) {
             accept: 'application/json'
         }
     };
-    
-    var x = http.request(options, function(externalres){
-        externalres.on('data', function(chunk){
+          
+  var x = http.request(options1, function(externalres){
+	  
+	 
+      
+             externalres.on('data', function(chunk){
            
-            var match = JSON.parse(chunk);
+     var match = JSON.parse(chunk);
   
-             console.log(util.inspect(match, false, null));
+        var options2 = {
+        host: "localhost",
+        port: 3001,
+        path: match.Austragungsort+"/allekickertische/",
+        method:"GET",
+        headers:{
+          accept:"application/json"
+        }
+      }
+      
+          var options3 = {
+        host: "localhost",
+        port: 3000,
+        path: match.Austragungsort,
+        method:"GET",
+        headers:{
+          accept:"application/json"
+        }
+      }
+	      
+	       var y = http.request(options2, function(externalrep){
+                
+            externalrep.on("data", function(chunks){
+
+                var kickertische = JSON.parse(chunks);
+                
+                  var z = http.request(options3, function(externalrepz){
+                
+            externalrepz.on("data", function(chunkz){
+
+                var austragungsort = JSON.parse(chunkz);
+                
+               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort });
+       
              
-             res.render('pages/einmatch', { match: match });
-           
-        });
-    });                     
-    x.end();
+            });
+    
+  });
+  	z.end();
+            });
+                   
+    
+    
+    
+  });
+    y.end();
+
 
      
+});
+
+});
+x.end();
 });
 
 app.post('/', function(req, res) {

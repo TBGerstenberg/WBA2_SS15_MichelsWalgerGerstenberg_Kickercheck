@@ -11,22 +11,66 @@ $(document).ready(function() {
 			
 			   $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
 			    $('.timepick').datetimepicker({format:'HH:mm'});
+			    
+			        $('#addTisch').submit(function(e) {
+							e.preventDefault();
+
+			 var formData = {Status: 'aktiv'};
+
+
+							$.ajax({
+								type: 'PUT',
+								url: '/Match/<%= match.id %>',
+								contentType: 'application/json',
+								data: JSON.stringify(formData),
+								success: function(data) {
+						
+						window.location.reload(true);
+						
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});
+						});
+			    
+			    $('#startMatch').submit(function(e) {
+							e.preventDefault();
+
+			 var formData = {Status: 'aktiv'};
+
+
+							$.ajax({
+								type: 'PUT',
+								url: '/Match/<%= match.id %>',
+								contentType: 'application/json',
+								data: JSON.stringify(formData),
+								success: function(data) {
+						
+						window.location.reload(true);
+						
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});
+						});
 	
 	$('#changeData').submit(function(e) {
 							e.preventDefault();
 			
 				 var datum = $('#datum').val();
 				 var uhrzeit = $('#uhrzeit').val();
-				 var status = $('#status').val();
 
-							if(!(datum && uhrzeit && status)) {
+							if(!(datum && uhrzeit)) {
 								alert('Bitte Daten spezifizieren.');
 								return false;
 								}
 			 
 			 var formData = {Datum: datum,
-				 Uhrzeit: uhrzeit,
-				 Status: status
+				 Uhrzeit: uhrzeit
 			 };
 
 
@@ -45,7 +89,6 @@ $(document).ready(function() {
 
 							  $("#dat").text('Datum: '+data.Datum);
 							  $("#uhr").text('Startzeitpunkt: '+data.Uhrzeit+ ' Uhr');
-							   $("#stat").text('Status: '+data.Status);
 								
 								},
         fail: function() {
@@ -70,7 +113,7 @@ $(document).ready(function() {
                      <ul>
             <li id="dat">Datum: <%= match.Datum %></li>
               <li id="uhr"> Startzeitpunkt: <%= match.Uhrzeit %> Uhr</li>
-               <li> Austragungsort: <%= match.Austragungsort %></li>
+               <li> Austragungsort: <%= austragungsort.Name %></li>
               <li id="stat"> Status: <%= match.Status %></li>
                     </ul> 
                     <br />
@@ -86,12 +129,26 @@ $(document).ready(function() {
                     </ul>
                     </div>
                     <hr />
-                    
+
+                     <form role="form" action="" method="POST" name="addTisch" id="addTisch">
+                        <div class="form-group">
+         <label for="kickertisch">Kickertisch:</label> <br>
+         <select id="kit" class="form-control">
+	     <option value="0">Bitte wählen</option>
+           <% kickertische.forEach(function(tisch) { %>
+         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ  %></option>
+         <% });  %>
+         </select>
+         </div>
+           <input type="submit" class="btn btn-primary" name="change" value="Kickertisch übernehmen" />
+         </form>
+         
+             <hr />
+           
 
                     <div id="divdata" class="margintop20">
                     <p> Match ändern: </p>
                     <form role="form" action="" method="POST" name="changeData" id="changeData">
-                    
                       <div class="form-group">
 		 <label for="datum">Datum:</label> <br>
 		 <div class="row">
@@ -105,12 +162,23 @@ $(document).ready(function() {
                     <input type='text' id="uhrzeit" placeholder="Uhrzeit" class="form-control timepick" />
                       </div>
                       </div>
+                      
+                                           
                       </div>
-                    
-             <div class="form-group"><label for="status">Status:</label><input type="text" id="status" class="form-control" name="status"></div>
-           <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form></div>
+                         
+           <input type="submit" class="btn btn-primary" name="change" value="Ändern" />
+           </form>
+           </div>
+           <hr />
+        
+                     <div id="divstart" class="margintop20">
+                    <form role="form" action="" method="PUT" name="startMatch" id="startMatch">
+ <input type="submit" class="btn btn-success" name="start" value="Match starten" />
+ </form>
+                    </div>
+                    <hr />
+           
 <br />
-<hr />
 <h4>Regeln</h4>
 <br />
 

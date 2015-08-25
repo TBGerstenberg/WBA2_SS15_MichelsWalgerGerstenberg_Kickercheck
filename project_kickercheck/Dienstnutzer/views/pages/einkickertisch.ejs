@@ -6,6 +6,28 @@
 <script>
 $(document).ready(function() {
 	
+	$('#deleteTable').submit(function(e) {
+							e.preventDefault();
+				
+							if (confirm('Möchten Sie fortfahren?') == false) {
+								return false;
+								}
+			 	$.ajax({
+								type: 'DELETE',
+								url: '',
+								contentType: 'application/json',
+								success: function(data) {
+									alert('Tisch gelöscht. Weiterleitung zum Standort.');
+									location.href = "/Austragungsort/<%= ort.id %>/"
+				
+								
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});
+						});
 	
 	$('#changeData').submit(function(e) {
 							e.preventDefault();
@@ -54,15 +76,15 @@ $(document).ready(function() {
  
  <main>
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-12">
             
                 <div class="jumbotron">
-                    <h1>Kickertisch <%= tisch.Typ %></h1>
+                    <h1>Kickertisch <%= tisch.id %></h1>
                    <br />
                      <ul>
             <li>Hersteller: <%= tisch.Hersteller %></li>
              <li>Typ: <%= tisch.Typ %></li>
-              <li>Ort: <%= tisch.Ort %></li>
+              <li>Ort: <a href="/Austragungsort/<%= ort.id %>/"><%= ort.Name %></a></li>
               <li>Merkmale: <%= tisch.Merkmale %></li>
             <li id="zus">Zustand: <%= tisch.Zustand %></li>
              
@@ -79,6 +101,12 @@ $(document).ready(function() {
              <div class="form-group"><label for="zustand">Zustand:</label><input type="text" id="zustand" class="form-control" name="zustand"></div>
            <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form></div>
 <br />
+<hr />
+
+<form role="form" action="" method="DELETE" name="deleteTable" id="deleteTable">
+ <input type="submit" class="btn btn-danger" name="del" value="Tisch löschen" />
+ </form>
+
 <hr />
   	       
                 </div>
