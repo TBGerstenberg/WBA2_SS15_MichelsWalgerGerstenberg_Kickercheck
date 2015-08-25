@@ -6,6 +6,7 @@
     <script>
         $(document).ready(function() {
 
+            /*
             //Klickt der Nutzer den generiereSpielplan button wird ein
             //Get Request auf Turnier/:TurnierId/Spielplan abgesetzt 
             $('#generiereSpielplan').click(function(e){
@@ -18,7 +19,9 @@
                         type: 'GET',
                         url: '/Turnier/<%= turnier.id %>/Spielplan',
                         success: function(data) {
-                           
+                            
+                            //location.reload();
+                            //turnier=data;
                         },
                         statusCode: {
          
@@ -28,7 +31,7 @@
                         }
                     });
                 }
-            });
+            }); */
 
             $('#addTeilnehmer').submit(function(e) {
                 e.preventDefault();
@@ -189,7 +192,7 @@
 
 
                             <!--Button um den Spielplan zu erstellen -->
-                            <input id="generiereSpielplan" type="button" value="Generiere Spielplan" />
+                            <input id="generiereSpielplan" class="btn btn-default" value="Generiere Spielplan" type="button" />
 
                             <!--Anzeige für den fertigen Spielplan -->
                             <table class="table">
@@ -200,11 +203,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% for(var i=0; i < turnier.Matches.length i++) { %>
+                                    <% for(var i=0; i < turnier.Matches.length; i++) { %>
                                     <tr>
                                         <td><%= turnier.Matches[i] %></td>
                                     </tr>
-                                    <% }; %> 
+                                    <% }; %>
                                 </tbody>
                             </table> 
                         </div>
