@@ -1,114 +1,120 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <% include ../partials/head %>
-</head>
-<body class="container">
-<script type="text/javascript">
-			$(document).ready(function(){
-					
-				$('#turnierAnlegen').submit(function(e) {
-							e.preventDefault();
-							$('.addid').html('');
-							var teilnehmer = $('#teilnehmer').val();
-							var teamgroesse = $('#teamgroesse').val();
-							var typ = $('#typ').val();
-							
-							if(!(teilnehmer && teamgroesse && typ)) {
-								alert('Bitte Felder ausfüllen');
-								return false;
-								}
+    <head>
+        <% include ../partials/head %>
+    </head>
+    <body class="container">
+        <script type="text/javascript">
+            $(document).ready(function(){
 
-    if(teilnehmer < 0 || teamgroesse %2 != 0){
-	 
-        alert('Bitte Daten überprüfen'); 
-        return false;
-    }
+                $('#turnierAnlegen').submit(function(e) {
+                    e.preventDefault();
+                    $('.addid').html('');
+                    var teilnehmer = $('#teilnehmer').val();
+                    var teamgroesse = $('#teamgroesse').val();
+                    var typ = $('#typ').val();
+                    var austragungsort=$('#austragungsort').val();
 
-    //Legt fest wieviele Teams es geben wird 
-    var anzahlTeams=teilnehmer / teamgroesse;
+                    if(!(teilnehmer && teamgroesse && typ)) {
+                        alert('Bitte Felder ausfüllen');
+                        return false;
+                    }
 
-    //Es gibt keine Spieler oder der Turnierplan geht nicht auf  
-    if(anzahlTeams < 0 || anzahlTeams %2 != 0){
-	      
-       alert('Bitte Daten überprüfen'); 
-       return false;
-    }
-							
-						var formData = {Teilnehmeranzahl : teilnehmer,
-						Teamgroesse : teamgroesse,
-						Typ : typ}
+                    if(teilnehmer < 0 || teamgroesse %2 != 0){
 
-							$.ajax({
-								type: 'POST',
-								contentType: 'application/json',
-								url: '/Turnier/',
-								
-								data: JSON.stringify(formData),
-								success: function(data) {
-									 $('#turnierAnlegen').each(function() {
-                        this.reset();
+                        alert('Bitte Daten überprüfen'); 
+                        return false;
+                    }
+
+                    //Legt fest wieviele Teams es geben wird 
+                    var anzahlTeams=teilnehmer / teamgroesse;
+
+                    //Es gibt keine Spieler oder der Turnierplan geht nicht auf  
+                    if(anzahlTeams < 0 || anzahlTeams %2 != 0){
+
+                        alert('Bitte Daten überprüfen'); 
+                        return false;
+                    }
+
+                    var formData = {Teilnehmeranzahl : teilnehmer,
+                                    Teamgroesse : teamgroesse,
+                                    Typ : typ,
+                                    Austragungsort:austragungsort}
+
+                    $.ajax({
+                        type: 'POST',
+                        contentType: 'application/json',
+                        url: '/Turnier/',
+
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+                            $('#turnierAnlegen').each(function() {
+                                this.reset();
+                            });
+
+                            $('.addid').append('<a href="/Turnier/'+data.id+'">Turnier <span class="turnierId">'+data.id+'</span> angelegt</a>.');
+
+                        },
+                        statusCode: {
+                            400: function() {
+                                alert('Die Anfrage war nicht korrekt.');
+                            }
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
                     });
-						
-							$('.addid').append('<a href="/Turnier/'+data.id+'">Turnier <span class="turnierId">'+data.id+'</span> angelegt</a>.');
-									
-								},
-								statusCode: {
-        400: function() {
-           alert('Die Anfrage war nicht korrekt.');
-        }
-        },
-        fail: function() {
-	        alert('Fehler');
-        }
 
-							});
-			
-						});
-		
-			});
-		</script>
-		
-    <header>
-        <% include ../partials/header %>
-    </header>
+                });
 
-    <main>
-        <div class="row">
-            <div class="col-sm-8">
-            
-                <div class="jumbotron">
-                    <h1>Turnier</h1>
-                   
+            });
+        </script>
 
-                   <form role="form" action="" method="POST" name="turnierAnlegen" id="turnierAnlegen">
-                    <div class="form-group">
-        <label for="teilnehmer">Teilnehmer:</label> <br>
-        <input type="text" id="teilnehmer" class="form-control" placeholder="Wie viele Spieler?" maxlength="100" /> 
-         </div>
-          <div class="form-group">
-		 <label for="teamgroesse">Teamgroesse:</label> <br>
-        <input type="text" id="teamgroesse" class="form-control" placeholder="Wie viele pro Team?" maxlength="100" />
-         </div>
-         <div class="form-group">
-         <label for="typ">Art des Turniers:</label> <br>
-        <input type="text" id="typ"  class="form-control" placeholder="Art des Turniers" maxlength="100" />
-        </div>
-                <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
+        <header>
+            <% include ../partials/header %>
+        </header>
 
-        </form>
-        <br />
-        <p class="addid"></p>
+        <main>
+            <div class="row">
+                <div class="col-sm-8">
+
+                    <div class="jumbotron">
+                        <h1>Turnier</h1>
+
+
+                        <form role="form" action="" method="POST" name="turnierAnlegen" id="turnierAnlegen">
+                            <div class="form-group">
+                                <label for="teilnehmer">Teilnehmer:</label> <br>
+                                <input type="text" id="teilnehmer" class="form-control" placeholder="Wie viele Spieler?" maxlength="100" /> 
+                            </div>
+                            <div class="form-group">
+                                <label for="teamgroesse">Teamgroesse:</label> <br>
+                                <input type="text" id="teamgroesse" class="form-control" placeholder="Wie viele pro Team?" maxlength="100" />
+                            </div>
+                            <div class="form-group">
+                                <label for="austragungsort">Optional: Austragungsort</label> <br>
+                                <input type="text" id="austragungsort" class="form-control" placeholder="Wo wird das Turnier stattfinden?" maxlength="100" />
+                            </div>
+                            <div class="form-group">
+                                <label for="typ">Art des Turniers:</label> <br>
+                                <input type="text" id="typ"  class="form-control" placeholder="Art des Turniers" maxlength="100" />
+                            </div>
+                            <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
+
+                        </form>
+                        <br />
+                        <p class="addid"></p>
+                    </div>
+
                 </div>
-                
-            </div>
-           
-        </div>
-    </main>
 
-    <footer>
-        <% include ../partials/footer %>
-    </footer>
-    
-</body>
+            </div>
+        </main>
+
+        <footer>
+            <% include ../partials/footer %>
+        </footer>
+
+    </body>
 </html>
