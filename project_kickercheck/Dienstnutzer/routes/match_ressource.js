@@ -100,11 +100,17 @@ app.get('/:MatchId', function(req, res) {
              externalres.on('data', function(chunk){
            
      var match = JSON.parse(chunk);
+     
+
+	 var ortURI = match.Austragungsort.split("/");
+	 var ort = "/"+ortURI[1]+"/"+ortURI[2];
+	 
+     console.log(ort);
   
         var options2 = {
         host: "localhost",
         port: 3001,
-        path: match.Austragungsort+"/allekickertische/",
+        path: ort+"/allekickertische/",
         method:"GET",
         headers:{
           accept:"application/json"
@@ -114,7 +120,7 @@ app.get('/:MatchId', function(req, res) {
           var options3 = {
         host: "localhost",
         port: 3000,
-        path: match.Austragungsort,
+        path: ort,
         method:"GET",
         headers:{
           accept:"application/json"

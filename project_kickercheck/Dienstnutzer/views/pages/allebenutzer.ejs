@@ -20,7 +20,7 @@
         <div class="list-group">
        
         <% benutzerAll.forEach(function(benutzer) { %>
-	  <a href="/Benutzer/<%= benutzer.id %>" class="list-group-item"> <h4 class="list-group-item-heading"><%= benutzer.id %></h4>
+	  <a href="/Benutzer/<%= benutzer.id %>" class="list-group-item"><h4 class="list-group-item-heading">Benutzer <%= benutzer.id %></h4>
 	  <p class="list-group-item-text">Name: <%= benutzer.Name %></p>
 	   <p class="list-group-item-text">Datum: <%= benutzer.Alter %></p>
 	    </a>

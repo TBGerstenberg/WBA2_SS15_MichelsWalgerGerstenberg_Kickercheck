@@ -8,15 +8,33 @@ $(document).ready(function() {
 	
 		 var d = new Date();
 				var time = d.setDate(d.getDate()-1);
+				
+				 var ortURI = "<%= match.Austragungsort %>".split("/");
+				 var ort = "/"+ortURI[1]+"/"+ortURI[2];
+				 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');
+				 
+				 if(!ortURI[3]) {
+					 $('#aort').html('');
+				 }
+	 
 			
 			   $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
 			    $('.timepick').datetimepicker({format:'HH:mm'});
 			    
 			        $('#addTisch').submit(function(e) {
 							e.preventDefault();
+							
+							var tisch = $('#kit').val();
+							var datum = $('#dat').text();
+							var uhrzeit = $('#uhr').text();
+							
+							
 
-			 var formData = {Status: 'aktiv'};
-
+			 var formData = {Datum: datum,
+				 Uhrzeit: uhrzeit,
+				 Austragungsort: tisch
+			 };
+		
 
 							$.ajax({
 								type: 'PUT',
@@ -24,7 +42,7 @@ $(document).ready(function() {
 								contentType: 'application/json',
 								data: JSON.stringify(formData),
 								success: function(data) {
-						
+						alert('Tisch wurde erfolgreich gesetzt.');
 						window.location.reload(true);
 						
 								},
@@ -63,6 +81,9 @@ $(document).ready(function() {
 			
 				 var datum = $('#datum').val();
 				 var uhrzeit = $('#uhrzeit').val();
+					var tisch = $('#aort').text();
+					
+					console.log(tisch);
 
 							if(!(datum && uhrzeit)) {
 								alert('Bitte Daten spezifizieren.');
@@ -70,7 +91,8 @@ $(document).ready(function() {
 								}
 			 
 			 var formData = {Datum: datum,
-				 Uhrzeit: uhrzeit
+				 Uhrzeit: uhrzeit,
+				  Austragungsort: tisch
 			 };
 
 
@@ -87,8 +109,8 @@ $(document).ready(function() {
                    
                    
 
-							  $("#dat").text('Datum: '+data.Datum);
-							  $("#uhr").text('Startzeitpunkt: '+data.Uhrzeit+ ' Uhr');
+							  $("#dat").text(data.Datum);
+							  $("#uhr").text(data.Uhrzeit);
 								
 								},
         fail: function() {
@@ -107,13 +129,16 @@ $(document).ready(function() {
         <div class="row">
             <div class="col-sm-8">
             
+            
                 <div class="jumbotron">
                     <h1>Match <%= match.id %></h1>
                    <br />
+                  
                      <ul>
-            <li id="dat">Datum: <%= match.Datum %></li>
-              <li id="uhr"> Startzeitpunkt: <%= match.Uhrzeit %> Uhr</li>
-               <li> Austragungsort: <%= austragungsort.Name %></li>
+            <li>Datum: <span id="dat"><%= match.Datum %></span></li>
+              <li> Startzeitpunkt: <span id="uhr"><%= match.Uhrzeit %></span> Uhr</li>
+               <li> Austragungsort:  <span id="tis"></span></li>
+                <span id="aort"><li><a href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li></span>
               <li id="stat"> Status: <%= match.Status %></li>
                     </ul> 
                     <br />
