@@ -261,8 +261,6 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
             res.json(completeTurnierplan);
             res.end();
-
-
         });
 
     });
