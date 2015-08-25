@@ -1,180 +1,181 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
-<head>
-    <% include ../partials/head %>
-</head>
-<script>
-$(document).ready(function() {
-			
-
-				$('#addTeilnehmer').submit(function(e) {
-							e.preventDefault();
-			
-				 var teilnehmer = $('#teilnehmer').val();
-				
-
-							if(teilnehmer == '0') {
-								alert('Bitte Teilnehmer spezifizieren.');
-								return false;
-								}
-
-			 
-			 var formData = {'teilnehmer' : teilnehmer};
+    <head>
+        <% include ../partials/head %>
+    </head>
+    <script>
+        $(document).ready(function() {
 
 
-							$.ajax({
-								type: 'PUT',
-								url: '/Turnier/<%= turnier.id %>/Teilnehmer',
-								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
-									 $('#addTeilnehmer').each(function() {
-                        this.reset();
-                   });
+            $('#addTeilnehmer').submit(function(e) {
+                e.preventDefault();
 
-							  $("#teiln ul").append('<li>'+teilnehmer+'</li>');
-								
-								},
-								 statusCode: {
-        409: function() {
-           alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
-        }
-        },
-        fail: function() {
-	        alert('Fehler');
-        }
-			
-						});
-						});
-						
-							$('#changeData').submit(function(e) {
-							e.preventDefault();
-			
-				 var austragungszeitraum = $('.austragungszeitraum').val();
-				 var status = $('.status').val();
-
-							if(!(austragungszeitraum && status)) {
-								alert('Bitte Daten spezifizieren.');
-								return false;
-								}
-			 
-			 var formData = {Austragungszeitraum : austragungszeitraum,
-				 Status: status
-			 };
+                var teilnehmer = $('#teilnehmer').val();
 
 
-							$.ajax({
-								type: 'PUT',
-								url: '/Turnier/<%= turnier.id %>',
-								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
-									
-									 $('#changeData').each(function() {
-                        this.reset();
-                   });
-                   
-                   
+                if(teilnehmer == '0') {
+                    alert('Bitte Teilnehmer spezifizieren.');
+                    return false;
+                }
 
-							  $("#austr").text('Austragungszeitraum: '+data.Austragungszeitraum);
-							   $("#stat").text('Status: '+data.Status);
-								
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
-						});
-						});
-						
-						});
 
-						</script>
-<body class="container">
-  <header>
-        <% include ../partials/header %>
-    </header>
- <main>
-        <div class="row">
-            <div class="col-sm-8">
-            
-                <div class="jumbotron">
-                    <h1>Turnier <%= turnier.id %></h1>
-                   <br />
-                     <ul>
-            <li>Anzahl Teilnehmer: <%= turnier.Teilnehmeranzahl %></li>
-              <li> Teamgröße: <%= turnier.Teamgroesse %></li>
-              <li> Typ: <%= turnier.Typ %></li>
-               <li id="austr"> Austragungszeitraum: <%= turnier.Austragungszeitraum %></li>
-              <li id="stat"> Status: <%= turnier.Status %></li>
-                    </ul> 
-                    <br />
-                 
-                    <div id="teiln">
-                    <p>Liste der Teilnehmer: </p>
-                   
-                    <ul>
-                    <% if (turnier.Teilnehmer) { %>
-                      <% for(var i=0; i < turnier.Teilnehmer.length; i++) { %>
-                    <li><%= turnier.Teilnehmer[i] %></li>
-                    <% }}; %>
-                    </ul>
+                var formData = {'teilnehmer' : teilnehmer};
+
+
+                $.ajax({
+                    type: 'PUT',
+                    url: '/Turnier/<%= turnier.id %>/Teilnehmer',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(data) {
+                        $('#addTeilnehmer').each(function() {
+                            this.reset();
+                        });
+
+                        $("#teiln ul").append('<li>'+teilnehmer+'</li>');
+
+                    },
+                    statusCode: {
+                        409: function() {
+                            alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
+                        }
+                    },
+                    fail: function() {
+                        alert('Fehler');
+                    }
+
+                });
+            });
+
+            $('#changeData').submit(function(e) {
+                e.preventDefault();
+
+                var austragungszeitraum = $('.austragungszeitraum').val();
+                var status = $('.status').val();
+
+                if(!(austragungszeitraum && status)) {
+                    alert('Bitte Daten spezifizieren.');
+                    return false;
+                }
+
+                var formData = {Austragungszeitraum : austragungszeitraum,
+                                Status: status
+                               };
+
+
+                $.ajax({
+                    type: 'PUT',
+                    url: '/Turnier/<%= turnier.id %>',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(data) {
+
+                        $('#changeData').each(function() {
+                            this.reset();
+                        });
+
+
+
+                        $("#austr").text('Austragungszeitraum: '+data.Austragungszeitraum);
+                        $("#stat").text('Status: '+data.Status);
+
+                    },
+                    fail: function() {
+                        alert('Fehler');
+                    }
+
+                });
+            });
+
+        });
+
+    </script>
+    <body class="container">
+        <header>
+            <% include ../partials/header %>
+        </header>
+        <main>
+            <div class="row">
+                <div class="col-sm-8">
+
+                    <div class="jumbotron">
+                        <h1>Turnier <%= turnier.id %></h1>
+                        <br />
+                        <ul>
+                            <li>Anzahl Teilnehmer: <%= turnier.Teilnehmeranzahl %></li>
+                            <li> Teamgröße: <%= turnier.Teamgroesse %></li>
+                            <li> Typ: <%= turnier.Typ %></li>
+                            <li> Austragungsort: <%= turnier.Austragungsort%></li>
+                            <li id="austr"> Austragungszeitraum: <%= turnier.Austragungszeitraum %></li>
+                            <li id="stat"> Status: <%= turnier.Status %></li>
+                        </ul> 
+                        <br />
+
+                        <div id="teiln">
+                            <p>Liste der Teilnehmer: </p>
+
+                            <ul>
+                                <% if (turnier.Teilnehmer) { %>
+                                <% for(var i=0; i < turnier.Teilnehmer.length; i++) { %>
+                                <li><%= turnier.Teilnehmer[i] %></li>
+                                <% }}; %>
+                            </ul>
+                        </div>
+                        <hr />
+                        <div id="divteilnehmer" class="margintop20">
+                            <p> Teilnehmer hinzufügen: </p>
+                            <form role="form" action="" method="POST" name="addTeilnehmer" id="addTeilnehmer"><div class="form-group"><label for="teilnehmer">Teilnehmer:</label><br>
+
+                                <select id="teilnehmer" class="form-control">
+                                    <option value="0">Bitte wählen</option>
+                                    <% benutzerAll.forEach(function(benutzer) { %>
+                                    <option value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+                                    <% });  %>
+                                </select>
+                                </div>
+
+                                <input type="submit" class="btn btn-primary" name="send" value="Hinzufügen" /></form>
+
+
+                            <hr />
+                            <div id="divdata" class="margintop20">
+                                <p> Turnierdaten ändern: </p>
+                                <form role="form" action="" method="POST" name="changeData" id="changeData"><div class="form-group"><label for="austragungszeitraum">Austragungszeitraum:</label><br><input type="text" class="austragungszeitraum form-control" name="austragungszeitraum"></div><div class="form-group"><label for="status">Status:</label><input type="text" class="status form-control" name="status"></div>
+                                    <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form></div>
+                            <br />
+                            <hr />
+                            <h4>Spielplan</h4>
+                            <br />
+
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Team 1</th>
+                                        <th>Team 2</th>
+                                        <th>Runde</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for(var i=0; i < turnier.Spielplan.length; i++) { %>
+                                    <tr>
+                                        <td><%= turnier.Spielplan[i].Team1 %></td>
+                                        <td><%= turnier.Spielplan[i].Team2 %></td>
+                                        <td><%= turnier.Spielplan[i].Runde %></td>
+                                    </tr>
+
+                                    <% }; %> 
+                                </tbody>
+                            </table>   
+
+                        </div>
+
                     </div>
-                    <hr />
-                    <div id="divteilnehmer" class="margintop20">
-                      <p> Teilnehmer hinzufügen: </p>
-                    <form role="form" action="" method="POST" name="addTeilnehmer" id="addTeilnehmer"><div class="form-group"><label for="teilnehmer">Teilnehmer:</label><br>
-                   
-                    <select id="teilnehmer" class="form-control">
-                    <option value="0">Bitte wählen</option>
-                     <% benutzerAll.forEach(function(benutzer) { %>
-	 <option value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
-   <% });  %>
-   </select>
-                  </div>
-                    
-                    <input type="submit" class="btn btn-primary" name="send" value="Hinzufügen" /></form>
-                 
-                    
-                  <hr />
-                    <div id="divdata" class="margintop20">
-                    <p> Turnierdaten ändern: </p>
-                    <form role="form" action="" method="POST" name="changeData" id="changeData"><div class="form-group"><label for="austragungszeitraum">Austragungszeitraum:</label><br><input type="text" class="austragungszeitraum form-control" name="austragungszeitraum"></div><div class="form-group"><label for="status">Status:</label><input type="text" class="status form-control" name="status"></div>
-           <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form></div>
-<br />
-<hr />
-<h4>Spielplan</h4>
-<br />
-		   
-                   <table class="table">
-    <thead>
-      <tr>
-        <th>Team 1</th>
-        <th>Team 2</th>
-        <th>Runde</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% for(var i=0; i < turnier.Spielplan.length; i++) { %>
-      <tr>
-        <td><%= turnier.Spielplan[i].Team1 %></td>
-         <td><%= turnier.Spielplan[i].Team2 %></td>
-          <td><%= turnier.Spielplan[i].Runde %></td>
-       </tr>
-     
-     <% }; %> 
-    </tbody>
-  </table>   
-  	       
+
                 </div>
-                
-            </div>
-           
-        </div>
-    </main>
- <footer>
-        <% include ../partials/footer %>
-    </footer>
-    
-</body>
-</html>
+                </main>
+            <footer>
+                <% include ../partials/footer %>
+            </footer>
+
+            </body>
+        </html>
