@@ -5,9 +5,12 @@
 </head>
 <script>
 $(document).ready(function() {
+
 	
 		 var d = new Date();
 				var time = d.setDate(d.getDate()-1);
+				
+				var stdStatus = 'vor_beginn';
 				
 				 var ortURI = "<%= match.Austragungsort %>".split("/");
 				 var ort = "/"+ortURI[1]+"/"+ortURI[2];
@@ -32,7 +35,8 @@ $(document).ready(function() {
 
 			 var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
-				 Austragungsort: tisch
+				 Austragungsort: tisch,
+				 Status: stdStatus
 			 };
 		
 
@@ -56,34 +60,75 @@ $(document).ready(function() {
 			    $('#startMatch').submit(function(e) {
 							e.preventDefault();
 
-			 var formData = {Status: 'aktiv'};
+							var tisch = $('#aort').attr('href');
+							var datum = $('#dat').text();
+							var uhrzeit = $('#uhr').text();
 
+ var formData = {Datum: datum,
+				 Uhrzeit: uhrzeit,
+				  Austragungsort: tisch,
+				  Status: 'aktiv'};
+				  
+				var teilnehmer1 = $('#user0').text();
+				var teilnehmer2 = $('#user1').text();
+				var teilnehmer3 = $('#user2').text();
+				var teilnehmer4 = $('#user3').text();
+				
+				var teilnehmerArray = [];
+	
+		
+	if(teilnehmer1) {
+		teilnehmerArray.push(teilnehmer1);
+	}
+	if(teilnehmer2) {
+		teilnehmerArray.push(teilnehmer2);
+	}
+	if(teilnehmer3) {
+		teilnehmerArray.push(teilnehmer3);
+	}
+	if(teilnehmer4) {
+		teilnehmerArray.push(teilnehmer4);
+	}
+	
+		var anzahl = teilnehmerArray.length;
+		
+				  
+				  var teilnehmerData = {anzahl: anzahl, teilnehmer: teilnehmerArray,
+					 'Herausforderungen': []
+				  }
 
+			$.when(
 							$.ajax({
 								type: 'PUT',
 								url: '/Match/<%= match.id %>',
 								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
+								data: JSON.stringify(formData)
+								}),
+								
+								$.ajax({
+								type: 'PUT',
+								url: '<%= match.Austragungsort %>Belegung/',
+								contentType: 'application/json',
+								data: JSON.stringify(teilnehmerData)
+								})
+						).then(function() {
+								
+	window.location.reload(true);
 						
-						window.location.reload(true);
 						
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
+      
 						});
+						
+								
 						});
 	
 	$('#changeData').submit(function(e) {
 							e.preventDefault();
 			
-				 var datum = $('#datum').val();
-				 var uhrzeit = $('#uhrzeit').val();
-					var tisch = $('#aort').text();
-					
-					console.log(tisch);
+				var datum = $('#datum').val();
+				var uhrzeit = $('#uhrzeit').val();
+				var tisch = $('#aort').attr('href');
+				
 
 							if(!(datum && uhrzeit)) {
 								alert('Bitte Daten spezifizieren.');
@@ -92,7 +137,8 @@ $(document).ready(function() {
 			 
 			 var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
-				  Austragungsort: tisch
+				  Austragungsort: tisch,
+				   Status: stdStatus
 			 };
 
 
@@ -138,7 +184,7 @@ $(document).ready(function() {
             <li>Datum: <span id="dat"><%= match.Datum %></span></li>
               <li> Startzeitpunkt: <span id="uhr"><%= match.Uhrzeit %></span> Uhr</li>
                <li> Austragungsort:  <span id="tis"></span></li>
-                <span id="aort"><li><a href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li></span>
+                <li><a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li>
               <li id="stat"> Status: <%= match.Status %></li>
                     </ul> 
                     <br />
@@ -149,20 +195,24 @@ $(document).ready(function() {
                     <ul>
                     <% if (match.Teilnehmer) { %>
                       <% for(var i=0; i < match.Teilnehmer.length; i++) { %>
-                    <li><%= match.Teilnehmer[i] %></li>
+                    <li id="user<%= i %>"><%= match.Teilnehmer[i] %></li>
                     <% }}; %>
                     </ul>
                     </div>
                     <hr />
+                    
+                     <% if (match.Status == 'vor_beginn') { %>
 
                      <form role="form" action="" method="POST" name="addTisch" id="addTisch">
                         <div class="form-group">
          <label for="kickertisch">Kickertisch:</label> <br>
          <select id="kit" class="form-control">
 	     <option value="0">Bitte wählen</option>
-           <% kickertische.forEach(function(tisch) { %>
-         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ  %></option>
-         <% });  %>
+           <% kickertische.forEach(function(tisch) { belegungen.forEach(function(belegung) { %>
+	               <% if(tisch.id == belegung.id) { %>
+         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung:
+         <% if (belegung.Anzahl != '0') { %> <%= belegung.Anzahl %> Spieler <% } %></option>
+         <% } }); });   %>
          </select>
          </div>
            <input type="submit" class="btn btn-primary" name="change" value="Kickertisch übernehmen" />
@@ -202,6 +252,11 @@ $(document).ready(function() {
  </form>
                     </div>
                     <hr />
+                    <% } else if (match.Status == 'aktiv') { %>
+	                  pokpok
+	                    <% } else { %>
+		                    not defined
+		                    <% }%>
            
 <br />
 <h4>Regeln</h4>

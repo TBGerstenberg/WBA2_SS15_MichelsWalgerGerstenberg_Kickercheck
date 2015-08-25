@@ -3,7 +3,7 @@
 <head>
     <% include ../partials/head %>
 </head>
-
+	       
 <body class="container">
     <header>
         <% include ../partials/header %>
@@ -21,11 +21,18 @@
         <div class="list-group">
        
         <% kickertische.forEach(function(kickertisch) { %>
+
 	  <a href="<%= kickertisch.id %>/" class="list-group-item"> <h4 class="list-group-item-heading"><%= kickertisch.Typ %></h4>
 	  <p class="list-group-item-text">Hersteller: <%= kickertisch.Hersteller %></p>
 	    <p class="list-group-item-text">Zustand: <%= kickertisch.Zustand %></p>
+	   <% belegungen.forEach(function(belegung) { %>
+		  <% if(belegung.id == kickertisch.id) { %>
+	     <p class="list-group-item-text">Belegung: <%= belegung.Anzahl %> Spieler</p> 
+	     <% } %>
+	    <% }); %>
 	    </a>
-   <% });  %>
+   
+  <%  }); %>
 </div>
       
                 </div>

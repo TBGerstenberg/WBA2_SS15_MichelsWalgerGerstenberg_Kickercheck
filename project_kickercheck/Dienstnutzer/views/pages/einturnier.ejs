@@ -128,7 +128,7 @@
                             <li>Anzahl Teilnehmer: <%= turnier.Teilnehmeranzahl %></li>
                             <li> Teamgröße: <%= turnier.Teamgroesse %></li>
                             <li> Typ: <%= turnier.Typ %></li>
-                            <li> Austragungsort: <%= turnier.Austragungsort%></li>
+                           <% if(turnier.Austragungsort) { %><li> Austragungsort: <%= turnier.Austragungsort %></li><% } %>
                             <li id="austr"> Austragungszeitraum: <%= turnier.Austragungszeitraum %></li>
                             <li id="stat"> Status: <%= turnier.Status %></li>
                         </ul> 
@@ -192,6 +192,7 @@
 
 
                             <!--Button um den Spielplan zu erstellen -->
+
                             <input id="generiereSpielplan" class="btn btn-default" value="Generiere Spielplan" type="button" />
 
                             <!--Anzeige für den fertigen Spielplan -->
@@ -203,6 +204,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+
                                     <% for(var i=0; i < turnier.Matches.length; i++) { %>
                                     <tr>
                                         <td><%= turnier.Matches[i] %></td>

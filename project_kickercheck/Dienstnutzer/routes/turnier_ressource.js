@@ -216,6 +216,7 @@ app.get('/:TurnierId', function(req, res) {
                     res.render('pages/einturnier', {
                         turnier: turnier ,benutzerAll:benutzerAll                     
                     });
+                    
                     res.end();
                 });
             });
