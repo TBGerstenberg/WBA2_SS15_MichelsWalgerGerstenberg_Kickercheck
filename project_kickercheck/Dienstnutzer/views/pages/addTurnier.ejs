@@ -19,19 +19,19 @@
                         alert('Bitte Felder ausfüllen');
                         return false;
                     }
-
-                    if(teilnehmer < 0 || teamgroesse %2 != 0){
-
+                    
+                    /*
+                    if(teilnehmer < 0 || !(teamgroesse == 1 || teamgroesse==2)){
                         alert('Bitte Daten überprüfen'); 
                         return false;
-                    }
-
+                    }  */
+                    
+                    
                     //Legt fest wieviele Teams es geben wird 
                     var anzahlTeams=teilnehmer / teamgroesse;
 
                     //Es gibt keine Spieler oder der Turnierplan geht nicht auf  
                     if(anzahlTeams < 0 || anzahlTeams %2 != 0){
-
                         alert('Bitte Daten überprüfen'); 
                         return false;
                     }
