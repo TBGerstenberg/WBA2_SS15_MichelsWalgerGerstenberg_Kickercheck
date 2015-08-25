@@ -96,6 +96,8 @@ app.post('/',function(req, res) {
                 'Status':match.Status
             };
             
+            console.log(matchObj);
+            
                client.set('Match ' + id, JSON.stringify(matchObj));
                
                console.log(matchObj);
@@ -141,12 +143,13 @@ app.put('/:MatchId',function(req, res) {
                     Matchdaten.Datum = req.body.Datum;
                     Matchdaten.Uhrzeit = req.body.Uhrzeit;
                     Matchdaten.Austragungsort = req.body.Austragungsort;
+                    Matchdaten.Regelwerk = req.body.Regelwerk;
                      Matchdaten.Status = req.body.Status;
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Match ' + matchId,JSON.stringify(Matchdaten));
            
-
+					console.log(Matchdaten);
             //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
             res.set("Content-Type", 'application/json').status(201).json(Matchdaten).end();
          });       

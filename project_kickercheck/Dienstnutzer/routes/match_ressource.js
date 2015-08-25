@@ -189,8 +189,6 @@ app.post('/', function(req, res) {
 	"Teamgroesse":2,
 	"Typ":"Kickerturnier"
 	}   
-	    
-	    
 	    */
    
 
@@ -228,6 +226,17 @@ if(externalResponse.statusCode == 400){
 
  });
  
+ var Regelwerk=
+    {
+            "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
+            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm",
+            "Spielstand":{
+                "SpielstandT1":0,
+                "SpielstandT2":0
+            }
+    }
+    
+    MatchAnfrage.Regelwerk = Regelwerk;
  
 externalRequest.write(JSON.stringify(MatchAnfrage));
 
@@ -265,6 +274,7 @@ app.put('/:MatchId', function(req, res) {
    var changeMatch = JSON.parse(chunk);
 
   console.log(util.inspect(changeMatch, false, null));
+  
    
     res.json(changeMatch);
     res.end();
@@ -273,6 +283,19 @@ app.put('/:MatchId', function(req, res) {
 });
 
  });
+ 
+  var Regelwerk=
+    {
+            "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
+            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm",
+            "Spielstand":{
+                "SpielstandT1":MatchDaten.spielstand1,
+                "SpielstandT2":MatchDaten.spielstand2
+            }
+    }
+    
+    MatchDaten.Regelwerk = Regelwerk;
+    
  
 externalRequest.write(JSON.stringify(MatchDaten));
 

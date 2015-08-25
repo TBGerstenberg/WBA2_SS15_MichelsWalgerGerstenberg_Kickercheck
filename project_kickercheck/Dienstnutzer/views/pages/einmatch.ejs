@@ -31,12 +31,18 @@ $(document).ready(function() {
 							var datum = $('#dat').text();
 							var uhrzeit = $('#uhr').text();
 							
+							if(tisch && tisch == '0') {
+								alert('Bitte Tisch wählen');
+								return false;
+							}
 							
 
 			 var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
-				 Austragungsort: tisch,
-				 Status: stdStatus
+				  Austragungsort: tisch,
+				   Status:  stdStatus,
+				   spielstand1 : 0,
+					spielstand2 : 0
 			 };
 		
 
@@ -63,11 +69,14 @@ $(document).ready(function() {
 							var tisch = $('#aort').attr('href');
 							var datum = $('#dat').text();
 							var uhrzeit = $('#uhr').text();
+							
 
  var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
 				  Austragungsort: tisch,
-				  Status: 'aktiv'};
+				   Status:  'aktiv',
+				   spielstand1 : 0,
+					spielstand2 : 0};
 				  
 				var teilnehmer1 = $('#user0').text();
 				var teilnehmer2 = $('#user1').text();
@@ -138,7 +147,9 @@ $(document).ready(function() {
 			 var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
 				  Austragungsort: tisch,
-				   Status: stdStatus
+				   Status:  stdStatus,
+				   spielstand1 : 0,
+					spielstand2 : 0
 			 };
 
 
@@ -165,6 +176,89 @@ $(document).ready(function() {
 			
 						});
 						});
+						
+							$('#sp1').click(function(e) {
+							e.preventDefault();
+							
+							var tisch = $('#aort').attr('href');
+							var datum = $('#dat').text();
+							var uhrzeit = $('#uhr').text();
+				
+							var spielstand1 = $('.sp1pkt').text();
+							var spielstand2 = $('.sp2pkt').text();
+							
+							var value1 = parseInt(spielstand1, 10) + 1;
+							
+							
+					
+					var formData = { Datum: datum,
+				 Uhrzeit: uhrzeit,
+				  Austragungsort: tisch,
+				   Status:  'aktiv',
+				   spielstand1 : value1,
+						spielstand2 : spielstand2 }
+
+			 	$.ajax({
+								type: 'PUT',
+								url: '/Match/<%= match.id %>',
+								contentType: 'application/json',
+								data: JSON.stringify(formData),
+								success: function(data) {
+									
+										
+									$('.sp1pkt').text(data.Regelwerk.Spielstand.SpielstandT1);
+									$('.sp2pkt').text(data.Regelwerk.Spielstand.SpielstandT2);
+	
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});
+
+						});
+						
+							
+						$('#sp2').click(function(e) {
+							
+							e.preventDefault();
+							
+				var tisch = $('#aort').attr('href');
+							var datum = $('#dat').text();
+							var uhrzeit = $('#uhr').text();
+							
+							var spielstand1 = $('.sp1pkt').text();
+							var spielstand2 = $('.sp2pkt').text();
+							
+								var value2 = parseInt(spielstand2, 10) + 1;
+							
+					
+				var formData = { Datum: datum,
+				 Uhrzeit: uhrzeit,
+				  Austragungsort: tisch,
+				   Status: 'aktiv',
+				   spielstand1 : spielstand1,
+						spielstand2 : value2 }
+
+			 	$.ajax({
+								type: 'PUT',
+								url: '/Match/<%= match.id %>',
+								contentType: 'application/json',
+								data: JSON.stringify(formData),
+								success: function(data) {
+									
+									$('.sp1pkt').text(data.Regelwerk.Spielstand.SpielstandT1);
+									$('.sp2pkt').text(data.Regelwerk.Spielstand.SpielstandT2);
+	
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});
+
+						});
+						
 });
 </script>
 <body class="container">
@@ -173,7 +267,7 @@ $(document).ready(function() {
     </header>
  <main>
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-12">
             
             
                 <div class="jumbotron">
@@ -208,11 +302,9 @@ $(document).ready(function() {
          <label for="kickertisch">Kickertisch:</label> <br>
          <select id="kit" class="form-control">
 	     <option value="0">Bitte wählen</option>
-           <% kickertische.forEach(function(tisch) { belegungen.forEach(function(belegung) { %>
-	               <% if(tisch.id == belegung.id) { %>
-         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung:
-         <% if (belegung.Anzahl != '0') { %> <%= belegung.Anzahl %> Spieler <% } %></option>
-         <% } }); });   %>
+           <% kickertische.forEach(function(tisch) { %>
+         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %></option>
+         <% });   %>
          </select>
          </div>
            <input type="submit" class="btn btn-primary" name="change" value="Kickertisch übernehmen" />
@@ -253,17 +345,63 @@ $(document).ready(function() {
                     </div>
                     <hr />
                     <% } else if (match.Status == 'aktiv') { %>
-	                  pokpok
+	                    
+	         
+                   
+                    <form role="form" action="" method="PUT" name="changeSpielstand" id="changeSpielstand">
+                    
+         
+             <div class="spielstand">
+             <div class="row">
+                  <div class="col-md-4">
+                  <p id="pkt" class="sp1pkt"><%= match.Regelwerk.Spielstand.SpielstandT1 %></p>
+                  </div>
+                   <div class="col-md-4">
+                  <p id="pkt">:</p>
+                  </div>
+                   <div class="col-md-4">
+                  <p id="pkt" class="sp2pkt"><%= match.Regelwerk.Spielstand.SpielstandT2 %></p>
+                  </div>
+                  </div>
+                  
+             <div class="row">
+            
+                  <div class="col-md-6"><p id="spielst">Team 1</p></div>
+                    <div class="col-md-6"><p id="spielst">Team 2</p></div>
+                 </div>
+                   <div class="row">
+                   <div class="col-md-6">
+                  <input type="button" id="sp1" class="btn btn-primary btn-lg" value="+" />
+                 </div>
+                 <div class="col-md-6">
+                  <input type="button" id="sp2" class="btn btn-primary btn-lg" value="+" />
+                  </div>
+                  </div>
+                  
+                   
+                  
+          
+
+		</div>
+                  </form>
+   
+                
+                     
+                 
 	                    <% } else { %>
 		                    not defined
 		                    <% }%>
            
 <br />
+<br />
+<div class="margintop20">
 <h4>Regeln</h4>
 <br />
 
-<%= match.Regelwerk %>
-  	       
+<p><%= match.Regelwerk.Beschreibung %></p>
+<p><a href="<%= match.Regelwerk.OffiziellesRegelwerk %>">Offizielle Kickerregeln</a></p>
+
+  	       </div>
                 </div>
                 
             </div>

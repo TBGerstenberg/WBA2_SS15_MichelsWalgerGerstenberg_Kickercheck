@@ -4,3 +4,12 @@
 	 margin-bottom:0px;
  }
 .margintop20 {margin-top:20px;}
+#spielst {
+	font-size:30px;
+}
+#pkt {
+	font-size:40px;
+}
+.spielstand {
+	text-align: center;
+}
