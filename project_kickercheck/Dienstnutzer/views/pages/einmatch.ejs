@@ -41,15 +41,12 @@ $(document).ready(function() {
 			 var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
 				  Austragungsort: tisch,
-				   Status:  stdStatus,
-				   spielstand1 : 0,
-					spielstand2 : 0
+				   Status:  stdStatus
 			 };
 		
 
 							$.ajax({
 								type: 'PUT',
-								url: '/Match/<%= match.id %>',
 								contentType: 'application/json',
 								data: JSON.stringify(formData),
 								success: function(data) {
@@ -75,9 +72,7 @@ $(document).ready(function() {
  var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
 				  Austragungsort: tisch,
-				   Status:  'aktiv',
-				   spielstand1 : 0,
-					spielstand2 : 0};
+				   Status:  'aktiv'};
 				  
 				var teilnehmer1 = $('#user0').text();
 				var teilnehmer2 = $('#user1').text();
@@ -110,7 +105,6 @@ $(document).ready(function() {
 			$.when(
 							$.ajax({
 								type: 'PUT',
-								url: '/Match/<%= match.id %>',
 								contentType: 'application/json',
 								data: JSON.stringify(formData)
 								}),
@@ -148,15 +142,12 @@ $(document).ready(function() {
 			 var formData = {Datum: datum,
 				 Uhrzeit: uhrzeit,
 				  Austragungsort: tisch,
-				   Status:  stdStatus,
-				   spielstand1 : 0,
-					spielstand2 : 0
+				   Status:  stdStatus
 			 };
 
 
 							$.ajax({
 								type: 'PUT',
-								url: '/Match/<%= match.id %>',
 								contentType: 'application/json',
 								data: JSON.stringify(formData),
 								success: function(data) {
@@ -180,38 +171,31 @@ $(document).ready(function() {
 						
 							$('#sp1').click(function(e) {
 							e.preventDefault();
-							
-							var tisch = $('#aort').attr('href');
-							var datum = $('#dat').text();
-							var uhrzeit = $('#uhr').text();
 				
 							var spielstand1 = $('.sp1pkt').text();
 							var spielstand2 = $('.sp2pkt').text();
 							
 							var value1 = parseInt(spielstand1, 10) + 1;
+							var value2 = parseInt(spielstand2, 10);
 							
 							if(value1 >= 11 || spielstand2 == 10) {
 								alert('Regelwidriges Verhalten.');
 								return false;
 							}
 					
-					var formData = { Datum: datum,
-				 Uhrzeit: uhrzeit,
-				  Austragungsort: tisch,
-				   Status:  'aktiv',
-				   spielstand1 : value1,
-						spielstand2 : spielstand2 }
+					var formData = { spielstandT1 : value1,
+						spielstandT2 : value2 }
 
 			 	$.ajax({
 								type: 'PUT',
-								url: '/Match/<%= match.id %>',
+								url: window.location.pathname+'/Spielstand',
 								contentType: 'application/json',
 								data: JSON.stringify(formData),
 								success: function(data) {
 									
 										
-									$('.sp1pkt').text(data.Regelwerk.Spielstand.SpielstandT1);
-									$('.sp2pkt').text(data.Regelwerk.Spielstand.SpielstandT2);
+									$('.sp1pkt').text(data.spielstandT1);
+									$('.sp2pkt').text(data.spielstandT2);
 	
 								},
         fail: function() {
@@ -224,40 +208,32 @@ $(document).ready(function() {
 						
 							
 						$('#sp2').click(function(e) {
-							
 							e.preventDefault();
-							
-				var tisch = $('#aort').attr('href');
-							var datum = $('#dat').text();
-							var uhrzeit = $('#uhr').text();
-							
+				
 							var spielstand1 = $('.sp1pkt').text();
 							var spielstand2 = $('.sp2pkt').text();
 							
-								var value2 = parseInt(spielstand2, 10) + 1;
-								
-								if(value2 >= 11 || spielstand1 == 10) {
+							var value1 = parseInt(spielstand1, 10);
+							var value2 = parseInt(spielstand2, 10) + 1;
+							
+							if(value2 >= 11 || spielstand1 == 10) {
 								alert('Regelwidriges Verhalten.');
 								return false;
 							}
-							
 					
-				var formData = { Datum: datum,
-				 Uhrzeit: uhrzeit,
-				  Austragungsort: tisch,
-				   Status: 'aktiv',
-				   spielstand1 : spielstand1,
-						spielstand2 : value2 }
+					var formData = { spielstandT1 : value1,
+						spielstandT2 : value2 }
 
 			 	$.ajax({
 								type: 'PUT',
-								url: '/Match/<%= match.id %>',
+								url: window.location.pathname+'/Spielstand',
 								contentType: 'application/json',
 								data: JSON.stringify(formData),
 								success: function(data) {
 									
-									$('.sp1pkt').text(data.Regelwerk.Spielstand.SpielstandT1);
-									$('.sp2pkt').text(data.Regelwerk.Spielstand.SpielstandT2);
+										
+									$('.sp1pkt').text(data.spielstandT1);
+									$('.sp2pkt').text(data.spielstandT2);
 	
 								},
         fail: function() {
@@ -280,7 +256,7 @@ $(document).ready(function() {
             
             
                 <div class="jumbotron">
-                    <h1>Match <%= match.id %></h1>
+                    <h1>Match</h1>
                    <br />
                   
                      <ul>
@@ -362,13 +338,13 @@ $(document).ready(function() {
              <div class="spielstand">
              <div class="row">
                   <div class="col-md-4">
-                  <p id="pkt" class="sp1pkt"><%= match.Regelwerk.Spielstand.SpielstandT1 %></p>
+                  <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>
                   </div>
                    <div class="col-md-4">
                   <p id="pkt">:</p>
                   </div>
                    <div class="col-md-4">
-                  <p id="pkt" class="sp2pkt"><%= match.Regelwerk.Spielstand.SpielstandT2 %></p>
+                  <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
                   </div>
                   </div>
                   

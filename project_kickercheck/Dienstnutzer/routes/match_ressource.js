@@ -142,6 +142,16 @@ app.get('/:MatchId', function(req, res) {
         }
       }
       
+          var options4 = {
+        host: 'localhost',
+        port: 3001,
+        path: '/Match/'+req.params.MatchId+"/Spielstand",
+        method: 'GET',
+        headers: {
+            accept: 'application/json'
+        }
+    };
+      
  
 	      
 	       var y = http.request(options2, function(externalrep){
@@ -156,23 +166,35 @@ app.get('/:MatchId', function(req, res) {
 
                 var austragungsort = JSON.parse(chunkz);
                 
-               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort, belegungen: belegungen });
+                    var w = http.request(options4, function(externalrepw){
+                
+            externalrepw.on("data", function(chunkw){
+
+                var spielstand = JSON.parse(chunkw);
+                
+            
+                 
+               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort, belegungen: belegungen, spielstand:spielstand });
        
              
             });
     
   });
-  	z.end();
+  w.end();
+  	
             });
   });
-    y.end(); 
+  z.end();
+  
 });
 
 });
-x.end();
+y.end();
 });
 	});
-	
+	x.end();
+	});
+	});
 	});
 
 app.post('/', function(req, res) {
@@ -217,6 +239,19 @@ if(externalResponse.statusCode == 400){
    var match = JSON.parse(chunk);
 
   console.log(util.inspect(match, false, null));
+	
+	var loc = externalResponse.headers.location.split("/");
+	
+	var idm = loc[2];
+	 	
+			 	var MatchSpielstand = {
+				 	spielstandT1 : 0,
+				 	spielstandT2: 0
+			 	}
+	            
+	          //Schreibe Turnierdaten zurück 
+                    client.set('Spielstand ' + idm,JSON.stringify(MatchSpielstand));
+
    
     res.json(match);
     res.end();
@@ -229,11 +264,7 @@ if(externalResponse.statusCode == 400){
  var Regelwerk=
     {
             "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
-            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm",
-            "Spielstand":{
-                "SpielstandT1":0,
-                "SpielstandT2":0
-            }
+            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
     }
     
     MatchAnfrage.Regelwerk = Regelwerk;
@@ -287,20 +318,82 @@ app.put('/:MatchId', function(req, res) {
   var Regelwerk=
     {
             "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
-            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm",
-            "Spielstand":{
-                "SpielstandT1":MatchDaten.spielstand1,
-                "SpielstandT2":MatchDaten.spielstand2
-            }
+            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
     }
     
     MatchDaten.Regelwerk = Regelwerk;
-    
  
 externalRequest.write(JSON.stringify(MatchDaten));
 
 externalRequest.end();
 
 	   	});
+	   	
+	   	app.get('/:MatchId/Spielstand', function(req, res) {
+
+  var matchId = req.params.MatchId;
+
+   //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+        client.exists('Match ' + matchId, function(err, IdExists) {
+
+            //client.exists hat false geliefert 
+            if (!IdExists) {
+                res.status(404).send("Die Ressource wurde nicht gefunden.");
+                res.end();
+            }
+
+            //Ressource existiert     
+            else {
+	            
+	          
+	            var spielstandId = req.params.MatchId;
+	            
+	              //Lese aktuellen Zustand des Turniers aus DB
+                client.mget('Spielstand '+spielstandId,function(err,spielstanddata){
+
+				var spielstand = JSON.parse(spielstanddata);
+
+            //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+            res.set("Content-Type", 'application/json').status(200).json(spielstand).end();
+               
+   });
+   }
+
+});
+
+ });
+	   	
+	   	app.put('/:MatchId/Spielstand', function(req, res) {
+	   	
+	  var matchId = req.params.MatchId;
+	  var spielstandId = req.params.MatchId;
+
+   //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+        client.exists('Match ' + matchId, function(err, IdExists) {
+
+            //client.exists hat false geliefert 
+            if (!IdExists) {
+                res.status(404).send("Die Ressource wurde nicht gefunden.");
+                res.end();
+            }
+
+            //Ressource existiert     
+            else {
+	            
+	     var MatchSpielstand = req.body;
+		
+	          //Schreibe Turnierdaten zurück 
+                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+
+            //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+            res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+   
+   }
+
+});
+
+ });
+
+	   
 
 module.exports = app;

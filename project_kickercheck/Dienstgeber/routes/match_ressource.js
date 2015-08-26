@@ -21,9 +21,10 @@ app.get('/',function(req,res){
        response.push(JSON.parse(val));
 
 
-            res.status(200).set("Content-Type","application/json").json(response).end();
-
         });
+        
+        
+            res.status(200).set("Content-Type","application/json").json(response).end();
     });
 });
 });

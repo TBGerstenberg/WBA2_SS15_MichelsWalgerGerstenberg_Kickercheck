@@ -339,6 +339,10 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
             
              client.set('Kickertisch ' + id, JSON.stringify(kickertischObj));
              
+              client.LPUSH('Austragungsort '+austragungsortId+' Tische', 
+                          id
+                        );
+             
               //Setze Contenttype der Antwort auf application/atom+xml
             res.set("Content-Type", 'application/json').set("Location", "/Austragungsort/"+austragungsortId+"/Kickertisch/" + id).status(201).json(kickertischObj).end();
 

@@ -10,6 +10,10 @@
 <script>
 $(document).ready(function() {
 	
+	var loc = window.location.pathname+"/Kickertisch";
+	
+	$('#alltables').attr('href',loc); 
+	
 	$('#kickertischAnlegen').submit(function(e) {
 							e.preventDefault();
 							$('.addid').html('');
@@ -33,7 +37,6 @@ $(document).ready(function() {
 							Hersteller : hersteller,
 							Typ : typ,
 							Zustand : zustand,
-							Ort : '<%= austragungsort.Name %>',
 							Merkmale : merkmale }
 
 							$.ajax({
@@ -79,7 +82,7 @@ $(document).ready(function() {
                     <br />
                     <div class="row">
                   
-                    <a href="Kickertisch/" class="btn btn-primary" role="button">Alle Tische dieses Ortes anzeigen</a>
+                    <a href="" id="alltables" class="btn btn-primary" role="button">Alle Tische dieses Ortes anzeigen</a>
                     </div>
                     <br />
                  <div class="row">

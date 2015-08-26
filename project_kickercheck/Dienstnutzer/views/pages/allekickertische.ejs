@@ -3,7 +3,12 @@
 <head>
     <% include ../partials/head %>
 </head>
-	       
+	       <script>
+	       var loc = window.location.pathname;
+	
+	$('#alltables').attr('href',loc); 
+	
+	       </script>
 <body class="container">
     <header>
         <% include ../partials/header %>
@@ -22,7 +27,7 @@
        
         <% kickertische.forEach(function(kickertisch) { %>
 
-	  <a href="<%= kickertisch.id %>/" class="list-group-item"> <h4 class="list-group-item-heading"><%= kickertisch.Typ %></h4>
+	  <a href="/Austragungsort/<%= ort.id %>/Kickertisch/<%= kickertisch.id %>/" class="list-group-item"> <h4 class="list-group-item-heading"><%= kickertisch.Typ %></h4>
 	  <p class="list-group-item-text">Hersteller: <%= kickertisch.Hersteller %></p>
 	    <p class="list-group-item-text">Zustand: <%= kickertisch.Zustand %></p>
 	   <% belegungen.forEach(function(belegung) { %>
