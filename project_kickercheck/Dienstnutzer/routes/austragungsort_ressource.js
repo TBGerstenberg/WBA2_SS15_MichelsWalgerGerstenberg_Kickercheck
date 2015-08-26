@@ -168,15 +168,9 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
     
     var austragungsortId = req.params.AustragungsortId;
 
-	// Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
-                   var listenKey="Austragungsort " +austragungsortId+ " Tische";
-                       
-                     client.lrange(listenKey, 0, -1, function(err,items) {
-	                       console.log(items);
-	                       });
-                      
-                     
-
+	client.mget('Austragungsort '+austragungsortId,function(err,resp){
+			
+			var austr = JSON.parse(resp);
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Kickertisch *', function (err, key) {
@@ -186,12 +180,17 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
         //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
         kickertisch.forEach(function (val) {
 	        
+	        
+	          var tisch = JSON.parse(val);
+		    
+		   if(tisch.Ort == austr.Name) {
+	     
        kickertische.push(JSON.parse(val));
-       });
-           
+       }
+            });
             
         
-     res.render('pages/allekickertische', { kickertische: kickertische,belegungen:belegungen});
+     res.render('pages/allekickertische', { kickertische: kickertische,ort:austr,belegungen:belegungen});
                
             });
             
@@ -201,6 +200,8 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
 });
 	
 	});
+		
+});
 
 app.get('/:AustragungsortId/allekickertische', function(req, res) {
 	
