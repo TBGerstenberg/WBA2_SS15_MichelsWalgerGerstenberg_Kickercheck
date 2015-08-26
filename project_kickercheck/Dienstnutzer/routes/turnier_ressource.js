@@ -143,18 +143,22 @@ app.get('/:TurnierId/Spielplan',function(req,res){
 
                 // HTTP Header für Match Posts vorbereiten 
                 var matchHeader = {
-                    'Accepts':'application/json',
+                    'Accept':'application/json',
                     'Content-Type':'application/json'
                 };
+                
+                var myAgent = new http.Agent({maxSockets: 1});
 
                 //Extrahiere Link um Matches dem Turnier hinzuzufügen und Poste darauf 
                 var optionsMatches = {
                     host: 'localhost',
                     port: 3000,
+                    agent: myAgent,
                     path: turnier.MatchHinzufuegen,
                     method: 'POST',
                     headers: matchHeader
                 };
+
 
                 for(var i=0;i<turnier.Spielplan.length;i++){
                     
@@ -180,6 +184,7 @@ app.get('/:TurnierId/Spielplan',function(req,res){
 
                     console.log("Starte Matchanfrage");
                     console.log(util.inspect(matchAnfrage, false, null));
+                    
 
                     //Stelle Match Post-Anfragen 
                     var matchRequest = http.request(optionsMatches, function(externalResponse) {
@@ -198,6 +203,7 @@ app.get('/:TurnierId/Spielplan',function(req,res){
                 } 
             }
         });   
+        
     });
     externalRequest.end(); 
     res.status(200).end();  
