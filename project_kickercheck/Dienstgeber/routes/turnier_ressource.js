@@ -214,17 +214,22 @@ app.post('/:TurnierId/Match',function(req,res){
                     //Pflege Match in DB ein 
                     client.set('Match ' + id, JSON.stringify(matchObj));
 
+                    console.log("Vor dem Push : "+util.inspect(turnier.Matches, false, null));
+
                     //Füge Link zu diesem Match in die Repräsentation des Turniers ein 
                     turnier.Matches.push("/Match/" + id);
-                    
-                    //console.log("Turnierdaten bei Match_hinzufügen: ");
-                    //console.log(util.inspect(turnier.Matches[0], false, null));
+
+                    console.log("Turnierdaten bei Match_hinzufügen: ");
+
+                    console.log("Nach dem Push : "+util.inspect(turnier.Matches, false, null));
+
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Turnier ' + turnierId,JSON.stringify(turnier));
 
                     //Sende Statuscode 201-Created , da hier ein neues Match angelegt wurde 
                     res.json(turnier).end();
+
                 });
             });
         }
@@ -255,7 +260,6 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
             var Turnierdaten = JSON.parse(turnierdata);
 
             //Hinzufügen eines Teilnehmers darf nur funktionierten solang die Teilnehmeranzahl nicht überschritten wird 
-
             if(Turnierdaten.Teilnehmer.length < Turnierdaten.Teilnehmeranzahl){
                 //console.log(req.body.teilnehmer);
                 Turnierdaten.Teilnehmer.push(req.body.Teilnehmer);
