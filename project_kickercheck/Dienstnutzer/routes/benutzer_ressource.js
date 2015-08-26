@@ -5,33 +5,33 @@ app.get('/addBenutzer', function(req, res) {
 });
 
 app.get('/alleBenutzer', function(req, res) {
-	
-      var options = {
+
+    var options = {
         host: "localhost",
         port: 3000,
         path: "/Benutzer",
         method:"GET",
         headers:{
-          accept:"application/json"
+            accept:"application/json"
         }
-      }
-      var externalRequest = http.request(options, function(externalResponse){
-      
-            externalResponse.on("data", function(chunk){
+    }
+    var externalRequest = http.request(options, function(externalResponse){
 
-                var benutzerAll = JSON.parse(chunk);
-                res.render('pages/allebenutzer',{benutzerAll:benutzerAll});
-                res.end();
-            });
-    
-  });
-         
-      externalRequest.end();
+        externalResponse.on("data", function(chunk){
+
+            var benutzerAll = JSON.parse(chunk);
+            res.render('pages/allebenutzer',{benutzerAll:benutzerAll});
+            res.end();
+        });
+
+    });
+
+    externalRequest.end();
 });
-	
+
 
 app.get('/:BenutzerId', function(req, res) {
-  
+
     var options = {
         host: 'localhost',
         port: 3000,
@@ -41,14 +41,14 @@ app.get('/:BenutzerId', function(req, res) {
             accept: 'application/json'
         }
     };
-    
+
     var x = http.request(options, function(externalres){
         externalres.on('data', function(chunk){
-           
+
             var benutzer = JSON.parse(chunk);
-  
-             console.log(util.inspect(benutzer, false, null));
-             
+
+            console.log(util.inspect(benutzer, false, null));
+
             res.render('pages/einbenutzer', { benutzer: benutzer });
         });
     });                     
@@ -56,95 +56,94 @@ app.get('/:BenutzerId', function(req, res) {
 });
 
 app.post('/', function(req, res) {
-	
+
     // Speichert req.body
     var BenutzerAnfrage = req.body;
-   
+
 
     // HTTP Header setzen
     var headers = {
-      'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
     };
 
     // Mit Server verbinden
     var options = {
-      host: 'localhost',
-      port: 3000,
-      path: '/Benutzer',
-      method: 'POST',
-      headers: headers
+        host: 'localhost',
+        port: 3000,
+        path: '/Benutzer',
+        method: 'POST',
+        headers: headers
     };
-    
+
     var externalRequest = http.request(options, function(externalResponse) {
 
-if(externalResponse.statusCode == 400){
-	 res.status(400).end();
-	 };
-	 
-  externalResponse.on('data', function (chunk) {
-    
-   var benutzer = JSON.parse(chunk);
+         //console.log(JSON.stringify(externalResponse.headers.location));
+        
+        if(externalResponse.statusCode == 400){
+            res.status(400).end();
+        };
 
-  console.log(util.inspect(benutzer, false, null));
-   
-    res.json(benutzer);
-    res.end();
-   
+        externalResponse.on('data', function (chunk) {
 
-});
+            var benutzer = JSON.parse(chunk);
+            console.log(util.inspect(benutzer, false, null));
+            res.setHeader('Location',externalResponse.headers.location);
+            res.json(benutzer);
+            res.end();
+        });
 
- });
- 
- 
-externalRequest.write(JSON.stringify(BenutzerAnfrage));
+    });
 
-externalRequest.end();
+
+    externalRequest.write(JSON.stringify(BenutzerAnfrage));
+
+    externalRequest.end();
 
 });
 
 app.put('/:BenutzerId', function(req, res) {
 
-		var BenutzerDaten = req.body;
-		var benutzerId = req.params.BenutzerId;
-		
-    
-   console.log(util.inspect(BenutzerDaten, false, null));
+    var BenutzerDaten = req.body;
+    var benutzerId = req.params.BenutzerId;
+
+
+    console.log(util.inspect(BenutzerDaten, false, null));
 
     // HTTP Header setzen
     var headers = {
-      'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
     };
 
     // Mit Server verbinden
     var options = {
-      host: 'localhost',
-      port: 3000,
-      path: '/Benutzer/'+benutzerId,
-      method: 'PUT',
-      headers: headers
+        host: 'localhost',
+        port: 3000,
+        path: '/Benutzer/'+benutzerId,
+        method: 'PUT',
+        headers: headers
     };
-    
-      var externalRequest = http.request(options, function(externalResponse) {
 
-	 
-  externalResponse.on('data', function (chunk) {
-    
-   var changeBenutzer = JSON.parse(chunk);
+    var externalRequest = http.request(options, function(externalResponse) {
 
-  console.log(util.inspect(changeBenutzer, false, null));
-   
-    res.json(changeBenutzer);
-    res.end();
-   
+
+        externalResponse.on('data', function (chunk) {
+
+            var changeBenutzer = JSON.parse(chunk);
+
+            console.log(util.inspect(changeBenutzer, false, null));
+
+            res.json(changeBenutzer);
+            res.end();
+
+
+        });
+
+    });
+
+    externalRequest.write(JSON.stringify(BenutzerDaten));
+
+    externalRequest.end();
 
 });
-
- });
- 
-externalRequest.write(JSON.stringify(BenutzerDaten));
-
-externalRequest.end();
-
-	   	});
 
 module.exports = app;

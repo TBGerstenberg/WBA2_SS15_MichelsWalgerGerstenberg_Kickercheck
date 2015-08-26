@@ -19,9 +19,7 @@ app.get('/',function(req,res){
                 response.push(JSON.parse(val));
             });
 
-
             res.status(200).set("Content-Type","application/json").json(response).end();
-
         });
     });
 });
@@ -79,9 +77,7 @@ app.post('/',function(req, res) {
 
     else {
 
-
         generiereLigaTurnierSpielplan(req.body.Teilnehmeranzahl,req.body.Teamgroesse,function(spielplan){
-
 
             client.incr('TurnierId', function(err, id) {
 
@@ -144,6 +140,9 @@ app.put('/:TurnierId',function(req, res) {
                     var Turnierdaten = JSON.parse(turnierdata);
 
                     //Aktualisiere änderbare Daten 
+                    Turnierdaten.Teilnehmeranzahl=req.body.Teilnehmeranzahl;
+                    Turnierdaten.Austragungsort=req.body.Austragungsort;
+                    Turnierdaten.Teamgroesse=req.body.Teamgroesse;
                     Turnierdaten.Austragungszeitraum = req.body.Austragungszeitraum;
                     Turnierdaten.Status=req.body.Status;
 
@@ -258,8 +257,8 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
             //Hinzufügen eines Teilnehmers darf nur funktionierten solang die Teilnehmeranzahl nicht überschritten wird 
 
             if(Turnierdaten.Teilnehmer.length < Turnierdaten.Teilnehmeranzahl){
-                console.log(req.body.teilnehmer);
-                Turnierdaten.Teilnehmer.push(req.body.teilnehmer);
+                //console.log(req.body.teilnehmer);
+                Turnierdaten.Teilnehmer.push(req.body.Teilnehmer);
 
                 //Schreibe Turnierdaten zurück 
                 client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
@@ -283,7 +282,6 @@ function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
 
     //Zu wenig Teilnehmer oder unzulässige Teamgröße
     if(teilnehmerzahl < 0 || teamGroesse %2 != 0){
-
         return -1;  
     }
 
