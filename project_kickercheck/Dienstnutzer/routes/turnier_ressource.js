@@ -82,8 +82,8 @@ app.post('/', function(req, res) {
 
             //Schicke fertiges Turnier zurück
             console.log(util.inspect(turnier, false, null));
-            res.json(turnier);
-            res.end();
+            res.setHeader('Location',externalResponse.headers.location);
+            res.status(201).json(turnier).end();
         });
     });
 
@@ -113,13 +113,6 @@ app.get('/:TurnierId/Spielplan',function(req,res){
     var turnierRequest = http.request(options, function(turnierResponse) {
 
         var turnier = JSON.parse(turnierResponse);
-
-        //Es sind noch nicht alle Teilnehmer angegeben , Spielplan kann noch nicht generiert werden
-        //if(turnier.Teilnehmer.length-1 != turnier.Teilnehmeranzahl){
-        //    res.status().end();
-        //}
-
-        console.log("Austragungsort des Turniers ist:" + turnier.Austragungsort);
 
         //Turnier ist erfolgreich gepostet worden 
         //Wenn Austragungsort bekannt ist , 
@@ -216,7 +209,7 @@ app.get('/:TurnierId', function(req, res) {
                     res.render('pages/einturnier', {
                         turnier: turnier ,benutzerAll:benutzerAll                     
                     });
-                    
+
                     res.end();
                 });
             });
@@ -224,6 +217,31 @@ app.get('/:TurnierId', function(req, res) {
         y.end();
     });
     x.end();
+});
+
+app.delete('/:TurnierId', function(req, res) {
+
+    console.log("Springe in DeleteTurnier aufm Dienstntuzer");
+
+    var options1 = {
+        host: 'localhost',
+        port: 3000,
+        path: '/Turnier/'+req.params.TurnierId,
+        method: 'DELETE',
+        headers: {
+            accept: 'application/json'
+        }
+    };
+
+    var y = http.request(options1, function(externalrep){
+
+        externalrep.on("data", function(chunks){
+            JSON.parse(chunks);
+            res.status(externalrep.statusCode);
+            res.end();
+        });
+    });
+    y.end();
 });
 
 app.put('/:TurnierId/Teilnehmer', function(req, res) {
@@ -254,31 +272,22 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
         };
 
         externalResponse.on('data', function (chunk) {
-
             var completeTurnierplan = JSON.parse(chunk);
-
             console.log(util.inspect(completeTurnierplan, false, null));
-
             res.json(completeTurnierplan);
             res.end();
         });
-
     });
-
     externalRequest.write(JSON.stringify(Teilnehmer));
-
     externalRequest.end();
-
 });
 
 app.put('/:TurnierId', function(req, res) {
 
     var TurnierDaten = req.body;
     var turnierId = req.params.TurnierId;
-    
-    console.log(util.inspect(TurnierDaten, false, null));
-
     var responseString = '';
+    console.log(util.inspect(TurnierDaten, false, null));
 
     // HTTP Header setzen
     var headers = {
@@ -295,25 +304,15 @@ app.put('/:TurnierId', function(req, res) {
     };
 
     var externalRequest = http.request(options, function(externalResponse) {
-
         externalResponse.on('data', function (chunk) {
-
             var completeTurnierplan = JSON.parse(chunk);
-
             console.log(util.inspect(completeTurnierplan, false, null));
-
             res.json(completeTurnierplan);
             res.end();
-
-
         });
-
     });
-
-    externalRequest.write(JSON.stringify(TurnierDaten));
-
+    externalRequest.write(JSON.stringify(TurnierDaten))
     externalRequest.end();
-
 });
 
 module.exports = app;
