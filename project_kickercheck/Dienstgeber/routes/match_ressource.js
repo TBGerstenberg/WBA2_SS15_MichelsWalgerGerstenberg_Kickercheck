@@ -26,6 +26,7 @@ app.get('/',function(req,res){
         });
     });
 });
+});
 
 //Match Methoden
 app.get('/:MatchId', function(req, res) {
