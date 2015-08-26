@@ -143,22 +143,23 @@ app.get('/:TurnierId/Spielplan',function(req,res){
 
                 // HTTP Header für Match Posts vorbereiten 
                 var matchHeader = {
-                    'Accepts':'application/json',
+                    'Accept':'application/json',
                     'Content-Type':'application/json'
                 };
 
+                var myAgent=new http.Agent({maxSockets:1});
+                
                 //Extrahiere Link um Matches dem Turnier hinzuzufügen und Poste darauf 
                 var optionsMatches = {
                     host: 'localhost',
                     port: 3000,
+                    agent:myAgent,
                     path: turnier.MatchHinzufuegen,
                     method: 'POST',
                     headers: matchHeader
                 };
 
                 for(var i=0;i<turnier.Spielplan.length;i++){
-                    
-                    console.log("SPIELPLAN LÄNGE DER HURENSOHN" + turnier.Spielplan.length);
 
                     //Lese die vorberechnete Paarung aus 
                     var matchConfig=turnier.Spielplan[i];
@@ -178,8 +179,8 @@ app.get('/:TurnierId/Spielplan',function(req,res){
                     matchAnfrage.Teilnehmer.push(turnier.Teilnehmer[matchConfig.Team1]);
                     matchAnfrage.Teilnehmer.push(turnier.Teilnehmer[matchConfig.Team2]);
 
-                    console.log("Starte Matchanfrage");
-                    console.log(util.inspect(matchAnfrage, false, null));
+                    //console.log("Starte Matchanfrage");
+                    //console.log(util.inspect(matchAnfrage, false, null));
 
                     //Stelle Match Post-Anfragen 
                     var matchRequest = http.request(optionsMatches, function(externalResponse) {
@@ -190,7 +191,7 @@ app.get('/:TurnierId/Spielplan',function(req,res){
                     });
 
                     matchRequest.on('error',function(e){
-                        console.log("Ficker es gab nen Error"+e.message); 
+                        console.log("Fehler"+e.message); 
                     });
 
                     matchRequest.write(JSON.stringify(matchAnfrage));
