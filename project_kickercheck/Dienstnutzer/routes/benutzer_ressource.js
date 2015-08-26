@@ -94,11 +94,8 @@ app.post('/', function(req, res) {
 
     });
 
-
     externalRequest.write(JSON.stringify(BenutzerAnfrage));
-
     externalRequest.end();
-
 });
 
 app.put('/:BenutzerId', function(req, res) {
