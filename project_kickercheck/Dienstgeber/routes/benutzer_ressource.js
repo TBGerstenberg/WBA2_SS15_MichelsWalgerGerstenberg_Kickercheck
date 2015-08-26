@@ -1,12 +1,12 @@
 var app = express.Router();
 
 app.get('/:BenutzerId', function(req, res) {
-	
+
     //BenutzerId aus der URI extrahieren
     var benutzerId = req.params.BenutzerId;    
-/*
+    /*
 	TODO
-	
+
 	  // hget return 0 wenn key auf false sonst 1 , hier wird geprüft ob der Benutzer nach außen sichtbar sein möchte
 
         client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
@@ -15,10 +15,10 @@ app.get('/:BenutzerId', function(req, res) {
             if (IdExists == 1 && benutzerValid == 1) {
 */
 
-  //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
-	    
-	    
+
+
         //Das Match existiert nicht im System 
         if (!IdExists) {
             res.status(404).send("Die Ressource wurde nicht gefunden.").end();
@@ -26,35 +26,39 @@ app.get('/:BenutzerId', function(req, res) {
 
         //Das Match existiert 
         else  {
-	    
-                //Headerfeld Accept abfragen
-                var acceptedTypes = req.get('Accept');
 
-                //Es wird zunaechst nur text/html 
-                switch (acceptedTypes) {
+            //Headerfeld Accept abfragen
+            var acceptedTypes = req.get('Accept');
 
-                        //client kann application/json verarbeiten     
-                    case "application/json":
+            //Es wird zunaechst nur text/html 
+            switch (acceptedTypes) {
 
-                        client.mget('Benutzer ' + benutzerId, function(err,benutzerdata){
+                    //client kann application/json verarbeiten     
+                case "application/json":
 
-							
-							  var Benutzerdaten = JSON.parse(benutzerdata);
+                    client.mget('Benutzer ' + benutzerId, function(err,benutzerdata){
 
-                            //Setze Contenttype der Antwort auf application/json
-                            res.set("Content-Type", 'application/json').status(200).json(Benutzerdaten).end();
-                        });
+                        var Benutzerdaten = JSON.parse(benutzerdata);
 
-                        break;
+                        var benutzerObj={
+                            Name:Benutzerdaten.Name,
+                            Alter:Benutzerdaten.Alter,
+                            Bild:Benutzerdaten.Bild
+                        }
 
-                    default:
-                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
-                        res.status(406).send("Content Type wird nicht unterstuetzt").end();
-                        break;
-                }
+                        //Setze Contenttype der Antwort auf application/json
+                        res.set("Content-Type", 'application/json').status(200).json(benutzerObj).end();
+                    });
+                    break;
+
+                default:
+                    //Der gesendete Accept header enthaelt kein unterstuetztes Format 
+                    res.status(406).send("Content Type wird nicht unterstuetzt").end();
+                    break;
             }
-            
-/*
+        }
+
+        /*
 	TODO
             else if(IdExists == 1 && benutzerValid == 0) {
                 //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
@@ -67,8 +71,8 @@ app.get('/:BenutzerId', function(req, res) {
                 res.status(404).send("Die Ressource wurde nicht gefunden.").end();
             }
       */
-        });
     });
+});
 
 
 app.post('/', function(req, res) {
@@ -85,28 +89,28 @@ app.post('/', function(req, res) {
         // BenutzerId in redis erhöhen, atomare Aktion 
         client.incr('BenutzerId', function(err, id) {
             console.log("Die BenutzerId nach hinzufügen eines Benutzers : " + id);
-            
-             var Benutzer=req.body;
+
+            var Benutzer=req.body;
             //Pflege Daten aus Anfrage in die DB ein
-         
-	            
-	             var benutzerObj={
+
+
+            var benutzerObj={
                 //Set von Benutzern required
                 'id': id,
-                 'Name': Benutzer.Name,
+                'Name': Benutzer.Name,
                 'Alter': Benutzer.Alter,
                 'Bild': Benutzer.Bild,
                 'isActive': 1
             };
-            
-               client.set('Benutzer ' + id, JSON.stringify(benutzerObj));
-               
-               console.log(benutzerObj);
+
+            client.set('Benutzer ' + id, JSON.stringify(benutzerObj));
+
+            console.log(benutzerObj);
 
             //Setze Contenttype der Antwort auf application/atom+xml
-            res.set("Content-Type", 'application/json').set("Location", "/Benutzer/" + id).status(201).json(benutzerObj).end();
+            res.set("Content-Type", 'application/json').set("Location", "/Benutzer/" + id).status(201).json(req.body).end();
 
-          
+
         });
     }
 });
@@ -121,14 +125,14 @@ app.put('/:BenutzerId', function(req, res) {
     } 
 
     else {
-	    
-	     	var benutzerId = req.params.BenutzerId;
+
+        var benutzerId = req.params.BenutzerId;
 
         //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
         client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
-            
-/*
-	
+
+            /*
+
 	TODO
 
             //Checke ob bestehender EIntrag gelöscht bzw für den Zugriff von außen gesperrt wrude 
@@ -142,42 +146,39 @@ app.put('/:BenutzerId', function(req, res) {
 
                 //Der Benutzer existiert und kann bearbeitet werden 
                 else if (IdExists == 1 && benutzerValid == 1) {
-                    
-                  
+
+
                 }                  
             });      
 */ 
 
-   //client.exists hat false geliefert 
+            //client.exists hat false geliefert 
             if (!IdExists) {
                 res.status(404).end();
             } 
-            
+
 
             else {
-	            
-            //Lese aktuellen Zustand des Turniers aus DB
+
+                //Lese aktuellen Zustand des Turniers aus DB
                 client.mget('Benutzer '+benutzerId,function(err,benutzerdata){
 
-				var Benutzerdaten = JSON.parse(benutzerdata);
-				
+                    var Benutzerdaten = JSON.parse(benutzerdata);
+
                     //Aktualisiere änderbare Daten 
                     Benutzerdaten.Name = req.body.Name;
-                      Benutzerdaten.Alter = req.body.Alter;
+                    Benutzerdaten.Alter = req.body.Alter;
 
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Benutzer ' + benutzerId,JSON.stringify(Benutzerdaten));
-           
 
-            //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-            res.set("Content-Type", 'application/json').status(201).json(Benutzerdaten).end();
-        
-
-        });  
-    }            
-});
-}
+                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                    res.set("Content-Type", 'application/json').status(204).end();
+                });  
+            }            
+        });
+    }
 });
 
 app.delete('/:BenutzerId', function(req, res) {
@@ -186,30 +187,31 @@ app.delete('/:BenutzerId', function(req, res) {
 
     client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
 
-        client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
+        client.mget('Benutzer ' + benutzerId, function(err, benutzerData) {
 
-            if(IdExists == 1 && benutzerValid == 1) {
+            var benutzerObj=JSON.parse(benutzerData);
+
+            console.log("Existiert die id?"+IdExists + typeof(IdExists));
+            console.log("Ist der benutzer aktiv?"+benutzerObj.isActive + typeof(benutzerObj.isActive));
+            console.log("Der key des Benutzers:" + 'Benutzer ' + benutzerId);
+
+            if(IdExists==1 && benutzerObj.isActive ==1) {
                 //Setze das isActive Attribut des Benutzers in der Datenbank auf 0 , so bleiben seine Daten für statistische Zwecke erhalten , nach 				   
                 //außen ist die Ressource aber nicht mehr erreichbar 
-                client.hmset('Benutzer ' + benutzerId, "isActive", 0);
+                console.log("Hier spring ich hoffentlich rein ");
+
+                benutzerObj.isActive=0;
+
+                //Schreibe Turnierdaten zurück 
+                client.set('Benutzer ' + benutzerId,JSON.stringify(benutzerObj));
 
                 //Alles ok , sende 200 
-                res.status(204).send("Das hat funktioniert! Benutzer gelöscht");
-
-                //Antwort beenden
-                res.end();
+                res.status(204).send("Das hat funktioniert! Benutzer gelöscht").end();
             }
 
-            //Es gab nie einen Benutzer mit dieser Id
-            else if(IdExists == 1 && benutzerValid == 0) {
-                res.status(404).send("Die Ressource wurde nicht gefunden.");
-                res.end();
-            }
-
-            //Der Benutzer wurde für den Zugriff von außen gesperrt 
+            //Es gibt keinen Benutzer mit dieser id
             else {
-                res.status(404).send("Die Ressource wurde nicht gefunden.");
-                res.end();
+                res.status(404).send("Die Ressource wurde nicht gefunden.").end();
             }
         });
     });
@@ -222,21 +224,27 @@ app.get('/',function(req,res){
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Benutzer *', function (err, key) {
-	   
-	     client.mget(key, function (err, benutzer) {
-		     
-        //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-        benutzer.forEach(function (val) {
-	     
-       response.push(JSON.parse(val));
+
+        if(key.length>0){
+
+            client.mget(key, function (err, benutzer) {
+
+                //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+                benutzer.forEach(function (val) {
+
+                    response.push(JSON.parse(val));
+                    var  obj=JSON.parse(val);
+                });
+                res.status(200).set("Content-Type","application/json").json(response).end();
+
             });
-            
-    
-    res.status(200).set("Content-Type","application/json").json(response).end();
-    
-    });
-       });
-        });
+        }
         
+        else{
+            res.status(204).set("Link","/Benutzer").end();
+        }
+    });
+});
+
 
 module.exports = app;
