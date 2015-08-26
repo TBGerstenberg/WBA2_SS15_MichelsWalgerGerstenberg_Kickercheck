@@ -190,7 +190,7 @@ $(document).ready(function() {
 							
 							var value1 = parseInt(spielstand1, 10) + 1;
 							
-							if(value1 >= 11) {
+							if(value1 >= 11 || spielstand2 == 10) {
 								alert('Regelwidriges Verhalten.');
 								return false;
 							}
@@ -236,7 +236,7 @@ $(document).ready(function() {
 							
 								var value2 = parseInt(spielstand2, 10) + 1;
 								
-								if(value2 >= 11) {
+								if(value2 >= 11 || spielstand1 == 10) {
 								alert('Regelwidriges Verhalten.');
 								return false;
 							}

@@ -7,8 +7,13 @@ app.get('/',function(req,res){
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Match *', function (err, key) {
-	   
-	     client.mget(key, function (err, match) {
+	    
+
+	  var sorted =  key.sort();
+	  
+
+	     client.mget(sorted, function (err, match) {
+		     
 		     
         //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
         match.forEach(function (val) {
