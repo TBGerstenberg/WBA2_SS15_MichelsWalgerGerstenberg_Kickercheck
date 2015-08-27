@@ -3,6 +3,74 @@
 <head>
     <% include ../partials/head %>
 </head>
+<script>
+$(document).ready(function() {
+	$('#deleteUser').submit(function(e) {
+							e.preventDefault();
+				
+							if (confirm('Möchten Sie fortfahren?') == false) {
+								return false;
+								}
+			 	$.ajax({
+								type: 'DELETE',
+								contentType: 'application/json',
+								success: function(data) {
+									alert('Benutzer gelöscht. Weiterleitung zu allen Benutzern.');
+									location.href = "/Benutzer/allebenutzer"
+				
+								
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});
+						});
+						
+						$('#changeData').submit(function(e) {
+							e.preventDefault();
+			
+				 var benutzername = $('#benutzername').val();
+				 var alter = $('#alter').val();
+				
+
+							if(!(benutzername && alter)) {
+								alert('Bitte Daten spezifizieren.');
+								return false;
+								}
+								
+								
+			 
+			 var formData = {Name: benutzername,
+				 Alter: alter
+			 };
+
+
+							$.ajax({
+								type: 'PUT',
+								contentType: 'application/json',
+								data: JSON.stringify(formData),
+								success: function(data) {
+									
+									 $('#changeData').each(function() {
+                        this.reset();
+                   });
+                   
+                   			alert('Daten erfolgreich geändert.');
+
+							  $("#newName").text(data.Name);
+							  $("#newAge").text(data.Alter);
+				
+								
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});
+						});
+})
+</script>
   <header>
         <% include ../partials/header %>
     </header>
@@ -13,14 +81,28 @@
             <div class="col-sm-12">
             
                 <div class="jumbotron">
-                    <h1>Benutzer <%= benutzer.Name %></h1>
+                    <h1>Benutzer <%= benutzer.id %></h1>
                    <br />
                      <ul>
-            <li>Alter: <%= benutzer.Alter %></li>
+                      <li>Name: <span id="newName"><%= benutzer.Name %></span></li>
+            <li>Alter: <span id="newAge"><%= benutzer.Alter %></span></li>
                     </ul> 
                     <br />
+                    <hr />
+                     <p> Benutzer ändern: </p>
+                    <div id="divdata" class="margintop20">
+                  
+                    <form role="form" action="" method="PUT" name="changeData" id="changeData">
+   
+             <div class="form-group"><label for="benutzername">Name:</label><input type="text" id="benutzername" class="form-control" name="benutzername"></div>
+             <div class="form-group"><label for="alter">Alter:</label><input type="text" id="alter" class="form-control" name="alter"></div>
+           <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form></div>
+<br />
+                    <hr />
                  
-  	       
+  	       <form role="form" action="" method="DELETE" name="deleteUser" id="deleteUser">
+ <input type="submit" class="btn btn-danger" name="del" value="Benutzer löschen" />
+ </form>
                 </div>
                 
             </div>

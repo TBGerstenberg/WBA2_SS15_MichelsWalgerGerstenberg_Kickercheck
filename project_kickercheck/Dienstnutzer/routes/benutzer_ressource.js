@@ -142,4 +142,38 @@ app.put('/:BenutzerId', function(req, res) {
 
 });
 
+app.delete('/:BenutzerId', function(req, res) {
+	
+    var benutzerId = req.params.BenutzerId;
+
+    // HTTP Header setzen
+    var headers = {
+        'Content-Type': 'application/json'
+    };
+
+    // Mit Server verbinden
+    var options = {
+        host: 'localhost',
+        port: 3000,
+        path: '/Benutzer/'+benutzerId,
+        method: 'DELETE',
+        headers: headers
+    };
+
+    var externalRequest = http.request(options, function(externalResponse) {
+
+
+        externalResponse.on('data', function (chunk) {
+
+            res.end();
+
+
+        });
+
+    });
+
+    externalRequest.end();
+
+   });
+
 module.exports = app;

@@ -166,7 +166,7 @@ app.put('/:BenutzerId', function(req, res) {
                     client.set('Benutzer ' + benutzerId,JSON.stringify(Benutzerdaten));
 
                     //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(204).end();
+                    res.set("Content-Type", 'application/json').json(Benutzerdaten).status(200).end();
                 });  
             }            
         });
@@ -178,10 +178,10 @@ app.delete('/:BenutzerId', function(req, res) {
     var benutzerId = req.params.BenutzerId;
 
     client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
-
-        client.mget('Benutzer ' + benutzerId, function(err, benutzerData) {
-
-            var benutzerObj=JSON.parse(benutzerData);
+	    
+	     client.mget('Benutzer ' + benutzerId, function(err, benutzerData) {
+                
+                var benutzerObj=JSON.parse(benutzerData);
 
             console.log("Existiert die id?"+IdExists + typeof(IdExists));
             console.log("Ist der benutzer aktiv?"+benutzerObj.isActive + typeof(benutzerObj.isActive));
@@ -191,21 +191,25 @@ app.delete('/:BenutzerId', function(req, res) {
                 //Setze das isActive Attribut des Benutzers in der Datenbank auf 0 , so bleiben seine Daten für statistische Zwecke erhalten , nach 				   
                 //außen ist die Ressource aber nicht mehr erreichbar 
                 console.log("Hier spring ich hoffentlich rein ");
+                
+          
 
                 benutzerObj.isActive=0;
-
+				console.log(benutzerObj);
                 //Schreibe Turnierdaten zurück 
                 client.set('Benutzer ' + benutzerId,JSON.stringify(benutzerObj));
-
+ 
                 //Alles ok , sende 200 
-                res.status(204).send("Das hat funktioniert! Benutzer gelöscht").end();
+                res.set("Content-Type", 'application/json').status(200).json(benutzerObj).end();
+                
+               
             }
 
             //Es gibt keinen Benutzer mit dieser id
             else {
-                res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+                res.status(404).end();
             }
-        });
+       });
     });
 });
 
@@ -222,14 +226,18 @@ app.get('/',function(req,res){
 		    return;
 	    }
 
-
             client.mget(key, function (err, benutzer) {
 
                 //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
                 benutzer.forEach(function (val) {
+	                
+	                var einNutzer = JSON.parse(val);
+	                
+	                if(einNutzer.isActive != 0) {
 
                     response.push(JSON.parse(val));
-                    var  obj=JSON.parse(val);
+                    }
+                
                 });
                 res.status(200).set("Content-Type","application/json").json(response).end();
 
