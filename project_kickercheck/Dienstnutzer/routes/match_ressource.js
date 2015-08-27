@@ -185,11 +185,14 @@ app.get('/:MatchId', function(req, res) {
   var benutzerAll = [];
   
   	var j = 0;
+  	
+
  
 async.each(match.Teilnehmer, function(listItem, next) {
 
+ callApi(listItem, function(user) {
     listItem.position = j;
- 
+    
       var options = {
         host: "localhost",
         port: 3000,
@@ -208,16 +211,16 @@ async.each(match.Teilnehmer, function(listItem, next) {
 
                 var user = JSON.parse(chunks);
                   benutzerAll.push(user);
-  
+				
         });
-        
-			});
-
+       
+         
+         			});
+			
 exreq.end();
-				 	
-        j++;
 
-        next();	
+next();
+});
  
 }, function(err) {
  
@@ -231,7 +234,9 @@ exreq.end();
  
 });
   	    
-          
+     function callApi(listItem, cb) {
+  cb(listItem);
+}     
                  
 
 //      			console.log(benutzerAll);
