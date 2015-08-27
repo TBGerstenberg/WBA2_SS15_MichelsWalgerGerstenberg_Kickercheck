@@ -18,7 +18,7 @@ $(document).ready(function() {
 								contentType: 'application/json',
 								success: function(data) {
 									alert('Tisch gelöscht. Weiterleitung zum Standort.');
-									location.href = "/Austragungsort/<%= ort.id %>/"
+									location.href = "/Austragungsort/<%= ort.id %>"
 				
 								
 								},
@@ -55,7 +55,7 @@ $(document).ready(function() {
                         this.reset();
                    });
                    
-                   
+                   			alert('Zustand erfolgreich geändert.');
 
 							  $("#zus").text('Zustand: '+data.Zustand);
 				
@@ -92,8 +92,12 @@ $(document).ready(function() {
                     <br />
    <p> Belegung:  </p>
    <ul><li> <%= belegung.Anzahl %> Spieler</li>
+   <% if(belegung.Anzahl > 0) { %>
    <li>Namen der Spieler: <%= belegung.Teilnehmer %> </li>
-   <li> Herausforderungen: <%= belegung.Herausforderungen %> </li></ul>
+   <li> Herausforderungen: <%= belegung.Herausforderungen %> </li>
+   <% } %>
+   </ul>
+   
                     <hr />
                     
   <p> Kickertisch ändern: </p>

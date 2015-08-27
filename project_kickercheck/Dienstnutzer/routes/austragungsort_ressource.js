@@ -158,7 +158,7 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
     
     	// Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
                    var listenKey="Ort " +austragungsortId+ " Tische";
-                   
+            
         
         client.mget('Austragungsort '+austragungsortId,function(err,ort){
 	    
@@ -424,6 +424,7 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
 	app.delete('/:AustragungsortId/Kickertisch/:TischId/', function(req, res) {
 
 	        var tischId = req.params.TischId;
+	        var austragungsortId = req.params.AustragungsortId;
         
 	        //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	        client.exists('Kickertisch ' + tischId, function(err, IdExists) {
@@ -435,6 +436,10 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
 	                res.end();
 
 	            } else {
+		            
+		            var listenKey="Ort " +austragungsortId+ " Tische";
+		            
+		            client.lrem(listenKey,-1,tischId);
 
 	                client.del('Kickertisch ' + tischId);
 

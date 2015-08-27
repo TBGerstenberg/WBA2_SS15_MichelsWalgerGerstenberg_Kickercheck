@@ -11,6 +11,11 @@ app.get('/',function(req,res){
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Turnier *', function (err, key) {
+	    
+	    if(key.length == 0) {
+		    res.json(response);
+		    return;
+	    }
 
         client.mget(key, function (err, turnier) {
 
@@ -18,6 +23,7 @@ app.get('/',function(req,res){
             turnier.forEach(function (val) {
 
                 response.push(JSON.parse(val));
+              
             });
 
             res.status(200).set("Content-Type","application/json").json(response).end();

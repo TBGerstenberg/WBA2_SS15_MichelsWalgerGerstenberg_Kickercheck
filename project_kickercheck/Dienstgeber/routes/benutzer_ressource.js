@@ -100,7 +100,7 @@ app.post('/', function(req, res) {
             client.set('Benutzer ' + id, JSON.stringify(benutzerObj));
 
             //Setze Contenttype der Antwort auf application/atom+xml
-            res.set("Content-Type", 'application/json').set("Location", "/Benutzer/" + id).status(201).json(Benutzer).end();
+            res.set("Content-Type", 'application/json').set("Location", "/Benutzer/" + id).status(201).json(benutzerObj).end();
 
 
         });
@@ -216,8 +216,12 @@ app.get('/',function(req,res){
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Benutzer *', function (err, key) {
+	    
+	        if(key.length == 0) {
+		    res.json(response);
+		    return;
+	    }
 
-//         if(key.length>0){
 
             client.mget(key, function (err, benutzer) {
 
@@ -230,13 +234,7 @@ app.get('/',function(req,res){
                 res.status(200).set("Content-Type","application/json").json(response).end();
 
             });
-/*
-        }
-        
-        else{
-            res.status(204).set("Link","/Benutzer").end();
-        }
-*/
+
     });
 });
 

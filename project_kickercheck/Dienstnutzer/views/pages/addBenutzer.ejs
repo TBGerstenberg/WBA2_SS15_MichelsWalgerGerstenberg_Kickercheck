@@ -30,14 +30,14 @@
                         url: '/Benutzer/',
                         data: JSON.stringify(formData),
 
-                        success: function(data, status, xmlhttpreq) {
+                        success: function(data) {
 
 
                             $('#benutzerAnlegen').each(function() {
                                 this.reset();
                             });
 
-                            $('.addid').append('<a href="'+xmlhttpreq.getResponseHeader('location')+'">Benutzer angelegt</a>.');
+                            $('.addid').append('<a href="/Benutzer/'+data.id+'">Benutzer '+data.id+' angelegt</a>.');
                         },
                         statusCode: {
                             400: function() {
@@ -61,7 +61,7 @@
 
         <main>
             <div class="row">
-                <div class="col-sm-8">
+                <div class="col-sm-12">
 
                     <div class="jumbotron">
                         <h1>Add Benutzer</h1>

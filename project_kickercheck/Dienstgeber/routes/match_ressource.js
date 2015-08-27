@@ -8,6 +8,10 @@ app.get('/',function(req,res){
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Match *', function (err, key) {
 	    
+	        if(key.length == 0) {
+		    res.json(response);
+		    return;
+	    }
 
 	  var sorted =  key.sort();
 	  
