@@ -225,7 +225,7 @@ app.get('/',function(req,res){
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Benutzer *', function (err, key) {
 
-        if(key.length>0){
+//         if(key.length>0){
 
             client.mget(key, function (err, benutzer) {
 
@@ -238,11 +238,13 @@ app.get('/',function(req,res){
                 res.status(200).set("Content-Type","application/json").json(response).end();
 
             });
+/*
         }
         
         else{
             res.status(204).set("Link","/Benutzer").end();
         }
+*/
     });
 });
 

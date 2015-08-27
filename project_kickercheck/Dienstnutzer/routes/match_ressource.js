@@ -82,6 +82,7 @@ app.get('/alleMatches', function(req, res) {
 
 app.get('/:MatchId', function(req, res) {
 	
+/*
 	 var belegungen=[];   
     
       client.keys('Belegung *', function (err, key) {
@@ -96,6 +97,7 @@ app.get('/:MatchId', function(req, res) {
        
             });
 	
+*/
 	  
     var options1 = {
         host: 'localhost',
@@ -171,10 +173,9 @@ app.get('/:MatchId', function(req, res) {
             externalrepw.on("data", function(chunkw){
 
                 var spielstand = JSON.parse(chunkw);
-                
             
                  
-               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort, belegungen: belegungen, spielstand:spielstand });
+               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand });
        
              
             });
@@ -193,9 +194,9 @@ y.end();
 });
 	});
 	x.end();
+
 	});
-	});
-	});
+
 
 app.post('/', function(req, res) {
 	
@@ -246,7 +247,8 @@ if(externalResponse.statusCode == 400){
 	 	
 			 	var MatchSpielstand = {
 				 	spielstandT1 : 0,
-				 	spielstandT2: 0
+				 	spielstandT2: 0,
+				 	Modus: 'Klassisch'
 			 	}
 	            
 	          //Schreibe Turnierdaten zurück 

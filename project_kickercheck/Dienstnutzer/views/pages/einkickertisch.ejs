@@ -84,13 +84,16 @@ $(document).ready(function() {
                      <ul>
             <li>Hersteller: <%= tisch.Hersteller %></li>
              <li>Typ: <%= tisch.Typ %></li>
-              <li>Ort: <a href="/Austragungsort/<%= ort.id %>/"><%= ort.Name %></a></li>
+              <li>Ort: <a href="/Austragungsort/<%= ort.id %>"><%= ort.Name %></a></li>
               <li>Merkmale: <%= tisch.Merkmale %></li>
             <li id="zus">Zustand: <%= tisch.Zustand %></li>
-             
+          
                     </ul> 
                     <br />
-  
+   <p> Belegung:  </p>
+   <ul><li> <%= belegung.Anzahl %> Spieler</li>
+   <li>Namen der Spieler: <%= belegung.Teilnehmer %> </li>
+   <li> Herausforderungen: <%= belegung.Herausforderungen %> </li></ul>
                     <hr />
                     
   <p> Kickertisch ändern: </p>

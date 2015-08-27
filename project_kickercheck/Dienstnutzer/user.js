@@ -7,6 +7,7 @@ global.faye = require('faye');
 global.util = require('util');
 // global.fs = require('fs');
 // global.ejs = require("ejs");
+global.async = require('async');
 
 var app = express();
 var server = http.createServer();

@@ -6,8 +6,61 @@
 
 <script>
 $(document).ready(function() {
-
 	
+		var spielstand1 = $('.sp1pkt').text();
+		var spielstand2 = $('.sp2pkt').text();
+	
+		var value1 = parseInt(spielstand1, 10);
+		var value2 = parseInt(spielstand2, 10);
+							
+	var stdModus = $('#modustext').text();
+	
+	if(stdModus == 'Variation') {						
+	if(value1 >= 10 || value2 >= 10) {
+		$('#cancMatch').prop('disabled', true);
+}
+}
+else if(stdModus == 'Klassisch') {
+	if(value1 >= 6 || value2 >= 6) {
+		$('#cancMatch').prop('disabled', true);
+}
+}
+
+ $('#modusPOST').submit(function(e) {
+							e.preventDefault();
+							
+		var spielstand1 = $('.sp1pkt').text();
+		var spielstand2 = $('.sp2pkt').text();
+	
+		var value1 = parseInt(spielstand1, 10);
+		var value2 = parseInt(spielstand2, 10);
+
+						var modus = $('#spielmodus').val();
+							
+
+ var formData = {spielstandT1: value1,
+	 			spielstandT2: value2,
+	 			Modus: modus
+ };
+				  					$.ajax({
+								type: 'PUT',
+								url: window.location.pathname+'/Spielstand',
+								contentType: 'application/json',
+								data: JSON.stringify(formData),
+								success: function(data) {
+									alert('Spielmodus wurde auf '+modus+ ' gesetzt.');
+										window.location.reload(true);		
+	
+								},
+        fail: function() {
+	        alert('Fehler');
+        }
+			
+						});	
+								
+						});
+
+
 		 var d = new Date();
 				var time = d.setDate(d.getDate()-1);
 				
@@ -125,6 +178,136 @@ $(document).ready(function() {
 						
 								
 						});
+						
+						 $('#endMatch').submit(function(e) {
+							e.preventDefault();
+
+							var tisch = $('#aort').attr('href');
+							var datum = $('#dat').text();
+							var uhrzeit = $('#uhr').text();
+							
+
+ var formData = {Datum: datum,
+				 Uhrzeit: uhrzeit,
+				  Austragungsort: tisch,
+				   Status:  'beendet'};
+				  
+				var teilnehmer1 = $('#user0').text();
+				var teilnehmer2 = $('#user1').text();
+				var teilnehmer3 = $('#user2').text();
+				var teilnehmer4 = $('#user3').text();
+				
+				var teilnehmerArray = [];
+	
+		
+	if(teilnehmer1) {
+		teilnehmerArray.push(teilnehmer1);
+	}
+	if(teilnehmer2) {
+		teilnehmerArray.push(teilnehmer2);
+	}
+	if(teilnehmer3) {
+		teilnehmerArray.push(teilnehmer3);
+	}
+	if(teilnehmer4) {
+		teilnehmerArray.push(teilnehmer4);
+	}
+	
+		var anzahl = teilnehmerArray.length;
+		
+				  
+				  var teilnehmerData = {anzahl: 0, teilnehmer: null,
+					 'Herausforderungen': []
+				  }
+
+			$.when(
+							$.ajax({
+								type: 'PUT',
+								contentType: 'application/json',
+								data: JSON.stringify(formData)
+								}),
+								
+								$.ajax({
+								type: 'PUT',
+								url: '<%= match.Austragungsort %>Belegung/',
+								contentType: 'application/json',
+								data: JSON.stringify(teilnehmerData)
+								})
+						).then(function() {
+								
+	window.location.reload(true);
+						
+						
+      
+						});
+						
+								
+						});
+						
+						$('#cancelMatch').submit(function(e) {
+							e.preventDefault();
+
+							var tisch = $('#aort').attr('href');
+							var datum = $('#dat').text();
+							var uhrzeit = $('#uhr').text();
+							
+
+ var formData = {Datum: datum,
+				 Uhrzeit: uhrzeit,
+				  Austragungsort: tisch,
+				   Status:  'abgebrochen'};
+				  
+				var teilnehmer1 = $('#user0').text();
+				var teilnehmer2 = $('#user1').text();
+				var teilnehmer3 = $('#user2').text();
+				var teilnehmer4 = $('#user3').text();
+				
+				var teilnehmerArray = [];
+	
+		
+	if(teilnehmer1) {
+		teilnehmerArray.push(teilnehmer1);
+	}
+	if(teilnehmer2) {
+		teilnehmerArray.push(teilnehmer2);
+	}
+	if(teilnehmer3) {
+		teilnehmerArray.push(teilnehmer3);
+	}
+	if(teilnehmer4) {
+		teilnehmerArray.push(teilnehmer4);
+	}
+	
+		var anzahl = teilnehmerArray.length;
+		
+				  
+				  var teilnehmerData = {anzahl: 0, teilnehmer: null,
+					 'Herausforderungen': []
+				  }
+
+			$.when(
+							$.ajax({
+								type: 'PUT',
+								contentType: 'application/json',
+								data: JSON.stringify(formData)
+								}),
+								
+								$.ajax({
+								type: 'PUT',
+								url: '<%= match.Austragungsort %>Belegung/',
+								contentType: 'application/json',
+								data: JSON.stringify(teilnehmerData)
+								})
+						).then(function() {
+								
+	window.location.reload(true);
+						
+						
+      
+						});
+						
+								
+						});
 	
 	$('#changeData').submit(function(e) {
 							e.preventDefault();
@@ -178,13 +361,34 @@ $(document).ready(function() {
 							var value1 = parseInt(spielstand1, 10) + 1;
 							var value2 = parseInt(spielstand2, 10);
 							
+								if(stdModus == 'Variation') {							
+							
+							if(value1 == 10) {
+							$('#cancMatch').prop('disabled', true);
+							}
+							
+														
 							if(value1 >= 11 || spielstand2 == 10) {
 								alert('Regelwidriges Verhalten.');
 								return false;
 							}
+							
+							} else {
+								if(value1 == 6) {
+							$('#cancMatch').prop('disabled', true);
+							}
+							
+														
+							if(value1 >= 7 || spielstand2 == 6) {
+								alert('Regelwidriges Verhalten.');
+								return false;
+							}
+							}
+							
 					
 					var formData = { spielstandT1 : value1,
-						spielstandT2 : value2 }
+						spielstandT2 : value2,
+						Modus: stdModus }
 
 			 	$.ajax({
 								type: 'PUT',
@@ -216,13 +420,33 @@ $(document).ready(function() {
 							var value1 = parseInt(spielstand1, 10);
 							var value2 = parseInt(spielstand2, 10) + 1;
 							
+									if(stdModus == 'Variation') {							
+							
+							if(value2 == 10) {
+							$('#cancMatch').prop('disabled', true);
+							}
+							
+														
 							if(value2 >= 11 || spielstand1 == 10) {
 								alert('Regelwidriges Verhalten.');
 								return false;
 							}
-					
+							
+							} else {
+								if(value2 == 6) {
+							$('#cancMatch').prop('disabled', true);
+							}
+							
+														
+							if(value2 >= 7 || spielstand1 == 6) {
+								alert('Regelwidriges Verhalten.');
+								return false;
+							}
+							}
+												
 					var formData = { spielstandT1 : value1,
-						spielstandT2 : value2 }
+						spielstandT2 : value2,
+						Modus: stdModus }
 
 			 	$.ajax({
 								type: 'PUT',
@@ -231,6 +455,7 @@ $(document).ready(function() {
 								data: JSON.stringify(formData),
 								success: function(data) {
 									
+								
 										
 									$('.sp1pkt').text(data.spielstandT1);
 									$('.sp2pkt').text(data.spielstandT2);
@@ -265,6 +490,7 @@ $(document).ready(function() {
                <li> Austragungsort:  <span id="tis"></span></li>
                 <li><a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li>
               <li id="stat"> Status: <%= match.Status %></li>
+               <li>Spielmodus: <span id="modustext"><%= spielstand.Modus %></span></li>
                     </ul> 
                     <br />
                  
@@ -331,6 +557,21 @@ $(document).ready(function() {
                     <hr />
                     <% } else if (match.Status == 'aktiv') { %>
 	                   
+	                   	           <form role="form" action="" method="POST" name="modusPOST" id="modusPOST">
+   <p>Spielmodus:</p>
+             <div class="form-group">
+             
+             <select id="spielmodus" class="form-control">
+             <option value="0">Bitte wählen</option>
+	     <option value="Klassisch">Klassisch (6 Punkte bis zum Sieg)</option>
+	      <option value="Variation">Variation (10 Punkte bis zum Sieg)</option>
+         </select>
+         </div>
+         <div class="form-group">
+       
+           <input type="submit" class="btn btn-primary" id="modusButton" value="Auswählen" />    </div>
+           </form>
+                
                    
                     <form role="form" action="" method="PUT" name="changeSpielstand" id="changeSpielstand">
                     
@@ -370,12 +611,49 @@ $(document).ready(function() {
                   </form>
    
                 
-                     
-                 
-	                    <% } else { %>
-		                    not defined
-		                    <% }%>
+                     <hr />
+                     <div class="row text-center">
+                 <div>
+                    <form role="form" action="" method="PUT" name="endMatch" id="endMatch">
+ <input type="submit" class="btn btn-success" name="start" value="Match beenden" />
+ </form>
+ </div><br />
+         <div>
+                    <form role="form" action="" method="PUT" name="cancelMatch" id="cancelMatch">
+ <input type="submit" class="btn btn-danger" id="cancMatch" value="Match abbrechen" />
+ </form>
+                    </div>
+                    
+                    </div>
+                 <hr />
+	                    <% } else if (match.Status == 'beendet') { %>
+		                     <div class="spielstand">
+		                      <div class="row">
+		                      <p id="spielst">Endstand</p>
+		                      </div>
+		                     <div class="row">
+            
+                  <div class="col-md-6"><p id="spielst">Team 1</p></div>
+                    <div class="col-md-6"><p id="spielst">Team 2</p></div>
+                 </div>
+             <div class="row">
+                  <div class="col-md-4">
+                  <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>
+                  </div>
+                   <div class="col-md-4">
+                  <p id="pkt">:</p>
+                  </div>
+                   <div class="col-md-4">
+                  <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
+                  </div>
+                  </div>
+                  
            
+		</div>		                   
+		
+		 <% } else { %>
+			     
+           <% } %>
 <br />
 <br />
 <div class="margintop20">

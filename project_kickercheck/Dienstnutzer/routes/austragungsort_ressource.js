@@ -149,98 +149,99 @@ externalRequest.end();
 	   	// KICKERTISCH
 	   	
 app.get('/:AustragungsortId/Kickertisch', function(req, res) {
-	
-    var kickertische=[];   
-    
-     var belegungen=[];   
-    
-      client.keys('Belegung *', function (err, key) {
-
-	client.mget(key,function(err,belegung){
-	
-		     
-        //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-       belegung.forEach(function (val) {
-	
-       belegungen.push(JSON.parse(val));
-       
-            });     
+	 
+	  var kickertische = []; 
+	  var belegungen = [];
+	  
     
     var austragungsortId = req.params.AustragungsortId;
 
-	client.mget('Austragungsort '+austragungsortId,function(err,resp){
-			
-			var austr = JSON.parse(resp);
-
-    //returned ein Array aller Keys die das Pattern Benutzer* matchen 
-    client.keys('Kickertisch *', function (err, key) {
-	   
-	     client.mget(key, function (err, kickertisch) {  
-			       
-        //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-        kickertisch.forEach(function (val) {
-	        
-	        
-	          var tisch = JSON.parse(val);
-		    
-		   if(tisch.Ort == austr.Name) {
+    	// Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
+                   var listenKey="Ort " +austragungsortId+ " Tische";
+                       
+                     client.lrange(listenKey, 0, -1, function(err,items) {
+	
+	var i = 0;
+ 
+async.each(items, function(listItem, next) {
+ 
+    listItem.position = i;
+ 
+     client.mget('Kickertisch '+listItem,function(err,resp){
 	     
-       kickertische.push(JSON.parse(val));
-       }
-            });
-            
-        
-     res.render('pages/allekickertische', { kickertische: kickertische,ort:austr,belegungen:belegungen});
-               
-            });
-            
-            });
-        
-         });   
-});
-	
-	});
+	      client.mget('Belegung '+listItem,function(err,bel){
+				
+	 	kickertische.push(JSON.parse(resp));
+	 	belegungen.push(JSON.parse(bel));
+	 	
+	 	
+        i++;
+
+        next();
 		
+			});
+			});
+ 
+}, function(err) {
+ 
+    // all data has been updated
+    // do whatever you want
+
+			 res.render('pages/allekickertische', { kickertische: kickertische, belegungen: belegungen });
+ 
 });
 
-app.get('/:AustragungsortId/allekickertische', function(req, res) {
 	
-    var kickertische=[];   
+			  
+			  });
+                
+        });
+        
+        
+app.get('/:AustragungsortId/allekickertische',function(req,res){
+
+   
+    var response=[];    
+    var kickertische=[];
     
-    var austragungsortId = req.params.AustragungsortId;
 
-	client.mget('Austragungsort '+austragungsortId,function(err,resp){
-			
-			var austr = JSON.parse(resp);
+     var austragungsortId = req.params.AustragungsortId;
 
-    //returned ein Array aller Keys die das Pattern Benutzer* matchen 
-    client.keys('Kickertisch *', function (err, key) {
-	   
-	     client.mget(key, function (err, kickertisch) {  
-		     
-        //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-        kickertisch.forEach(function (val) {
-	        
-	          var tisch = JSON.parse(val);
-		    
-		   if(tisch.Ort == austr.Name) {
+	var listenKey="Ort " +austragungsortId+ " Tische";
+     client.lrange(listenKey, 0, -1, function(err,items) {
 	     
-       kickertische.push(JSON.parse(val));
-       }
-            });
-            
-                            
-   res.set("Content-Type", 'application/json').status(200).json(kickertische).end();
-        
-         });   
-});
-	
-	});
+var i = 0;
+ 
+async.each(items, function(listItem, next) {
+ 
+    listItem.position = i;
+ 
+     client.mget('Kickertisch '+listItem,function(err,resp){
+				
+	 	response.push(JSON.parse(resp));
+        i++;
+
+        next();
 		
+			});
+ 
+}, function(err) {
+ 
+    // all data has been updated
+    // do whatever you want
+       res.status(200).set("Content-Type","application/json").json(response).end();
+ 
 });
+
+	
+      });    
+             
+    });
+
 
 
 app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
+	
 
         //Extrahiere TischId
 	    var tischId = req.params.TischId;
@@ -252,48 +253,42 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
 	        //Lokalitaet kennt einen Tisch mit dieser TischId
 	        if (IdExists) {
 		        
+ 
+		        
 		        client.mget('Austragungsort '+austragungsortId,function(err,resp){
 			
 			var austr = JSON.parse(resp);
-
-                        client.mget('Kickertisch ' + tischId, function(err,kickertischdata){
-	                        
-	                        var tisch = JSON.parse(kickertischdata);
-                          
-                             res.render('pages/einkickertisch', { tisch: tisch, ort:austr });
-                             
-                                              	        
-                   	        });
-	        });
-	        
-	        }       
-      
-	        });
-	    });
-	    
-	    
-	    app.get('/:AustragungsortId/Kickertisch/:TischId/Belegungen', function(req, res) {
-
-        //Extrahiere TischId
-	    var tischId = req.params.TischId;
-	    var belegungId = req.params.TischId;
-
-	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-	    client.exists('Kickertisch ' + tischId, function(err, IdExists) {
-
-	        //Lokalitaet kennt einen Tisch mit dieser TischId
-	        if (IdExists) {
-		        
-		        client.mget('Kickertisch '+belegungId,function(err,resp){
 			
-			var belegung = JSON.parse(resp);
+			  client.mget('Belegung '+tischId,function(err,bel){
+			
+			var belegung = JSON.parse(bel);
 
                         client.mget('Kickertisch ' + tischId, function(err,kickertischdata){
 	                        
 	                        var tisch = JSON.parse(kickertischdata);
-                          
-                             res.render('pages/einkickertisch', { tisch: tisch, ort:austr });
-                             
+							
+							
+							  var acceptedTypes = req.get('Accept');
+
+            switch (acceptedTypes) {
+
+                    //Client erwartet content type application/json
+                case "application/json":
+                      
+                            //Setze Contenttype der Antwort auf application/json
+                            res.set("Content-Type", 'application/json').status(200).json(tisch).end();
+                            
+                    
+                    break;
+
+                default:
+                       res.render('pages/einkickertisch', { tisch: tisch, ort:austr, belegung: belegung });
+                    //Antwort beenden        
+                    res.end();
+                    break;
+                       
+                       }   
+                            });              
                                               	        
                    	        });
 	        });
@@ -302,6 +297,7 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
       
 	        });
 	    });
+	   
 
 
 	app.post('/:AustragungsortId/Kickertisch/',function(req, res){
@@ -330,7 +326,6 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
 	          var kickertischObj={
                 //Set von Benutzern required
                 'id': id,
-                'Ort' : Kickertisch.Ort,
                  'Hersteller': Kickertisch.Hersteller,
                  'Zustand' : Kickertisch.Zustand,
                 'Typ': Kickertisch.Typ,
@@ -339,9 +334,18 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
             
              client.set('Kickertisch ' + id, JSON.stringify(kickertischObj));
              
-              client.LPUSH('Austragungsort '+austragungsortId+' Tische', 
-                          id
+              client.LPUSH('Ort '+austragungsortId+' Tische', 
+                         id
                         );
+                        
+                var belegungObj={
+                'Anzahl' : 0,
+                'Teilnehmer' : null,
+                'Herausforderungen' : null
+            };
+            
+            
+            client.set('Belegung ' + id, JSON.stringify(belegungObj));
              
               //Setze Contenttype der Antwort auf application/atom+xml
             res.set("Content-Type", 'application/json').set("Location", "/Austragungsort/"+austragungsortId+"/Kickertisch/" + id).status(201).json(kickertischObj).end();
@@ -445,7 +449,7 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
 
   //Extrahiere TischId
 	    var tischId = req.params.TischId;
-	    var belegungsId = req.params.TischId;
+	    var belegungId = req.params.TischId;
 
 	    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
 	    client.exists('Kickertisch ' + tischId, function(err, IdExists) {
@@ -453,7 +457,11 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
 	        //Lokalitaet kennt einen Tisch mit dieser TischId
 	        if (IdExists) {
 		        
-		        client.mget('Belegung '+belegungsId,function(err,belegungdaten){
+		         client.exists('Belegung ' + belegungId, function(err, IdExists) {
+			         
+			         if(IdExists) {
+		        
+		        client.mget('Belegung '+belegungId,function(err,belegungdaten){
 			
 				var belegung = JSON.parse(belegungdaten);
 					 
@@ -462,7 +470,12 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
                    	        });
                    	        
 	        }
-	               
+	        else {
+		     res.status(404).end();    
+	        }
+	        
+	        });
+	           }    
       
 	        });
 	        
