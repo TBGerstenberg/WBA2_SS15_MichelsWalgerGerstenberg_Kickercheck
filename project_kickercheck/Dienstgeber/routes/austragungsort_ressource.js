@@ -7,6 +7,11 @@ app.get('/',function(req,res){
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Austragungsort *', function (err, key) {
+	    
+	        if(key.length == 0) {
+		    res.json(response);
+		    return;
+	    }
 	   
 	     client.mget(key, function (err, austragungsort) {
 		     

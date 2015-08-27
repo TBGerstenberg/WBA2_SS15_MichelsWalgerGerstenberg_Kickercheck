@@ -105,7 +105,7 @@ else if(stdModus == 'Klassisch') {
 								success: function(data) {
 						alert('Tisch wurde erfolgreich gesetzt.');
 						
-						$('#aort').attr('href',tisch).text('Gewählter Kickertisch');
+						window.location.reload(true);
 						
 								},
         fail: function() {
@@ -674,9 +674,19 @@ else if(stdModus == 'Klassisch') {
                   <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
                   </div>
                   </div>
-                  
-           
-		</div>		                   
+<br />
+ <div class="row">
+		   <p id="spielst"><% if (spielstand.spielstandT1 > spielstand.spielstandT2) { %>
+			  Gewinner: Team 1 
+			   <% } else if(spielstand.spielstandT2 > spielstand.spielstandT1) { %>
+				   Gewinner: Team 2
+				   <% } else { %>
+					   Unentschieden
+					   <% } %>
+			                      </p>
+		                      </div> 
+		</div>		 
+		                 
 		
 		 <% } else { %>
 			               <div class="spielstand">

@@ -86,6 +86,10 @@ app.get('/:MatchId', function(req, res) {
 	 var belegungen=[];   
     
       client.keys('Belegung *', function (err, key) {
+	      
+	      if(key.length == 0) {
+		     return;
+	      }
 
 	client.mget(key,function(err,belegung){
 	
@@ -98,7 +102,7 @@ app.get('/:MatchId', function(req, res) {
             });
             
             });
-	
+		});
 	  
     var options1 = {
         host: 'localhost',
@@ -196,7 +200,7 @@ y.end();
 	});
 	x.end();
 
-	});
+
 	});
 
 
