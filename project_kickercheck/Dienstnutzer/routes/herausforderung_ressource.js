@@ -71,6 +71,7 @@ app.get('/:HerausforderungId', function(req, res) {
                         
                         //Pflege Daten über den Kickertisch in die DB ein 
                         client.hmset('Herausforderung ' + id, {
+	                        'id': id,
                             'Herausforderer': [Herausforderung.Herausforderer],
                             'Herausgefordert':[Herausforderung.Herausgefordert],
                             'Timestamp': Herausforderung.Timestamp,

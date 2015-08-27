@@ -71,6 +71,7 @@ app.get('/:TickerId', function(req, res) {
                         
                         //Pflege Daten über den Kickertisch in die DB ein 
                         client.hmset('Liveticker ' + id, {
+	                        'id': id,
                             'Match': Liveticker.Match,
                             'Subscriber': [Liveticker.Subscriber],
                             'Beschreibung': Liveticker.Beschreibung

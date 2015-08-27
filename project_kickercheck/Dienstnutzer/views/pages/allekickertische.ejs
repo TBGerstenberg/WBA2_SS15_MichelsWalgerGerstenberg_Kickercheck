@@ -14,7 +14,7 @@
             <div class="col-sm-12">
             
                 <div class="jumbotron">
-                    <h2>Liste aller Kickertische von Ort</h2>
+                    <h2>Liste aller Kickertische von <a href="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %></a></h2>
                    
         <br />
         
@@ -25,6 +25,11 @@
 	  <a href="Kickertisch/<%= kickertisch.id %>/" class="list-group-item"> <h4 class="list-group-item-heading"><%= kickertisch.Typ %></h4>
 	  <p class="list-group-item-text">Hersteller: <%= kickertisch.Hersteller %></p>
 	    <p class="list-group-item-text">Zustand: <%= kickertisch.Zustand %></p>
+	     <% belegungen.forEach(function(belegung) {  %>
+		        <% if(belegung.id == kickertisch.id) { %>
+	     <p class="list-group-item-text">Belegung: <%= belegung.Anzahl %> Spieler</p>
+	      <p class="list-group-item-text">Teilnehmer: <%= belegung.Teilnehmer %></p>
+	     <%  } }); %>
 	   	    </a>
    
   <%  }); %>

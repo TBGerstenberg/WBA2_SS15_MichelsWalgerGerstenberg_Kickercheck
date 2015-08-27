@@ -206,6 +206,7 @@ app.post('/:TurnierId/Match',function(req,res){
                     var match=req.body;
 
                     var matchObj={
+	                    'id': id,
                         'Datum' : match.Datum,
                         'Uhrzeit': match.Uhrzeit,
                         'Teilnehmer' : match.Teilnehmer,

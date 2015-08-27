@@ -40,14 +40,8 @@ app.get('/:BenutzerId', function(req, res) {
 
                         var Benutzerdaten = JSON.parse(benutzerdata);
 
-                        var benutzerObj={
-                            Name:Benutzerdaten.Name,
-                            Alter:Benutzerdaten.Alter,
-                            Bild:Benutzerdaten.Bild
-                        }
-
                         //Setze Contenttype der Antwort auf application/json
-                        res.set("Content-Type", 'application/json').status(200).json(benutzerObj).end();
+                        res.set("Content-Type", 'application/json').status(200).json(Benutzerdaten).end();
                     });
                     break;
 
@@ -86,17 +80,17 @@ app.post('/', function(req, res) {
     } 
 
     else{
+	    
+	    
+            var Benutzer=req.body;
+            //Pflege Daten aus Anfrage in die DB ein
+            
         // BenutzerId in redis erhöhen, atomare Aktion 
         client.incr('BenutzerId', function(err, id) {
             console.log("Die BenutzerId nach hinzufügen eines Benutzers : " + id);
 
-            var Benutzer=req.body;
-            //Pflege Daten aus Anfrage in die DB ein
-
-
             var benutzerObj={
-                //Set von Benutzern required
-                'id': id,
+              	'id' : id,
                 'Name': Benutzer.Name,
                 'Alter': Benutzer.Alter,
                 'Bild': Benutzer.Bild,
@@ -105,10 +99,8 @@ app.post('/', function(req, res) {
 
             client.set('Benutzer ' + id, JSON.stringify(benutzerObj));
 
-            console.log(benutzerObj);
-
             //Setze Contenttype der Antwort auf application/atom+xml
-            res.set("Content-Type", 'application/json').set("Location", "/Benutzer/" + id).status(201).json(req.body).end();
+            res.set("Content-Type", 'application/json').set("Location", "/Benutzer/" + id).status(201).json(Benutzer).end();
 
 
         });

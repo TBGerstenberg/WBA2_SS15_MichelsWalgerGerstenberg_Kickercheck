@@ -155,9 +155,15 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
 	  
     
     var austragungsortId = req.params.AustragungsortId;
-
+    
     	// Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
                    var listenKey="Ort " +austragungsortId+ " Tische";
+                   
+        
+        client.mget('Austragungsort '+austragungsortId,function(err,ort){
+	    
+	    var austragungsort = JSON.parse(ort);
+		
                        
                      client.lrange(listenKey, 0, -1, function(err,items) {
 	
@@ -187,11 +193,11 @@ async.each(items, function(listItem, next) {
     // all data has been updated
     // do whatever you want
 
-			 res.render('pages/allekickertische', { kickertische: kickertische, belegungen: belegungen });
+			 res.render('pages/allekickertische', { kickertische: kickertische, belegungen: belegungen, austragungsort: austragungsort });
  
 });
 
-	
+	   });
 			  
 			  });
                 
@@ -339,6 +345,7 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
                         );
                         
                 var belegungObj={
+	                'id' : id,
                 'Anzahl' : 0,
                 'Teilnehmer' : null,
                 'Herausforderungen' : null

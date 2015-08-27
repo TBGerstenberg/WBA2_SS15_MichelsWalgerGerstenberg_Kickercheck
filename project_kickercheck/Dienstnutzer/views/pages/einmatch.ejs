@@ -64,8 +64,6 @@ else if(stdModus == 'Klassisch') {
 		 var d = new Date();
 				var time = d.setDate(d.getDate()-1);
 				
-				var stdStatus = 'vor_beginn';
-				
 				 var ortURI = "<%= match.Austragungsort %>".split("/");
 				 var ort = "/"+ortURI[1]+"/"+ortURI[2];
 				 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');
@@ -73,7 +71,9 @@ else if(stdModus == 'Klassisch') {
 				 if(!ortURI[3]) {
 					 $('#aort').html('');
 				 }
-	 
+				
+				var stdStatus = 'vor_beginn';
+ 
 			
 			   $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
 			    $('.timepick').datetimepicker({format:'HH:mm'});
@@ -104,7 +104,8 @@ else if(stdModus == 'Klassisch') {
 								data: JSON.stringify(formData),
 								success: function(data) {
 						alert('Tisch wurde erfolgreich gesetzt.');
-						window.location.reload(true);
+						
+						$('#aort').attr('href',tisch).text('Gewählter Kickertisch');
 						
 								},
         fail: function() {
@@ -334,7 +335,7 @@ else if(stdModus == 'Klassisch') {
 								contentType: 'application/json',
 								data: JSON.stringify(formData),
 								success: function(data) {
-									
+									alert('Daten erfolgreich geändert.');
 									 $('#changeData').each(function() {
                         this.reset();
                    });
@@ -488,12 +489,14 @@ else if(stdModus == 'Klassisch') {
             <li>Datum: <span id="dat"><%= match.Datum %></span></li>
               <li> Startzeitpunkt: <span id="uhr"><%= match.Uhrzeit %></span> Uhr</li>
                <li> Austragungsort:  <span id="tis"></span></li>
-                <li><a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li>
+                <li>Kickertisch: <a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li>
               <li id="stat"> Status: <%= match.Status %></li>
+              <% if (match.Status != 'vor_beginn') { %>
                <li>Spielmodus: <span id="modustext"><%= spielstand.Modus %></span></li>
+               <% } %>
                     </ul> 
-                    <br />
-                 
+               
+                 <hr />
                     <div id="teiln">
                     <p>Liste der Teilnehmer: </p>
                    
@@ -505,26 +508,47 @@ else if(stdModus == 'Klassisch') {
                     </ul>
                     </div>
                     <hr />
+                   
+                    <p>Teams </p>
                     
+                     <% if (match.Teilnehmer) { %>
+	                      <% if (match.Teilnehmer.length == 1) { %>
+			                     <p>Team 1 : <%= match.Teilnehmer[0] %></p>
+			                     <% } else if (match.Teilnehmer.length == 2) { %>
+			                     <p>Team 1 : <%= match.Teilnehmer[0] %></p>
+			                     <p>Team 2 : <%= match.Teilnehmer[1] %></p>
+			                     <% } else if (match.Teilnehmer.length == 3) { %>
+			                     <p>Team 1 : <%= match.Teilnehmer[0] %> , <%= match.Teilnehmer[1] %></p>
+			                     <p>Team 2 : <%= match.Teilnehmer[2] %></p>
+			                     <% } else { %>
+				                     <p>Team 1 : <%= match.Teilnehmer[0] %> , <%= match.Teilnehmer[1] %></p>
+			                     <p>Team 2 : <%= match.Teilnehmer[2] %>, <%= match.Teilnehmer[3] %></p>
+				                     <% } } %>
+                    <hr />
                      <% if (match.Status == 'vor_beginn') { %>
-
+						 
+						 <div class="row">
+						 <div class="col-md-6">
                      <form role="form" action="" method="POST" name="addTisch" id="addTisch">
                         <div class="form-group">
          <label for="kickertisch">Kickertisch:</label> <br>
          <select id="kit" class="form-control">
 	     <option value="0">Bitte wählen</option>
-           <% kickertische.forEach(function(tisch) { %>
-         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %></option>
-         <% });   %>
+           <% kickertische.forEach(function(tisch) { belegungen.forEach(function(belegung) {  %>
+	           <% if(belegung.id == tisch.id)  { %>
+         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
+         <% } }); });   %>
          </select>
          </div>
            <input type="submit" class="btn btn-primary" name="change" value="Kickertisch übernehmen" />
          </form>
-         
+         </div>
+         </div>
              <hr />
            
 
-                    <div id="divdata" class="margintop20">
+       <div class="row">
+       <div class="col-md-6">
                     <p> Match ändern: </p>
                     <form role="form" action="" method="POST" name="changeData" id="changeData">
                       <div class="form-group">
@@ -546,7 +570,8 @@ else if(stdModus == 'Klassisch') {
                          
            <input type="submit" class="btn btn-primary" name="change" value="Ändern" />
            </form>
-           </div>
+          </div>
+          </div>
            <hr />
         
                      <div id="divstart" class="margintop20">
@@ -556,7 +581,8 @@ else if(stdModus == 'Klassisch') {
                     </div>
                     <hr />
                     <% } else if (match.Status == 'aktiv') { %>
-	                   
+	                   <div class="row">
+	                   <div class="col-md-4">
 	                   	           <form role="form" action="" method="POST" name="modusPOST" id="modusPOST">
    <p>Spielmodus:</p>
              <div class="form-group">
@@ -571,8 +597,9 @@ else if(stdModus == 'Klassisch') {
        
            <input type="submit" class="btn btn-primary" id="modusButton" value="Auswählen" />    </div>
            </form>
-                
-                   
+           </div>
+                </div>
+                   <hr />
                     <form role="form" action="" method="PUT" name="changeSpielstand" id="changeSpielstand">
                     
          
@@ -652,7 +679,29 @@ else if(stdModus == 'Klassisch') {
 		</div>		                   
 		
 		 <% } else { %>
-			     
+			               <div class="spielstand">
+		                      <div class="row">
+		                      <p id="spielst">Match abgebrochen</p>
+		                      </div>
+		                     <div class="row">
+            
+                  <div class="col-md-6"><p id="spielst">Team 1</p></div>
+                    <div class="col-md-6"><p id="spielst">Team 2</p></div>
+                 </div>
+             <div class="row">
+                  <div class="col-md-4">
+                  <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>
+                  </div>
+                   <div class="col-md-4">
+                  <p id="pkt">:</p>
+                  </div>
+                   <div class="col-md-4">
+                  <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
+                  </div>
+                  </div>
+                  
+           
+		</div>		
            <% } %>
 <br />
 <br />

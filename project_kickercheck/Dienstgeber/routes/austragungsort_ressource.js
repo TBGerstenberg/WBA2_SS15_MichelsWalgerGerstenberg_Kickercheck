@@ -87,14 +87,13 @@ app.post('/',function(req, res) {
 
     else{
 
+	var Austragungsort = req.body;
+	
         // LokalitaetId in redis erhöhen, atomare Aktion 
         client.incr('AustragungsortId', function(err, id) {
 	        
-	        var Austragungsort = req.body;
-	        
 	          var austragungsortObj={
-                //Set von Benutzern required
-                'id': id,
+                'id' : id,
                  'Name': Austragungsort.Name,
                 'Adresse': Austragungsort.Adresse,
                 'Beschreibung': Austragungsort.Beschreibung

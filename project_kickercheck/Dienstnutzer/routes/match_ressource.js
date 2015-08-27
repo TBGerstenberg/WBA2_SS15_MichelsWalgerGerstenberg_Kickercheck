@@ -82,7 +82,7 @@ app.get('/alleMatches', function(req, res) {
 
 app.get('/:MatchId', function(req, res) {
 	
-/*
+
 	 var belegungen=[];   
     
       client.keys('Belegung *', function (err, key) {
@@ -96,8 +96,9 @@ app.get('/:MatchId', function(req, res) {
        belegungen.push(JSON.parse(val));
        
             });
+            
+            });
 	
-*/
 	  
     var options1 = {
         host: 'localhost',
@@ -175,7 +176,7 @@ app.get('/:MatchId', function(req, res) {
                 var spielstand = JSON.parse(chunkw);
             
                  
-               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand });
+               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand, belegungen: belegungen });
        
              
             });
@@ -195,6 +196,7 @@ y.end();
 	});
 	x.end();
 
+	});
 	});
 
 
