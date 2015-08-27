@@ -6,17 +6,14 @@
     <script>
         $(document).ready(function() {
 
-            /*
+            
             //Klickt der Nutzer den generiereSpielplan button wird ein
             //Get Request auf Turnier/:TurnierId/Spielplan abgesetzt 
             $('#generiereSpielplan').click(function(e){
-                if(turnier.Teilnehmer.length != turnier.Teilnehmerzahl){
-                    return false;
-                }
-
-                else{
+               
+                
                     $.ajax({
-                        type: 'GET',
+                        type: 'PUT',
                         url: '/Turnier/<%= turnier.id %>/Spielplan',
                         success: function(data) {
                             
@@ -29,8 +26,8 @@
                             alert('Fehler');
                         }
                     });
-                }
-            }); */
+                
+            }); 
 
             $('#addTeilnehmer').submit(function(e) {
                 e.preventDefault();
@@ -43,7 +40,7 @@
                     return false;
                 }
 
-                var formData = {'teilnehmer' : teilnehmer};
+                var formData = {'Teilnehmer' : teilnehmer};
 
                 $.ajax({
                     type: 'PUT',
@@ -151,7 +148,7 @@
                                 <select id="teilnehmer" class="form-control">
                                     <option value="0">Bitte wählen</option>
                                     <% benutzerAll.forEach(function(benutzer) { %>
-                                    <option value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+                                    <option value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
                                     <% });  %>
                                 </select>
                                 </div>

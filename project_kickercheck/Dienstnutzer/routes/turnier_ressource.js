@@ -268,7 +268,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         //Wenn die Antwort der letzten Anfrage ankommt
                         matchRequestResponse.on('end',function(turnierMitMatches){
                             if(i==anzahlTeams-1){ 
-                                res.json(JSON.parse(matchRequestAntwort)).status(200).end();
+                                res.status(200).json(JSON.parse(matchRequestAntwort)).end();
                             }     
                         });      
                     });
