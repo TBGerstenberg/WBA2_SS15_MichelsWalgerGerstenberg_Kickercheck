@@ -4,6 +4,7 @@
   "description": "Ein Projekt für das Modul WBA2",
   "main": "app.js",
   "dependencies": {
+    "async": "^1.4.2",
     "body-parser": "^1.12.4",
     "express": "^4.12.4",
     "faye": "^1.1.2",
