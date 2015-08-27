@@ -94,7 +94,10 @@ app.post('/', function(req, res) {
 //Durch wiederholte Anfragen auf Turnier/Id/Match beim Dienstgeber 
 //Die konkrete ausgestaltung eines Matches (Anzahl Teams, Teinehemer=>Teams Mapping usw..) übernimmt
 //Dabei der Dienstnutzer.
-app.get('/:TurnierId/Spielplan',function(req,res){
+//Diese Operation verändert den Server-State und ist daher ein Put , kein Get 
+//Per Definition ist Put Idempotent , liefert also bei wiederholter Ausführung immer das selbse 
+//Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann 
+app.put('/:TurnierId/Spielplan',function(req,res){
 
     console.log("Spielplan für Turnier" + req.params.TurnierId + "angefordert");
 
@@ -108,6 +111,7 @@ app.get('/:TurnierId/Spielplan',function(req,res){
         }
     };
 
+    //Antwort für die Abfrage des Turniers 
     var jsonString='';
 
     var externalRequest = http.request(options1, function(externalResponse){
@@ -122,12 +126,21 @@ app.get('/:TurnierId/Spielplan',function(req,res){
             //console.log("Data angekommen , JSON String:" + chunk); 
         });
 
+        //Wenn der Turnierrequest beendet ist
         externalResponse.on("end",function(){
 
+            //Parse die Antwort
             var turnier = JSON.parse(jsonString);
+            
+            //Checke ob schon ein Spielplan existiert 
+            if(turnier.Matches.length != 0){
+                res.status()
+            
+            }
 
             console.log("Stelle Turnierrequest für den Spielplan von Turnier" + req.params.TurnierId);
 
+            //Checke ob ein Spielplan generiert werden kann oder noch Teilnehmer fehlen
             if(turnier.Teilnehmer.length != turnier.Teilnehmeranzahl){
                 console.log("Zu wenig Teilnehmer,der Turnierplan kann nicht gefüllt werden");
                 console.log("Die Länge des Teilnehmerarrays" + turnier.Teilnehmer.length + " Teilnehmerzahl" + turnier.Teilnehmeranzahl);
@@ -265,10 +278,8 @@ app.get('/:TurnierId/Spielplan',function(req,res){
 
                     matchRequest.write(JSON.stringify(matchAnfrage));
                     matchRequest.end();
-                } 
-            }
-            
-             res.status(201).json(turnier).end();  
+                }                
+            } 
         });   
     });
     externalRequest.end(); 

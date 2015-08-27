@@ -3,6 +3,7 @@ var app = express.Router();
 // TURNIER // 
 // TURNIER //
 
+//Liste aller Turniere
 app.get('/',function(req,res){
 
     //Speichert die alle Benutzer
@@ -24,7 +25,7 @@ app.get('/',function(req,res){
     });
 });
 
-
+//Liefert die Repräsentation eines Turnieres zurück
 app.get('/:TurnierId', function(req, res) {
 
     var turnierId = req.params.TurnierId;
@@ -161,6 +162,7 @@ app.put('/:TurnierId',function(req, res) {
     }
 });
 
+//Löscht das Turnier mit <TurnierId>
 app.delete('/:TurnierId', function(req, res) {
 
     var turnierId = req.params.TurnierId;
@@ -183,6 +185,9 @@ app.delete('/:TurnierId', function(req, res) {
 
 
 //Fügt einem Turnier ein Match hinzu , benötigt eine Matchrepräsentation im Body 
+//Legt ein neues Match an , wiederholte Anfragen führen zu immer neuen Matches 
+//und neuen Links im Turnierbody, daher ist diese Operation nicht idempotent. POST ist daher 
+//das geeignete Verb
 app.post('/:TurnierId/Match',function(req,res){
 
     console.log("Turnier_Match hinzufügen auf Dienstgeber gecalled");
@@ -238,8 +243,12 @@ app.post('/:TurnierId/Match',function(req,res){
 
 
 //Fügt einem bestehenden Turnier einen Teilnehmer hinzu 
+//Ein Teilnehmer kann nicht zweimal einem Turnier 
+//Hinzugefügt werden, daher ist diese Opration idemtpotent 
+//Und führt bei Wiederholung immer zum gleichen Ergebnis 
 app.put('/:TurnierId/Teilnehmer',function(req,res){
 
+    //Extrahiere TurnierId
     var turnierId=req.params.TurnierId
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
@@ -257,14 +266,32 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
             //Hinzufügen eines Teilnehmers darf nur funktionierten solang die Teilnehmeranzahl nicht überschritten wird 
             if(Turnierdaten.Teilnehmer.length < Turnierdaten.Teilnehmeranzahl){
-                //console.log(req.body.teilnehmer);
-                Turnierdaten.Teilnehmer.push(req.body.Teilnehmer);
+                
+                var bereitsVorhanden=false;
+                
+                //Durchsuche Teilnehmerliste nach diesem Teilnehmer
+                for(var i=0;i<Turnierdaten.Teilnehmer.length;i++){
+                    if(Turnierdaten.Teilnehmer[i] == req.body.Teilnehmer){
+                        //Benutzer ist bereits eingetragen 
+                        bereitsVorhanden=true;
+                    } 
+                }
+                
+                if(bereitsVorhanden){
+                    res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
+                }
+                
+                //Benutzer ist nicht vorhanden 
+                else{
+                    //console.log(req.body.teilnehmer);
+                    Turnierdaten.Teilnehmer.push(req.body.Teilnehmer);
 
-                //Schreibe Turnierdaten zurück 
-                client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
+                    //Schreibe Turnierdaten zurück 
+                    client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
 
-                //Setze Contenttype der Antwort auf application/json..
-                res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
+                    //Setze Contenttype der Antwort auf application/json..
+                    res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
+                }
             }
 
             //Hinzufügen war unzulässig , sende einen 409-Conflict Status um anzuzeigen, dass keine Teilnehmer mehr hinzugefügt werden können
@@ -280,11 +307,6 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
 
     var erfolg=true;
-
-    //Zu wenig Teilnehmer oder unzulässige Teamgröße
-    //if(teilnehmerzahl < 0 || !(teamGroesse %2 != ){
-    //      erfolg=false;
-    //}
 
     //Legt fest wieviele Teams es geben wird 
     var anzahlTeams=teilnehmerzahl / teamGroesse;
@@ -341,6 +363,7 @@ function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
         var paarung=spielPlan[k];
         console.log("Runde"+paarung.Runde+"  "+paarung.Team1 + " vs   " + paarung.Team2);
     }*/
+    
     callback(spielPlan,erfolg);
 }
 
