@@ -268,7 +268,7 @@ app.get('/:TurnierId/Spielplan',function(req,res){
                 } 
             }
             
-             //res.status(201).json(turnier).end();  
+             res.status(201).json(turnier).end();  
         });   
     });
     externalRequest.end(); 
