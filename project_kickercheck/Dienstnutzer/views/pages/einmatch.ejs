@@ -9,6 +9,12 @@ $(document).ready(function() {
 	
 		var spielstand1 = $('.sp1pkt').text();
 		var spielstand2 = $('.sp2pkt').text();
+		
+		var team1 = $('#team1').text();
+		var team2 = $('#team2').text();
+		
+		$('#team1end').text(team1);
+		$('#team2end').text(team2);
 	
 		var value1 = parseInt(spielstand1, 10);
 		var value2 = parseInt(spielstand2, 10);
@@ -69,8 +75,10 @@ else if(stdModus == 'Klassisch') {
 				 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');
 				 
 				 if(!ortURI[3]) {
+					$('#stdTisch').html('Bitte einen Kickertisch wählen.');
 					 $('#aort').html('');
 				 }
+				 
 				
 				var stdStatus = 'vor_beginn';
  
@@ -489,7 +497,7 @@ else if(stdModus == 'Klassisch') {
             <li>Datum: <span id="dat"><%= match.Datum %></span></li>
               <li> Startzeitpunkt: <span id="uhr"><%= match.Uhrzeit %></span> Uhr</li>
                <li> Austragungsort:  <span id="tis"></span></li>
-                <li>Kickertisch: <a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li>
+                <li>Kickertisch: <span id="stdTisch"></span><a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></li>
               <li id="stat"> Status: <%= match.Status %></li>
                     </ul> 
                
@@ -510,16 +518,16 @@ else if(stdModus == 'Klassisch') {
                     
                      <% if (match.Teilnehmer) { %>
 	                      <% if (match.Teilnehmer.length == 1) { %>
-			                     <p>Team 1 : <%= match.Teilnehmer[0] %></p>
+			                     <p id="team1">Team 1 : <%= benutzerAll[0].Name %></p>
 			                     <% } else if (match.Teilnehmer.length == 2) { %>
-			                     <p>Team 1 : <%= match.Teilnehmer[0] %></p>
-			                     <p>Team 2 : <%= match.Teilnehmer[1] %></p>
+			                     <p id="team1">Team 1 : <%= benutzerAll[0].Name %></p>
+			                     <p id="team2">Team 2 : <%= benutzerAll[1].Name %></p>
 			                     <% } else if (match.Teilnehmer.length == 3) { %>
-			                     <p>Team 1 : <%= match.Teilnehmer[0] %>, <%= match.Teilnehmer[1] %></p>
-			                     <p>Team 2 : <%= match.Teilnehmer[2] %></p>
-			                     <% } else { %>
-				                     <p>Team 1 : <%= match.Teilnehmer[0] %>, <%= match.Teilnehmer[1] %></p>
-			                     <p>Team 2 : <%= match.Teilnehmer[2] %>, <%= match.Teilnehmer[3] %></p>
+			                     <p id="team1">Team 1 : <%= benutzerAll[0].Name %> , <%= benutzerAll[1].Name %></p>
+			                     <p id="team2">Team 2 : <%= benutzerAll[2].Name %></p>
+			                     <% } else if(match.Teilnehmer.length == 4) { %>
+				                     <p id="team1">Team 1 : <%= benutzerAll[0].Name %> , <%= benutzerAll[1].Name %></p>
+			                     <p id="team2">Team 2 : <%= benutzerAll[2].Name %> , <%= benutzerAll[3].Name %></p>
 				                     <% } } %>
                     <hr />
                      <% if (match.Status == 'vor_beginn') { %>
@@ -677,9 +685,9 @@ else if(stdModus == 'Klassisch') {
 <br />
  <div class="row">
 		   <p id="spielst"><% if (spielstand.spielstandT1 > spielstand.spielstandT2) { %>
-			  Gewinner: Team 1 
+			  Gewinner: <br /><span id="team1end"></span>
 			   <% } else if(spielstand.spielstandT2 > spielstand.spielstandT1) { %>
-				   Gewinner: Team 2
+				   Gewinner: <br /><span id="team2end"></span>
 				   <% } else { %>
 					   Unentschieden
 					   <% } %>

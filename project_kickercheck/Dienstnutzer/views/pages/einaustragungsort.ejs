@@ -80,12 +80,16 @@ $(document).ready(function() {
             <li>Beschreibung: <%= austragungsort.Beschreibung %></li>
                     </ul> 
                     <br />
+                    <hr />
                     <div class="row">
                   
                     <a href="" id="alltables" class="btn btn-primary" role="button">Alle Tische dieses Ortes anzeigen</a>
                     </div>
-                    <br />
+                    <hr />
+            
                  <div class="row">
+                 <div class="col-md-6">
+                 <p>Tisch hinzufügen</p>
                  <form role="form" action="" method="POST" name="kickertischAnlegen" id="kickertischAnlegen">
                <div class="form-group">
 		 <label for="hersteller">Hersteller:</label> <br>
@@ -106,6 +110,7 @@ $(document).ready(function() {
                 <input type="submit" class="btn btn-primary" name="send" value="Tisch hinzufügen" />
 
         </form> 
+        </div>
         </div>
 <br />
 <div class="row">

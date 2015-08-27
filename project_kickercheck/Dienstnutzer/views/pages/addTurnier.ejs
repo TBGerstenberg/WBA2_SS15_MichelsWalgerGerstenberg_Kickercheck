@@ -15,7 +15,7 @@
                     var typ = $('#typ').val();
                     var austragungsort=$('#austragungsort').val();
 
-                    if(!(teilnehmer && teamgroesse && typ)) {
+                    if(!(teilnehmer && teamgroesse && typ && austragungsort != '0')) {
                         alert('Bitte Felder ausfüllen');
                         return false;
                     }
@@ -82,7 +82,8 @@
                     <div class="jumbotron">
                         <h1>Turnier</h1>
 
-
+						<div class="row">
+						<div class="col-md-6">
                         <form role="form" action="" method="POST" name="turnierAnlegen" id="turnierAnlegen">
                             <div class="form-group">
                                 <label for="teilnehmer">Teilnehmer:</label> <br>
@@ -93,9 +94,14 @@
                                 <input type="text" id="teamgroesse" class="form-control" placeholder="Wie viele pro Team?" maxlength="100" />
                             </div>
                             <div class="form-group">
-                                <label for="austragungsort">Optional: Austragungsort</label> <br>
-                                <input type="text" id="austragungsort" class="form-control" placeholder="Wo wird das Turnier stattfinden?" maxlength="100" />
-                            </div>
+         <label for="austragungsort">Austragungsort:</label> <br>
+         <select id="austragungsort" class="form-control">
+	     <option value="0">Bitte wählen</option>
+           <% austragungsorte.forEach(function(austragungsort) { %>
+         <option class="ort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %></option>
+         <% });  %>
+         </select>
+         </div>
                             <div class="form-group">
                                 <label for="typ">Art des Turniers:</label> <br>
                                 <input type="text" id="typ"  class="form-control" placeholder="Art des Turniers" maxlength="100" />
@@ -103,6 +109,8 @@
                             <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
 
                         </form>
+                        </div>
+                        </div>
                         <br />
                         <p class="addid"></p>
                     </div>

@@ -20,8 +20,10 @@
         <div class="list-group">
 		
         <% turniere.forEach(function(turnier) { %>
-	  <a href="/Turnier/<%= turnier.id %>" class="list-group-item"> <h4 class="list-group-item-heading"><%= turnier.Typ %></h4>
+	  <a href="/Turnier/<%= turnier.id %>" class="list-group-item"> <h4 class="list-group-item-heading">Turnier <%= turnier.id %></h4>
 	   <p class="list-group-item-text">Austragungszeitraum: <%= turnier.Austragungszeitraum %></p>
+	    <p class="list-group-item-text">Anzahl Teilnehmer: <%= turnier.Teilnehmeranzahl %></p>
+	    <p class="list-group-item-text">Typ: <%= turnier.Typ %></p>
 	   <p class="list-group-item-text">Status: <%= turnier.Status %></p>
 	    </a>
    <% });  %>

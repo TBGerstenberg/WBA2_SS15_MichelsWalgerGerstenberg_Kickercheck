@@ -117,7 +117,6 @@ app.get('/:MatchId', function(req, res) {
           
   var x = http.request(options1, function(externalres){
 	  
-	 
       
              externalres.on('data', function(chunk){
            
@@ -186,16 +185,16 @@ app.get('/:MatchId', function(req, res) {
   
   	var j = 0;
   	
-
+  	 var myAgent = new http.Agent({maxSockets: 1});
  
 async.each(match.Teilnehmer, function(listItem, next) {
 
- callApi(listItem, function(user) {
     listItem.position = j;
     
       var options = {
         host: "localhost",
         port: 3000,
+        agent: myAgent,
         path: listItem,
         method:"GET",
         headers:{
@@ -211,7 +210,7 @@ async.each(match.Teilnehmer, function(listItem, next) {
 
                 var user = JSON.parse(chunks);
                   benutzerAll.push(user);
-				
+				  next();
         });
        
          
@@ -219,29 +218,15 @@ async.each(match.Teilnehmer, function(listItem, next) {
 			
 exreq.end();
 
-next();
-});
  
 }, function(err) {
- 
-    // all data has been updated
-    // do whatever you want
-        
-        
-        console.log(benutzerAll);
+	
 			     	
      	  res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand, belegungen: belegungen });	
  
 });
+
   	    
-     function callApi(listItem, cb) {
-  cb(listItem);
-}     
-                 
-
-//      			console.log(benutzerAll);
-
-             
             });
     
   });

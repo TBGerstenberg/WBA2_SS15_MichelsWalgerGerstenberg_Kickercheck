@@ -28,8 +28,11 @@
 	     <% belegungen.forEach(function(belegung) {  %>
 		        <% if(belegung.id == kickertisch.id) { %>
 	     <p class="list-group-item-text">Belegung: <%= belegung.Anzahl %> Spieler</p>
+	     	 <% if(belegung.id == kickertisch.id) { %>
+		     	 <% if(belegung.Anzahl > 0) { %>
 	      <p class="list-group-item-text">Teilnehmer: <%= belegung.Teilnehmer %></p>
-	     <%  } }); %>
+	      
+	     <% }  } } }); %>
 	   	    </a>
    
   <%  }); %>

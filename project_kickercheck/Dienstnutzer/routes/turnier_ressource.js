@@ -16,9 +16,35 @@ var Regelwerk=
 
 
 app.get('/addTurnier', function(req, res) {
-    res.render('pages/addTurnier');
-});
+	
+	 var options = {
+        host: "localhost",
+        port: 3000,
+        path: "/Austragungsort",
+        method:"GET",
+        headers:{
+          accept:"application/json"
+        }
+      }
+      
+             var x = http.request(options, function(externalrep){
+      
+                
+            externalrep.on("data", function(chunks){
 
+                var austragungsorte = JSON.parse(chunks);
+                
+                 res.render('pages/addTurnier',{austragungsorte:austragungsorte});
+       
+                res.end();
+             
+            });
+    
+  });
+  x.end();
+
+            });
+      
 app.get('/alleTurniere', function(req, res) {
 
     var options = {
@@ -113,7 +139,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
     };
 
     //Antwort für die Abfrage des Turniers 
-    var jsonString='';
+    var jsonString;
 
     var externalRequest = http.request(options1, function(externalResponse){
 
@@ -123,7 +149,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
         }
 
         externalResponse.on("data", function(chunk){
-            jsonString+=chunk;
+            jsonString = JSON.parse(chunk);
             //console.log("Data angekommen , JSON String:" + chunk); 
         });
 
@@ -131,11 +157,12 @@ app.put('/:TurnierId/Spielplan',function(req,res){
         externalResponse.on("end",function(){
 
             //Parse die Antwort
-            var turnier = JSON.parse(jsonString);
+            var turnier = jsonString;
             
             //Checke ob schon ein Spielplan existiert 
             if(turnier.Matches.length != 0){
-                res.status()
+	       
+                res.status(200).end();
             
             }
 
@@ -181,6 +208,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                 //Beispiel: //https://jsfiddle.net/fwrun1or/
                 var teams=[];
                 var anzahlTeams=turnier.Teilnehmeranzahl / turnier.Teamgroesse;
+               
 
                 //Beim Kicker sind nur die Teamgrößen 1 und 2 zulässig
                 //Teilnehmer sind nummeriert durch ihren index im Teilnehmerarray 
@@ -194,13 +222,13 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             var teamName="Team"+j.toString();
 
                             //Objekt das unter dem Key <teamName> die Tielnehmer enthält
-                            var teamObj={}
+                            var teamObj={};
 
                             //Teilnehmer hinzufügen 
                             teamObj[teamName]={
                                 "Teilnehmer1":turnier.Teilnehmer[i]
                             }
-
+						
                             //Team dem Teamarray hinzufügen 
                             teams.push(teamObj);
                             i++;
@@ -208,6 +236,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         break;
 
                     case 2:
+					
                         var i=0;
                         for(var j=0;j<anzahlTeams;j++){
 
@@ -216,13 +245,13 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                             //Objekt das unter dem Key <teamName> die Tielnehmer enthält
                             var teamObj={}
-
+							
                             //Teilnehmer hinzufügen 
                             teamObj[teamName]={
                                 "Teilnehmer1":turnier.Teilnehmer[i],
                                 "Teilnehmer2":turnier.Teilnehmer[i+1]
                             }
-
+								
                             //Team dem Teamarray hinzufügen 
                             teams.push(teamObj);
                             i+=2;
@@ -232,6 +261,13 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     default:
                         res.status(409).send("ungültige Teamgröße").end();
                 }
+                
+                
+                
+              console.log('teams array ist leer'+teams);
+              
+              
+              
 
                 for(var i=0;i<turnier.Spielplan.length;i++){
 
@@ -255,20 +291,20 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     console.log("Starte Matchanfrage für den Spielplan von Turnier" + req.params.TurnierId);
                     //console.log(util.inspect(matchAnfrage, false, null));
 
-                    var matchRequestAntwort='';
-
                     //Stelle Match Post-Anfragen 
                     var matchRequest = http.request(optionsMatches, function(matchRequestResponse) {
 
+					var matchRequestAntwort;
+					
                         matchRequestResponse.on('data',function(chunk){
-                            //console.log(util.inspect(JSON.parse(chunk), false, null));
-                            matchRequestAntwort+=chunk;   
+//                             console.log(util.inspect(JSON.parse(chunk), false, null));
+                          matchRequestAntwort = JSON.parse(chunk);   
                         });
 
                         //Wenn die Antwort der letzten Anfrage ankommt
-                        matchRequestResponse.on('end',function(turnierMitMatches){
+                        matchRequestResponse.on('end',function(){
                             if(i==anzahlTeams-1){ 
-                                res.status(200).json(JSON.parse(matchRequestAntwort)).end();
+                                res.status(200).json(matchRequestAntwort).end();
                             }     
                         });      
                     });
@@ -278,6 +314,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     });
 
                     matchRequest.write(JSON.stringify(matchAnfrage));
+                    console.log(matchAnfrage);
                     matchRequest.end();
                 }                
             } 
