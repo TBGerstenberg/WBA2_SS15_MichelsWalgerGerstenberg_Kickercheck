@@ -133,7 +133,7 @@
     <select id="user1" class="form-control">
 	     <option value="0">Bitte wählen</option>
 	      <% benutzerAll.forEach(function(benutzer) { %>
-	 <option class="teilnehmer1" value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+	 <option class="teilnehmer1" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
    <% });  %>
     </select>
        
@@ -141,21 +141,21 @@
           <select id="user2" class="form-control">
 	     <option value="0">Bitte wählen</option>
 	       <% benutzerAll.forEach(function(benutzer) { %>
-	 <option class="teilnehmer2" value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+	 <option class="teilnehmer2" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
    <% });  %>
     </select>
           <label for="teilnehmer">Teilnehmer 3:</label> <br>
            <select id="user3" class="form-control">
 	     <option value="0">Bitte wählen</option>
 	       <% benutzerAll.forEach(function(benutzer) { %>
-	 <option class="teilnehmer3" value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+	 <option class="teilnehmer3" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
    <% });  %>
     </select>
           <label for="teilnehmer">Teilnehmer 4:</label> <br>
           <select id="user4" class="form-control">
 	     <option value="0">Bitte wählen</option>
 	       <% benutzerAll.forEach(function(benutzer) { %>
-	 <option class="teilnehmer4" value="<%= benutzer.Name %>"><%= benutzer.Name %></option>
+	 <option class="teilnehmer4" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
    <% });  %>
     </select>
          </div>

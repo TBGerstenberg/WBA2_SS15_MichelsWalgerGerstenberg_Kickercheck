@@ -48,7 +48,7 @@ else if(stdModus == 'Klassisch') {
 								contentType: 'application/json',
 								data: JSON.stringify(formData),
 								success: function(data) {
-									alert('Spielmodus wurde auf '+modus+ ' gesetzt.');
+								
 										window.location.reload(true);		
 	
 								},
@@ -482,7 +482,7 @@ else if(stdModus == 'Klassisch') {
             
             
                 <div class="jumbotron">
-                    <h1>Match</h1>
+                    <h1>Match <%= match.id %></h1>
                    <br />
                   
                      <ul>
@@ -491,9 +491,6 @@ else if(stdModus == 'Klassisch') {
                <li> Austragungsort:  <span id="tis"></span></li>
                 <li>Kickertisch: <a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></span></li>
               <li id="stat"> Status: <%= match.Status %></li>
-              <% if (match.Status != 'vor_beginn') { %>
-               <li>Spielmodus: <span id="modustext"><%= spielstand.Modus %></span></li>
-               <% } %>
                     </ul> 
                
                  <hr />
@@ -501,10 +498,10 @@ else if(stdModus == 'Klassisch') {
                     <p>Liste der Teilnehmer: </p>
                    
                     <ul>
-                    <% if (match.Teilnehmer) { %>
-                      <% for(var i=0; i < match.Teilnehmer.length; i++) { %>
-                    <li id="user<%= i %>"><%= match.Teilnehmer[i] %></li>
-                    <% }}; %>
+                    
+                      <% for(var i=0; i < benutzerAll.length; i++) { %>
+                    <li id="user<%= i %>"><%= benutzerAll[i].Name %></li>
+                    <% }; %>
                     </ul>
                     </div>
                     <hr />
@@ -604,6 +601,9 @@ else if(stdModus == 'Klassisch') {
                     
          
              <div class="spielstand">
+              
+               <p id="spielst">Spielmodus: <span id="modustext"><%= spielstand.Modus %></span> <% if (spielstand.Modus == 'Klassisch') { %> (6 Punkte bis zum Sieg) <% } else if (spielstand.Modus == 'Variation') { %> (10 Punkte bis zum Sieg) <% } %> </p>
+             
              <div class="row">
                   <div class="col-md-4">
                   <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>

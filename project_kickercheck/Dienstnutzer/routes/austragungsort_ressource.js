@@ -536,7 +536,7 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
                 'id': belegungsId,
                 'Anzahl' : Belegung.anzahl,
                 'Teilnehmer' : Belegung.teilnehmer,
-                'Herausforderungen' : []
+                'Herausforderungen' : null
             };
             
             console.log(belegungObj);

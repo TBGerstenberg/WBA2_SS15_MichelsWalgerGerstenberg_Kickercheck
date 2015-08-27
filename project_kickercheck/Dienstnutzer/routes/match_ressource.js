@@ -84,6 +84,7 @@ app.get('/:MatchId', function(req, res) {
 	
 
 	 var belegungen=[];   
+	 
     
       client.keys('Belegung *', function (err, key) {
 	      
@@ -122,12 +123,12 @@ app.get('/:MatchId', function(req, res) {
            
      var match = JSON.parse(chunk);
      
-  
+       
 
 	 var ortURI = match.Austragungsort.split("/");
 	 var ort = "/"+ortURI[1]+"/"+ortURI[2];
 	 
-     console.log(ort);
+//      console.log(ort);
   
         var options2 = {
         host: "localhost",
@@ -178,10 +179,63 @@ app.get('/:MatchId', function(req, res) {
             externalrepw.on("data", function(chunkw){
 
                 var spielstand = JSON.parse(chunkw);
-            
+                
+                
+                	
+  var benutzerAll = [];
+  
+  	var j = 0;
+ 
+async.each(match.Teilnehmer, function(listItem, next) {
+
+    listItem.position = j;
+ 
+      var options = {
+        host: "localhost",
+        port: 3000,
+        path: listItem,
+        method:"GET",
+        headers:{
+          accept : "application/json",
+          contentType : "application/json"
+        }
+      }
+      
+      
+	 	 var exreq = http.request(options, function(externalrep){
+                
+            externalrep.on("data", function(chunks){
+
+                var user = JSON.parse(chunks);
+                  benutzerAll.push(user);
+  
+        });
+        
+			});
+
+exreq.end();
+				 	
+        j++;
+
+        next();	
+ 
+}, function(err) {
+ 
+    // all data has been updated
+    // do whatever you want
+        
+        
+        console.log(benutzerAll);
+			     	
+     	  res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand, belegungen: belegungen });	
+ 
+});
+  	    
+          
                  
-               res.render('pages/einmatch', { match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand, belegungen: belegungen });
-       
+
+//      			console.log(benutzerAll);
+
              
             });
     
