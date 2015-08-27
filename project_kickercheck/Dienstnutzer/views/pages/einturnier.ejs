@@ -134,9 +134,9 @@
                             <p>Liste der Teilnehmer: </p>
 
                             <ul>
-                                <% if (benutzerAll) { %>
-                                <% for(var i=0; i < benutzerAll.length; i++) { %>
-                                <li><%= benutzerAll[i].Name %></li>
+                                <% if (turnier.Teilnehmer) { %>
+                                <% for(var i=0; i < turnier.Teilnehmer.length; i++) { %>
+                                <li><%= turnier.Teilnehmer[i] %></li>
                                 <% }}; %>
                             </ul>
                         </div>
