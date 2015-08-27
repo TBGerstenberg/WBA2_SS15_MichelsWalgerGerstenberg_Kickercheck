@@ -47,7 +47,7 @@ app.get('/:TurnierId', function(req, res) {
 
                         var send = JSON.parse(turnierDaten);
 
-                        console.log(util.inspect(turnierDaten, false, null));
+                        //console.log(util.inspect(turnierDaten, false, null));
 
                         res.set("Content-Type", 'application/json').status(200).json(send).end();
                     });
@@ -77,35 +77,39 @@ app.post('/',function(req, res) {
 
     else {
 
-        generiereLigaTurnierSpielplan(req.body.Teilnehmeranzahl,req.body.Teamgroesse,function(spielplan){
+        generiereLigaTurnierSpielplan(req.body.Teilnehmeranzahl,req.body.Teamgroesse,function(spielplan,erfolg){
 
-            client.incr('TurnierId', function(err, id) {
+            if(erfolg){
+                client.incr('TurnierId', function(err, id) {
 
-                var turnierLink ='http://kickercheck.de/Turnier/'+id+'/Matches';
-                var turnierTeilnehmerHinzufügenLink = '/Turnier/'+id+'/Teilnehmer';
-                var turnierMatchHinzufügenLink = '/Turnier/'+id+'/Match';
+                    var turnierLink ='http://kickercheck.de/Turnier/'+id+'/Matches';
+                    var turnierTeilnehmerHinzufügenLink = '/Turnier/'+id+'/Teilnehmer';
+                    var turnierMatchHinzufügenLink = '/Turnier/'+id+'/Match';
 
-                var turnierObj={
-                    'id' : id,
-                    'Teilnehmeranzahl': req.body.Teilnehmeranzahl,
-                    'Teamgroesse' : req.body.Teamgroesse,
-                    'Typ':req.body.Typ,
-                    'Austragungsort':req.body.Austragungsort,
-                    'TeilnehmerHinzufuegen':turnierTeilnehmerHinzufügenLink,
-                    'Teilnehmer': [],
-                    'MatchHinzufuegen':turnierMatchHinzufügenLink,
-                    'Matches':[],
-                    'Austragungszeitraum':null,
-                    'Status':'angelegt',
-                    'Spielplan': spielplan
-                }
+                    var turnierObj={
+                        'id' : id,
+                        'Teilnehmeranzahl': req.body.Teilnehmeranzahl,
+                        'Teamgroesse' : req.body.Teamgroesse,
+                        'Typ':req.body.Typ,
+                        'Austragungsort':req.body.Austragungsort,
+                        'TeilnehmerHinzufuegen':turnierTeilnehmerHinzufügenLink,
+                        'Teilnehmer': [],
+                        'MatchHinzufuegen':turnierMatchHinzufügenLink,
+                        'Matches':[],
+                        'Austragungszeitraum':null,
+                        'Status':'angelegt',
+                        'Spielplan': spielplan
+                    }
 
-                client.set('Turnier ' + id,JSON.stringify(turnierObj));
-                res.set("Content-Type", 'application/json').set("Location", "/Turnier/" + id).status(201).json(turnierObj).end();
+                    client.set('Turnier ' + id,JSON.stringify(turnierObj));
+                    res.set("Content-Type", 'application/json').set("Location", "/Turnier/" + id).status(201).json(turnierObj).end();
 
-            });
+                });
+            }
+            else{
+                res.status(409).send("Dienstgeber konnte keinen TUrnierplan erstellen").end();
+            }   
         });
-
     } 
 });
 
@@ -181,7 +185,7 @@ app.delete('/:TurnierId', function(req, res) {
 //Fügt einem Turnier ein Match hinzu , benötigt eine Matchrepräsentation im Body 
 app.post('/:TurnierId/Match',function(req,res){
 
-    console.log("Turnier_Match hinzufügen gecalled");
+    console.log("Turnier_Match hinzufügen auf Dienstgeber gecalled");
 
     var turnierId=req.params.TurnierId;
 
@@ -274,19 +278,19 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 //WORK IN PROGRESS
 function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
 
+    var erfolg=true;
 
     //Zu wenig Teilnehmer oder unzulässige Teamgröße
-    if(teilnehmerzahl < 0 || teamGroesse %2 != 0){
-        return -1;  
-    }
+    //if(teilnehmerzahl < 0 || !(teamGroesse %2 != ){
+    //      erfolg=false;
+    //}
 
     //Legt fest wieviele Teams es geben wird 
     var anzahlTeams=teilnehmerzahl / teamGroesse;
 
     //Es gibt keine Spieler oder der Turnierplan geht nicht auf  
     if(anzahlTeams < 0 || anzahlTeams == 0){
-
-        return -1;
+        erfolg=false;
     }
 
     //Quellen für den Spielplanalgorithmus: 
@@ -336,7 +340,7 @@ function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
         var paarung=spielPlan[k];
         console.log("Runde"+paarung.Runde+"  "+paarung.Team1 + " vs   " + paarung.Team2);
     }*/
-    callback(spielPlan);
+    callback(spielPlan,erfolg);
 }
 
 module.exports = app;
