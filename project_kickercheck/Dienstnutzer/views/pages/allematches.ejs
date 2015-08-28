@@ -24,6 +24,7 @@
 	   <p class="list-group-item-text">Datum: <%= match.Datum %></p>
 	   <p class="list-group-item-text">Uhrzeit: <%= match.Uhrzeit %></p>
 	    <p class="list-group-item-text">Status: <%= match.Status %></p>
+          <p>  <a href="/Match/<%= match.id %>/Liveticker" id="alltables" class="btn btn-primary" role="button">Liveticker für dieses Match</a></p>
 	    </a>
    <% });  %>
 </div>
