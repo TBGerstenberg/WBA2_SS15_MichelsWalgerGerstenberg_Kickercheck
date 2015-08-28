@@ -21,11 +21,8 @@ app.get('/',function(req,res){
 
             //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
             turnier.forEach(function (val) {
-
                 response.push(JSON.parse(val));
-
             });
-
             res.status(200).set("Content-Type","application/json").json(response).end();
         });
     });
@@ -70,6 +67,7 @@ app.get('/:TurnierId', function(req, res) {
     });
 });
 
+//Legt ein neues Turnier unter Angabe der Rahmeninformationen an 
 app.post('/',function(req, res) {
 
     //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
@@ -100,17 +98,22 @@ app.post('/',function(req, res) {
                         'Typ':req.body.Typ,
                         'Austragungsort':req.body.Austragungsort,
                         'TeilnehmerHinzufuegen':turnierTeilnehmerHinzufügenLink,
-                        'Teilnehmer': [],
                         'MatchHinzufuegen':turnierMatchHinzufügenLink,
-                        'Matches':[],
                         'Austragungszeitraum':null,
                         'Status':'angelegt',
                         'Spielplan': spielplan
                     }
 
+                    //Lege Turnier in der DB an 
                     client.set('Turnier ' + id,JSON.stringify(turnierObj));
-                    res.set("Content-Type", 'application/json').set("Location", "/Turnier/" + id).status(201).json(turnierObj).end();
 
+                    //Lege Liste der Teilnehmer für die Subressource an 
+                    //client.LPUSH('Turnier '+id+' Teilnehmer',id);
+
+                    //Lege Liste der Matches für die Subressource an 
+                    //client.LPUSH('Turnier '+id+' Matches',id);
+
+                    res.set("Content-Type", 'application/json').set("Location", "/Turnier/" + id).status(201).json(turnierObj).end();
                 });
             }
             else{
@@ -120,6 +123,7 @@ app.post('/',function(req, res) {
     } 
 });
 
+//Ändert die Informationen eines Turnieres
 app.put('/:TurnierId',function(req, res) {
 
     var contentType = req.get('Content-Type');
@@ -168,7 +172,8 @@ app.put('/:TurnierId',function(req, res) {
     }
 });
 
-//Löscht das Turnier mit <TurnierId>
+//Löscht das Turnier mit <TurnierId> , entfernt alle assoziierten Matches sowie 
+//die Teinehmerliste
 app.delete('/:TurnierId', function(req, res) {
 
     var turnierId = req.params.TurnierId;
@@ -182,12 +187,68 @@ app.delete('/:TurnierId', function(req, res) {
 
         else {
             client.del('Turnier '+ turnierId);
+            client.del('Turnier ' + turnierId + ' Teilnehmer');
+
+
+            var listenKey="Turnier "+turnierId+"Matches"; 
+            //Hole alle Assoziierten Matches 
+            client.lrange(listenKey, 0, -1, function(err,items) {
+
+                //Wenn es Matches gibt 
+                if(items.length!=0){
+                    //Lösche alle
+                    items.foreach(function(entry){
+                        //Lösche Eintrag aus der DB
+                        client.del('Match ' + item);
+                    });
+                }
+            });
+
+            //Lösche MatchListe
+            client.del('Turnier ' + turnierId + ' Matches');
 
             //Zeige mit Status 204-No Content Erfolg des Löschvorgangs
             res.status(204).send("Das hat funktioniert! Turnier gelöscht.").end();
         }
     });
 });
+
+//Liefert eine Liste aller mit dem Turnier assoziierten Matches 
+app.get('/:TurnierId/Match',function(req,res){
+
+    var turnierId=req.params.TurnierId;
+
+    client.exists('Turnier ' + turnierId, function(err, IdExists) {
+
+        //client.exists hat false geliefert 
+        if (!IdExists) {
+            res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+        }
+
+        else{
+
+            var matches=[];
+            var listenKey="Turnier "+turnierId+" Matches";
+
+            //Hole alle Assoziierten Matches 
+            client.lrange(listenKey, 0, -1, function(err,items) {
+
+                //Wenn es Matches gibt 
+                if(items.length!=0){
+                    
+                    //Füge der Gespeicherten ID noch das prefix "/Match/" hinzu 
+                    items.forEach(function(entry){
+                        matches.push("/Match/"+entry);
+                    });
+                }
+            }); 
+
+            //Liefere die Matchliste
+            res.status(200).json(matches).end();
+        }
+    });
+});
+
 
 
 //Fügt einem Turnier ein Match hinzu , benötigt eine Matchrepräsentation im Body 
@@ -229,14 +290,14 @@ app.post('/:TurnierId/Match',function(req,res){
                     //Pflege Match in DB ein 
                     client.set('Match ' + id, JSON.stringify(matchObj));
 
-                    //Füge Link zu diesem Match in die Repräsentation des Turniers ein 
-                    turnier.Matches.push("/Match/" + id);
+                    //Pushe das angelegte Match in die Liste der Matches
+                    client.LPUSH('Turnier '+turnierId+' Match',id)
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Turnier ' + turnierId,JSON.stringify(turnier));
 
                     //Sende Statuscode 201-Created , da hier ein neues Match angelegt wurde 
-                    res.json(turnier).end();
+                    res.status(201).set('Location',"Turnier/"+turnierId+/Match/+id).json(matchObj).end();
                 });
             });
         }
@@ -247,11 +308,26 @@ app.post('/:TurnierId/Match',function(req,res){
     });
 });
 
+//Ruft die Teilnehmerliste eines Turnieres ab , liefert leeres Array wenn 
+//Kein Teilnemer vorhanden ist 
+app.get('/:TurnierId/Teilnehmer',function(req,res){
+    
+    var listenKey="Turnier "+req.params.TurnierId+" Teilnehmer";
+
+    //Hole alle Assoziierten Teilnehmer
+    client.lrange(listenKey, 0, -1, function(err,items) {
+
+        //Antworte mit der aktualisierten Teilnehmerliste
+        res.set("Content-Type", 'application/json').status(200).json(items).end();
+
+    }); 
+});
+
 
 //Fügt einem bestehenden Turnier einen Teilnehmer hinzu 
 //Ein Teilnehmer kann nicht zweimal einem Turnier 
 //Hinzugefügt werden, daher ist diese Opration idemtpotent 
-//Und führt bei Wiederholung immer zum gleichen Ergebnis 
+//Und führt bei Wiederholung immer zum gleichen Ergebnis => der Teilnehmer ist hinzugefügt
 app.put('/:TurnierId/Teilnehmer',function(req,res){
 
     //Extrahiere TurnierId
@@ -263,6 +339,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
         //client.exists hat false geliefert 
         if (!IdExists) {
             res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+            return;
         } 
 
         //Lese aktuellen Zustand des Turniers aus DB
@@ -270,43 +347,55 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
             var Turnierdaten = JSON.parse(turnierdata);
 
-            //Hinzufügen eines Teilnehmers darf nur funktionierten solang die Teilnehmeranzahl nicht überschritten wird 
-            if(Turnierdaten.Teilnehmer.length < Turnierdaten.Teilnehmeranzahl){
+            var listenKey="Turnier "+turnierId+" Teilnehmer";
+            
+            var teilnehmer=[];
+            
+            //Hole alle Assoziierten Teilnehmer
+            client.lrange(listenKey, 0, -1, function(err,items) {
 
-                var bereitsVorhanden=false;
+                //Hinzufügen eines Teilnehmers darf nur funktionierten solang die Teilnehmeranzahl nicht überschritten wird 
+                //Teilnehmerzahl noch nicht erreicht
+                if(items.length < Turnierdaten.Teilnehmeranzahl){
 
-                //Durchsuche Teilnehmerliste nach diesem Teilnehmer
-                for(var i=0;i<Turnierdaten.Teilnehmer.length;i++){
-                    if(Turnierdaten.Teilnehmer[i] == req.body.Teilnehmer){
-                        //Benutzer ist bereits eingetragen 
-                        bereitsVorhanden=true;
-                    } 
+                    //Flag um anzuzeigen ob der Benutzer bereits in der Liste ist
+                    var bereitsVorhanden=false;
+
+                    //Durchsuche Teilnehmerliste nach diesem Teilnehmer
+                    for(var i=0;i<items.length;i++){
+                        if(items[i] == req.body.Teilnehmer){
+                            //Benutzer ist bereits eingetragen 
+                            bereitsVorhanden=true;
+                        } 
+                    }
+
+                    //Wenn er vorhanden war, gebe einfach den aktuellen Stand der Liste zurück
+                    if(bereitsVorhanden){
+                        res.set("Content-Type", 'application/json').status(200).json(items).end();
+                    }
+
+                    //Benutzer ist nicht vorhanden 
+                    else{
+                        //Pushe Teilnehmer in die Liste 
+                        client.LPUSH("Turnier "+turnierId+" Teilnehmer",req.body.Teilnehmer);
+                        
+                        //Hole alle Assoziierten Teilnehmer
+                        client.lrange(listenKey, 0, -1, function(err,items) {
+                            //Antworte mit der aktualisierten Teilnehmerliste
+                            res.set("Content-Type", 'application/json').status(200).json(items).end();
+                        });
+                    }
                 }
 
-                if(bereitsVorhanden){
-                    res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
-                }
-
-                //Benutzer ist nicht vorhanden 
+                //Teilnehmerzahl erreicht
                 else{
-                    //console.log(req.body.teilnehmer);
-                    Turnierdaten.Teilnehmer.push(req.body.Teilnehmer);
-
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
-
-                    //Setze Contenttype der Antwort auf application/json..
-                    res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
+                    res.status(409).send("Teilnehmerzahl bereits erreicht").end();
                 }
-            }
-
-            //Hinzufügen war unzulässig , sende einen 409-Conflict Status um anzuzeigen, dass keine Teilnehmer mehr hinzugefügt werden können
-            else{
-                res.status(409).end();
-            }
+            }); 
         });
     });
 });
+
 
 //Erstellt den Turnierplan für ein Turnier vom Typ Liga (jeder gegen jden , auf Spieltage aufgeteilt)
 //WORK IN PROGRESS
