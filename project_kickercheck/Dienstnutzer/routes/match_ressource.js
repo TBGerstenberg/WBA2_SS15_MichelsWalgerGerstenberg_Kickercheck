@@ -494,25 +494,53 @@ app.get('/:MatchId/Spielstand', function(req, res) {
 
 });
 
-app.put('/:MatchId/Spielstand', function(req, res) {
+app.get('/:MatchId/Liveticker', function(req, res) {
+    res.render('pages/einliveticker');
+    });
 
-    var matchId = req.params.MatchId;
-    var spielstandId = req.params.MatchId;
+	   	app.put('/:MatchId/Spielstand', function(req, res) {
+	   	
+	  var matchId = req.params.MatchId;
+	  var spielstandId = req.params.MatchId;
 
-    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-    client.exists('Match ' + matchId, function(err, IdExists) {
+   //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+        client.exists('Match ' + matchId, function(err, IdExists) {
 
-        //client.exists hat false geliefert 
-        if (!IdExists) {
-            res.status(404).send("Die Ressource wurde nicht gefunden.");
-            res.end();
-        }
+            //client.exists hat false geliefert 
+            if (!IdExists) {
+                res.status(404).send("Die Ressource wurde nicht gefunden.");
+                res.end();
+            }
 
-        //Ressource existiert     
-        else {
-
-            var MatchSpielstand = req.body;
-
+            //Ressource existiert     
+            else {
+                
+	     var MatchSpielstand = req.body;
+                
+                //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = client.publish(path,{
+                    'SpielstandT1': MatchSpielstand.spielstandT1,
+                    'SpielstandT2': MatchSpielstand.spielstandT2,
+                });
+                
+    publication.then(
+                
+    function(){
+        console.log("Nachricht wurde versendet.");
+    }
+                
+    ,
+                
+    function(){
+        console.log("Nachricht wurde nicht versendet.");
+ 
+    }
+                
+                
+    )         
             //Schreibe Turnierdaten zurück 
             client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
 

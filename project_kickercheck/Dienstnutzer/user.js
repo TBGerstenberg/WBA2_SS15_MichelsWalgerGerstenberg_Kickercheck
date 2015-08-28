@@ -10,7 +10,7 @@ global.util = require('util');
 global.async = require('async');
 
 var app = express();
-var server = http.createServer();
+var server = http.createServer(app);
 var bodyParser = require('body-parser');
 
 app.set('port', process.env.PORT || 3001);
@@ -26,39 +26,9 @@ var bayeux = new faye.NodeAdapter({
 	mount: '/faye'
 })
 
-bayeux.on('handshake', function(clientId) {
-    console.log('Client connected', clientId);
-});
-
-
 bayeux.attach(server);
 
-var client = new faye.Client('http://localhost:3001/faye');
-
-var subscription = client.subscribe('/news', function(message) {
-	console.log('Ereignis'+message.author+' : '+message.content);
-})
-
-app.post('/news',function(req,res) {
-	
-	var publication = client.publish('/news',{
-		'author' : req.body.author,
-		'content' : req.body.content });
-		
-		publication.then (
-			function() {
-				console.log('Nachricht gesendet');
-				res.writeHead(200,"OK");
-				res.write('gesendet');
-				res.end();
-			},
-			function(error) {
-				console.log('leidernein');
-				next(error);
-			}
-		);
-
-});
+var client = new faye.Client('http://localhost:8000/faye');
 
 // use res.render to load up an ejs view file
 

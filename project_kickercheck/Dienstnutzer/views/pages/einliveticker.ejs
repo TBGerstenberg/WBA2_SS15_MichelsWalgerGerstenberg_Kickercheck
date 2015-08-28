@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partials/head %>
+</head>
+<script type="text/javascript" src="http://localhost:8000/faye/client.js"></script>
+    
+<script>
+    var client = new Faye.Client('http://localhost:8000/faye');
+    
+    var subscription = client.subscribe('liveticker/'<%= match.id %>, function(message) {
+
+        var div= document.getElementById('messages');
+        div.innerHTML += "<p> Spielstand Team1: " + message.SpielstandT1 + "<br> Spielstand Team2: " + message.SpielstandT2 + "</p>";
+        
+    });
+</script>
+    
+<header>
+    <% include ../partials/header %>
+</header>
+    
+<body class="container">
+
+<main>
+    <div id="messages"></div>
+</main>
+    
+<footer>
+    <% include ../partials/footer %>
+</footer>
+    
+</body>
+</html>
