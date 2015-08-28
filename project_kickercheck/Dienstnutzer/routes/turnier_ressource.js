@@ -123,6 +123,7 @@ app.post('/', function(req, res) {
 //Diese Operation verändert den Server-State und ist daher ein Put , kein Get 
 //Per Definition ist Put Idempotent , liefert also bei wiederholter Ausführung immer das selbse 
 //Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann 
+
 app.put('/:TurnierId/Spielplan',function(req,res){
 
     console.log("Spielplan für Turnier" + req.params.TurnierId + "angefordert");
