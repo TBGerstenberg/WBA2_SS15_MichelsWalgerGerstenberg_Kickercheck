@@ -160,7 +160,8 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
             //Checke ob schon ein Spielplan existiert 
             if(turnier.Matches.length != 0){
-                res.status(200).end();
+                res.status(200).json(turnier).end();
+                return;
             }
 
             console.log("Stelle Turnierrequest für den Spielplan von Turnier" + req.params.TurnierId);
@@ -259,13 +260,13 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                 console.log('teams array ist leer'+teams);
 
                 var j = 0;
+                
+                console.log("Spielplan der ficker"+turnier.Spielplan);
 
                 async.each(turnier.Spielplan, function(listItem, next) {
                     
                     console.log("Listenitem: "+listItem);
-                     console.log("Spielplan der ficker"+turnier.Spielplan);
-
-                    
+                     
                     listItem.position = j;
 
                     //Lese die vorberechnete Paarung aus 
@@ -320,6 +321,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
             }
         });
     });
+    externalRequest.end();
 });
 
 
