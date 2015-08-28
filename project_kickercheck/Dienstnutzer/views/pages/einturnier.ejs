@@ -15,17 +15,17 @@
                         type: 'PUT',
                         url: '/Turnier/<%= turnier.id %>/Spielplan',
                         success: function(data) {
-
-
-                    },
-                           statusCode: {
-
-                           },
-                           fail: function() {
-                        alert('Fehler');
-                    }
-                });
-
+                        
+                            location.reload();
+                        },
+                        statusCode: {
+         
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+                    });
+                
             }); 
 
             $('#addTeilnehmer').submit(function(e) {

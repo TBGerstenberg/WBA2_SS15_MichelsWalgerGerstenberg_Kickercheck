@@ -123,7 +123,6 @@ app.post('/', function(req, res) {
 //Diese Operation verändert den Server-State und ist daher ein Put , kein Get 
 //Per Definition ist Put Idempotent , liefert also bei wiederholter Ausführung immer das selbse 
 //Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann 
-
 app.put('/:TurnierId/Spielplan',function(req,res){
 
     console.log("Spielplan für Turnier" + req.params.TurnierId + "angefordert");
@@ -161,6 +160,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
             //Checke ob schon ein Spielplan existiert 
             if(turnier.Matches.length != 0){
+
 
                 res.status(200).end();
 
@@ -257,9 +257,6 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             i+=2;
                         }
                         break;
-
-                    default:
-                        res.status(409).send("ungültige Teamgröße").end();
                 }
 
 
@@ -303,7 +300,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                         //Wenn die Antwort der letzten Anfrage ankommt
                         matchRequestResponse.on('end',function(){
-                            if(i==anzahlTeams-1){ 
+                            if(i==turnier.Spielplan.length-1){ 
                                 res.status(200).json(matchRequestAntwort).end();
                             }     
                         });      
