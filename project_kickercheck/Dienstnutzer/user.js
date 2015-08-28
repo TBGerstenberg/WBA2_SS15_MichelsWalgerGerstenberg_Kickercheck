@@ -28,7 +28,7 @@ var bayeux = new faye.NodeAdapter({
 
 bayeux.attach(server);
 
-var client = new faye.Client('http://localhost:8000/faye');
+var client = new faye.Client('http://localhost:3001/faye');
 
 // use res.render to load up an ejs view file
 
