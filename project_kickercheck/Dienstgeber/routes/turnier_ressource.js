@@ -11,11 +11,11 @@ app.get('/',function(req,res){
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Turnier *', function (err, key) {
-	    
-	    if(key.length == 0) {
-		    res.json(response);
-		    return;
-	    }
+
+        if(key.length == 0) {
+            res.json(response);
+            return;
+        }
 
         client.mget(key, function (err, turnier) {
 
@@ -23,7 +23,7 @@ app.get('/',function(req,res){
             turnier.forEach(function (val) {
 
                 response.push(JSON.parse(val));
-              
+
             });
 
             res.status(200).set("Content-Type","application/json").json(response).end();
@@ -217,7 +217,7 @@ app.post('/:TurnierId/Match',function(req,res){
                     var match=req.body;
 
                     var matchObj={
-	                    'id': id,
+                        'id': id,
                         'Datum' : match.Datum,
                         'Uhrzeit': match.Uhrzeit,
                         'Teilnehmer' : match.Teilnehmer,
@@ -272,9 +272,9 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
             //Hinzufügen eines Teilnehmers darf nur funktionierten solang die Teilnehmeranzahl nicht überschritten wird 
             if(Turnierdaten.Teilnehmer.length < Turnierdaten.Teilnehmeranzahl){
-                
+
                 var bereitsVorhanden=false;
-                
+
                 //Durchsuche Teilnehmerliste nach diesem Teilnehmer
                 for(var i=0;i<Turnierdaten.Teilnehmer.length;i++){
                     if(Turnierdaten.Teilnehmer[i] == req.body.Teilnehmer){
@@ -282,11 +282,11 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
                         bereitsVorhanden=true;
                     } 
                 }
-                
+
                 if(bereitsVorhanden){
                     res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
                 }
-                
+
                 //Benutzer ist nicht vorhanden 
                 else{
                     //console.log(req.body.teilnehmer);
@@ -369,7 +369,7 @@ function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
         var paarung=spielPlan[k];
         console.log("Runde"+paarung.Runde+"  "+paarung.Team1 + " vs   " + paarung.Team2);
     }*/
-    
+
     callback(spielPlan,erfolg);
 }
 

@@ -1,110 +1,110 @@
 var app = express.Router();
 
 app.get('/addMatch', function(req, res) {
-	
-	 var options1 = {
+
+    var options1 = {
         host: "localhost",
         port: 3000,
         path: "/Benutzer",
         method:"GET",
         headers:{
-          accept:"application/json"
+            accept:"application/json"
         }
-      }
-      
-       var options2 = {
+    }
+
+    var options2 = {
         host: "localhost",
         port: 3000,
         path: "/Austragungsort",
         method:"GET",
         headers:{
-          accept:"application/json"
+            accept:"application/json"
         }
-      }
-      
-      var x = http.request(options1, function(externalResponse){
-	      
-	       var y = http.request(options2, function(externalrep){
-      
+    }
+
+    var x = http.request(options1, function(externalResponse){
+
+        var y = http.request(options2, function(externalrep){
+
             externalResponse.on("data", function(chunk){
 
                 var benutzerAll = JSON.parse(chunk);
-                
-                
-            externalrep.on("data", function(chunks){
 
-                var austragungsorte = JSON.parse(chunks);
-                
-                   res.render('pages/addMatch',{benutzerAll:benutzerAll,austragungsorte:austragungsorte});
-       
-                res.end();
-            
-             
-            });
-    
-  });
+
+                externalrep.on("data", function(chunks){
+
+                    var austragungsorte = JSON.parse(chunks);
+
+                    res.render('pages/addMatch',{benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+
+                    res.end();
+
+
+                });
 
             });
-                   
-    
-      y.end();
-    
-  });
+
+        });
+
+
+        y.end();
+
+    });
     x.end();
-  
+
 });
 
 app.get('/alleMatches', function(req, res) {
-	
-      var options = {
+
+    var options = {
         host: "localhost",
         port: 3000,
         path: "/Match",
         method:"GET",
         headers:{
-          accept:"application/json"
+            accept:"application/json"
         }
-      }
-      var externalRequest = http.request(options, function(externalResponse){
-      
-            externalResponse.on("data", function(chunk){
+    }
+    var externalRequest = http.request(options, function(externalResponse){
 
-                var matches = JSON.parse(chunk);
-                res.render('pages/allematches',{matches:matches});
-                res.end();
-            });
-    
-  });
-         
-      externalRequest.end();
+        externalResponse.on("data", function(chunk){
+
+            var matches = JSON.parse(chunk);
+            res.render('pages/allematches',{matches:matches});
+            res.end();
+        });
+
+    });
+
+    externalRequest.end();
 });
-	
+
 
 app.get('/:MatchId', function(req, res) {
-	
 
-	 var belegungen=[];   
-	 
-    
-      client.keys('Belegung *', function (err, key) {
-	      
-	      if(key.length == 0) {
-		     return;
-	      }
 
-	client.mget(key,function(err,belegung){
-	
-		     
-        //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-       belegung.forEach(function (val) {
-	
-       belegungen.push(JSON.parse(val));
-       
+    var belegungen=[];   
+
+
+    client.keys('Belegung *', function (err, key) {
+
+        if(key.length == 0) {
+            return;
+        }
+
+        client.mget(key,function(err,belegung){
+
+
+            //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+            belegung.forEach(function (val) {
+
+                belegungen.push(JSON.parse(val));
+
             });
-            
-            });
-		});
-	  
+
+        });
+    });
+
     var options1 = {
         host: 'localhost',
         port: 3000,
@@ -114,338 +114,338 @@ app.get('/:MatchId', function(req, res) {
             accept: 'application/json'
         }
     };
-          
-  var x = http.request(options1, function(externalres){
-	  
-      
-             externalres.on('data', function(chunk){
-           
-     var match = JSON.parse(chunk);
-     
-       
 
-	 var ortURI = match.Austragungsort.split("/");
-	 var ort = "/"+ortURI[1]+"/"+ortURI[2];
-	 
-//      console.log(ort);
-  
-        var options2 = {
-        host: "localhost",
-        port: 3001,
-        path: ort+"/allekickertische/",
-        method:"GET",
-        headers:{
-          accept:"application/json"
-        }
-      }
-      
-          var options3 = {
-        host: "localhost",
-        port: 3000,
-        path: ort,
-        method:"GET",
-        headers:{
-          accept:"application/json"
-        }
-      }
-      
-          var options4 = {
-        host: 'localhost',
-        port: 3001,
-        path: '/Match/'+req.params.MatchId+"/Spielstand",
-        method: 'GET',
-        headers: {
-            accept: 'application/json'
-        }
-    };
-      
- 
-	      
-	       var y = http.request(options2, function(externalrep){
-                
-            externalrep.on("data", function(chunks){
+    var x = http.request(options1, function(externalres){
 
-                var kickertische = JSON.parse(chunks);
-                
-                  var z = http.request(options3, function(externalrepz){
-                
-            externalrepz.on("data", function(chunkz){
 
-                var austragungsort = JSON.parse(chunkz);
-                
-                    var w = http.request(options4, function(externalrepw){
-                
-            externalrepw.on("data", function(chunkw){
+        externalres.on('data', function(chunk){
 
-                var spielstand = JSON.parse(chunkw);
-                
-                
-                	
-  var benutzerAll = [];
-  
-  	var j = 0;
-  	
-  	 var myAgent = new http.Agent({maxSockets: 1});
- 
-async.each(match.Teilnehmer, function(listItem, next) {
+            var match = JSON.parse(chunk);
 
-    listItem.position = j;
-    
-      var options = {
-        host: "localhost",
-        port: 3000,
-        agent: myAgent,
-        path: listItem,
-        method:"GET",
-        headers:{
-          accept : "application/json",
-          contentType : "application/json"
-        }
-      }
-      
-      
-	 	 var exreq = http.request(options, function(externalrep){
-                
-            externalrep.on("data", function(chunks){
 
-                var user = JSON.parse(chunks);
-                  benutzerAll.push(user);
-				  next();
+
+            var ortURI = match.Austragungsort.split("/");
+            var ort = "/"+ortURI[1]+"/"+ortURI[2];
+
+            //      console.log(ort);
+
+            var options2 = {
+                host: "localhost",
+                port: 3001,
+                path: ort+"/allekickertische/",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
+
+            var options3 = {
+                host: "localhost",
+                port: 3000,
+                path: ort,
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
+
+            var options4 = {
+                host: 'localhost',
+                port: 3001,
+                path: '/Match/'+req.params.MatchId+"/Spielstand",
+                method: 'GET',
+                headers: {
+                    accept: 'application/json'
+                }
+            };
+
+
+
+            var y = http.request(options2, function(externalrep){
+
+                externalrep.on("data", function(chunks){
+
+                    var kickertische = JSON.parse(chunks);
+
+                    var z = http.request(options3, function(externalrepz){
+
+                        externalrepz.on("data", function(chunkz){
+
+                            var austragungsort = JSON.parse(chunkz);
+
+                            var w = http.request(options4, function(externalrepw){
+
+                                externalrepw.on("data", function(chunkw){
+
+                                    var spielstand = JSON.parse(chunkw);
+
+
+
+                                    var benutzerAll = [];
+
+                                    var j = 0;
+
+                                    var myAgent = new http.Agent({maxSockets: 1});
+
+                                    async.each(match.Teilnehmer, function(listItem, next) {
+
+                                        listItem.position = j;
+
+                                        var options = {
+                                            host: "localhost",
+                                            port: 3000,
+                                            agent: myAgent,
+                                            path: listItem,
+                                            method:"GET",
+                                            headers:{
+                                                accept : "application/json",
+                                                contentType : "application/json"
+                                            }
+                                        }
+
+
+                                        var exreq = http.request(options, function(externalrep){
+
+                                            externalrep.on("data", function(chunks){
+
+                                                var user = JSON.parse(chunks);
+                                                benutzerAll.push(user);
+                                                next();
+                                            });
+
+
+                                        });
+
+                                        exreq.end();
+
+
+                                    }, function(err) {
+
+
+                                        res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand, belegungen: belegungen });	
+
+                                    });
+
+
+                                });
+
+                            });
+                            w.end();
+
+                        });
+                    });
+                    z.end();
+
+                });
+
+            });
+            y.end();
         });
-       
-         
-         			});
-			
-exreq.end();
+    });
+    x.end();
 
- 
-}, function(err) {
-	
-			     	
-     	  res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand, belegungen: belegungen });	
- 
-});
-
-  	    
-            });
-    
-  });
-  w.end();
-  	
-            });
-  });
-  z.end();
-  
-});
 
 });
-y.end();
-});
-	});
-	x.end();
-
-
-	});
 
 
 app.post('/', function(req, res) {
-	
+
     // Speichert req.body
     var MatchAnfrage = req.body;
-    
+
     /*
-	    
+
 	    BODY:
-	    
+
 	    {
 	"Teilnehmeranzahl":10,
 	"Teamgroesse":2,
 	"Typ":"Kickerturnier"
 	}   
 	    */
-   
+
 
     // HTTP Header setzen
     var headers = {
-      'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
     };
 
     // Mit Server verbinden
     var options = {
-      host: 'localhost',
-      port: 3000,
-      path: '/Match',
-      method: 'POST',
-      headers: headers
+        host: 'localhost',
+        port: 3000,
+        path: '/Match',
+        method: 'POST',
+        headers: headers
     };
-    
+
     var externalRequest = http.request(options, function(externalResponse) {
 
-if(externalResponse.statusCode == 400){
-	 res.status(400).end();
-	 };
-	 
-  externalResponse.on('data', function (chunk) {
-    
-   var match = JSON.parse(chunk);
+        if(externalResponse.statusCode == 400){
+            res.status(400).end();
+        };
 
-  console.log(util.inspect(match, false, null));
-	
-	var loc = externalResponse.headers.location.split("/");
-	
-	var idm = loc[2];
-	 	
-			 	var MatchSpielstand = {
-				 	spielstandT1 : 0,
-				 	spielstandT2: 0,
-				 	Modus: 'Klassisch'
-			 	}
-	            
-	          //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + idm,JSON.stringify(MatchSpielstand));
+        externalResponse.on('data', function (chunk) {
 
-   
-    res.json(match);
-    res.end();
-   
+            var match = JSON.parse(chunk);
 
-});
+            console.log(util.inspect(match, false, null));
 
- });
- 
- var Regelwerk=
-    {
+            var loc = externalResponse.headers.location.split("/");
+
+            var idm = loc[2];
+
+            var MatchSpielstand = {
+                spielstandT1 : 0,
+                spielstandT2: 0,
+                Modus: 'Klassisch'
+            }
+
+            //Schreibe Turnierdaten zurück 
+            client.set('Spielstand ' + idm,JSON.stringify(MatchSpielstand));
+
+
+            res.json(match);
+            res.end();
+
+
+        });
+
+    });
+
+    var Regelwerk=
+        {
             "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
             "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
-    }
-    
-    MatchAnfrage.Regelwerk = Regelwerk;
- 
-externalRequest.write(JSON.stringify(MatchAnfrage));
+        }
 
-externalRequest.end();
+    MatchAnfrage.Regelwerk = Regelwerk;
+
+    externalRequest.write(JSON.stringify(MatchAnfrage));
+
+    externalRequest.end();
 
 });
 
 app.put('/:MatchId', function(req, res) {
 
-		var MatchDaten = req.body;
-		var matchId = req.params.MatchId;
-		
-    
-   console.log(util.inspect(MatchDaten, false, null));
+    var MatchDaten = req.body;
+    var matchId = req.params.MatchId;
+
+
+    console.log(util.inspect(MatchDaten, false, null));
 
     // HTTP Header setzen
     var headers = {
-      'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
     };
 
     // Mit Server verbinden
     var options = {
-      host: 'localhost',
-      port: 3000,
-      path: '/Match/'+matchId,
-      method: 'PUT',
-      headers: headers
+        host: 'localhost',
+        port: 3000,
+        path: '/Match/'+matchId,
+        method: 'PUT',
+        headers: headers
     };
-    
-      var externalRequest = http.request(options, function(externalResponse) {
 
-	 
-  externalResponse.on('data', function (chunk) {
-    
-   var changeMatch = JSON.parse(chunk);
+    var externalRequest = http.request(options, function(externalResponse) {
 
-  console.log(util.inspect(changeMatch, false, null));
-  
-   
-    res.json(changeMatch);
-    res.end();
-   
 
-});
+        externalResponse.on('data', function (chunk) {
 
- });
- 
-  var Regelwerk=
-    {
+            var changeMatch = JSON.parse(chunk);
+
+            console.log(util.inspect(changeMatch, false, null));
+
+
+            res.json(changeMatch);
+            res.end();
+
+
+        });
+
+    });
+
+    var Regelwerk=
+        {
             "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
             "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
-    }
-    
+        }
+
     MatchDaten.Regelwerk = Regelwerk;
- 
-externalRequest.write(JSON.stringify(MatchDaten));
 
-externalRequest.end();
+    externalRequest.write(JSON.stringify(MatchDaten));
 
-	   	});
-	   	
-	   	app.get('/:MatchId/Spielstand', function(req, res) {
-
-  var matchId = req.params.MatchId;
-
-   //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-        client.exists('Match ' + matchId, function(err, IdExists) {
-
-            //client.exists hat false geliefert 
-            if (!IdExists) {
-                res.status(404).send("Die Ressource wurde nicht gefunden.");
-                res.end();
-            }
-
-            //Ressource existiert     
-            else {
-	            
-	          
-	            var spielstandId = req.params.MatchId;
-	            
-	              //Lese aktuellen Zustand des Turniers aus DB
-                client.mget('Spielstand '+spielstandId,function(err,spielstanddata){
-
-				var spielstand = JSON.parse(spielstanddata);
-
-            //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-            res.set("Content-Type", 'application/json').status(200).json(spielstand).end();
-               
-   });
-   }
+    externalRequest.end();
 
 });
 
- });
-	   	
-	   	app.put('/:MatchId/Spielstand', function(req, res) {
-	   	
-	  var matchId = req.params.MatchId;
-	  var spielstandId = req.params.MatchId;
+app.get('/:MatchId/Spielstand', function(req, res) {
 
-   //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-        client.exists('Match ' + matchId, function(err, IdExists) {
+    var matchId = req.params.MatchId;
 
-            //client.exists hat false geliefert 
-            if (!IdExists) {
-                res.status(404).send("Die Ressource wurde nicht gefunden.");
-                res.end();
-            }
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    client.exists('Match ' + matchId, function(err, IdExists) {
 
-            //Ressource existiert     
-            else {
-	            
-	     var MatchSpielstand = req.body;
-		
-	          //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+        //client.exists hat false geliefert 
+        if (!IdExists) {
+            res.status(404).send("Die Ressource wurde nicht gefunden.");
+            res.end();
+        }
+
+        //Ressource existiert     
+        else {
+
+
+            var spielstandId = req.params.MatchId;
+
+            //Lese aktuellen Zustand des Turniers aus DB
+            client.mget('Spielstand '+spielstandId,function(err,spielstanddata){
+
+                var spielstand = JSON.parse(spielstanddata);
+
+                //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                res.set("Content-Type", 'application/json').status(200).json(spielstand).end();
+
+            });
+        }
+
+    });
+
+});
+
+app.put('/:MatchId/Spielstand', function(req, res) {
+
+    var matchId = req.params.MatchId;
+    var spielstandId = req.params.MatchId;
+
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    client.exists('Match ' + matchId, function(err, IdExists) {
+
+        //client.exists hat false geliefert 
+        if (!IdExists) {
+            res.status(404).send("Die Ressource wurde nicht gefunden.");
+            res.end();
+        }
+
+        //Ressource existiert     
+        else {
+
+            var MatchSpielstand = req.body;
+
+            //Schreibe Turnierdaten zurück 
+            client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
 
             //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
             res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-   
-   }
+
+        }
+
+    });
 
 });
 
- });
 
-	   
 
 module.exports = app;

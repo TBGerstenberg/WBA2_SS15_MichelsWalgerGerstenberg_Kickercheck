@@ -1,43 +1,44 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <% include ../partials/head %>
-</head>
-<body class="container">
-    <header>
-        <% include ../partials/header %>
-    </header>
+    <head>
+        <% include ../partials/head %>
+    </head>
 
-    <main>
-        <div class="row">
-            <div class="col-sm-12">
-            
-                <div class="jumbotron">
-                    <h1>Liste aller Matches</h1>
-                   
-        <br />
-        
-        <div class="list-group">
-       
-        <% matches.forEach(function(match) { %>
-	  <a href="/Match/<%= match.id %>" class="list-group-item"> <h4 class="list-group-item-heading">Match <%= match.id %></h4>
-	   <p class="list-group-item-text">Datum: <%= match.Datum %></p>
-	   <p class="list-group-item-text">Uhrzeit: <%= match.Uhrzeit %></p>
-	    <p class="list-group-item-text">Status: <%= match.Status %></p>
-	    </a>
-   <% });  %>
-</div>
-      
+
+    <body class="container">
+        <header>
+            <% include ../partials/header %>
+        </header>
+        <main>
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="jumbotron">
+                        <h1>Liste aller Matches</h1>
+
+                        <br />
+
+                        <div class="list-group">
+
+                            <% matches.forEach(function(match) { %>
+                            <a href="/Match/<%= match.id %>" class="list-group-item"> <h4 class="list-group-item-heading">Match <%= match.id %></h4>
+                                <p class="list-group-item-text">Datum: <%= match.Datum %></p>
+                                <p class="list-group-item-text">Uhrzeit: <%= match.Uhrzeit %></p>
+                                <p class="list-group-item-text">Status: <%= match.Status %></p>
+                            </a>
+                            <% });  %>
+                        </div>
+
+                    </div>
+
                 </div>
-                
-            </div>
-           
-        </div>
-    </main>
 
-    <footer>
-        <% include ../partials/footer %>
-    </footer>
-    
-</body>
+            </div>
+        </main>
+
+        <footer>
+            <% include ../partials/footer %>
+        </footer>
+
+    </body>
 </html>

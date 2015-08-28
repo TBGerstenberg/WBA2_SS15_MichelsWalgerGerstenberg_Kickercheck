@@ -2,31 +2,30 @@
 <html>
     <head>
         <% include ../partials/head %>
-    </head>
-    <script>
-        $(document).ready(function() {
+        <script>
+            $(document).ready(function() {
 
-            
-            //Klickt der Nutzer den generiereSpielplan button wird ein
-            //Get Request auf Turnier/:TurnierId/Spielplan abgesetzt 
-            $('#generiereSpielplan').click(function(e){
-               
-                
+
+                //Klickt der Nutzer den generiereSpielplan button wird ein
+                //Get Request auf Turnier/:TurnierId/Spielplan abgesetzt 
+                $('#generiereSpielplan').click(function(e){
+
+
                     $.ajax({
                         type: 'PUT',
                         url: '/Turnier/<%= turnier.id %>/Spielplan',
                         success: function(data) {
-                            
-                       
-                        },
-                        statusCode: {
-         
-                        },
-                        fail: function() {
-                            alert('Fehler');
-                        }
-                    });
-                
+
+
+                    },
+                           statusCode: {
+
+                           },
+                           fail: function() {
+                        alert('Fehler');
+                    }
+                });
+
             }); 
 
             $('#addTeilnehmer').submit(function(e) {
@@ -48,22 +47,22 @@
                     contentType: 'application/json',
                     data: JSON.stringify(formData),
                     success: function(data) {
-                        $('#addTeilnehmer').each(function() {
-                            this.reset();
-                        });
-
-                        $("#teiln ul").append('<li>'+teilnehmer+'</li>');
-
-                    },
-                    statusCode: {
-                        409: function() {
-                            alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
-                        }
-                    },
-                    fail: function() {
-                        alert('Fehler');
-                    }
+                    $('#addTeilnehmer').each(function() {
+                    this.reset();
                 });
+
+                $("#teiln ul").append('<li>'+teilnehmer+'</li>');
+
+            },
+                                       statusCode: {
+                                       409: function() {
+                alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
+            }
+            },
+                fail: function() {
+                    alert('Fehler');
+                }
+            });
             });
 
             $('#changeData').submit(function(e) {
@@ -89,26 +88,28 @@
                     data: JSON.stringify(formData),
                     success: function(data) {
 
-                        $('#changeData').each(function() {
-                            this.reset();
-                        });
-
-
-
-                        $("#austr").text('Austragungszeitraum: '+data.Austragungszeitraum);
-                        $("#stat").text('Status: '+data.Status);
-
-                    },
-                    fail: function() {
-                        alert('Fehler');
-                    }
-
+                    $('#changeData').each(function() {
+                    this.reset();
                 });
+
+
+
+                $("#austr").text('Austragungszeitraum: '+data.Austragungszeitraum);
+                $("#stat").text('Status: '+data.Status);
+
+            },
+                                    fail: function() {
+                alert('Fehler');
+            }
+
+            });
             });
 
-        });
+            });
 
-    </script>
+        </script>
+    </head>
+
     <body class="container">
         <header>
             <% include ../partials/header %>
@@ -124,7 +125,7 @@
                             <li>Anzahl Teilnehmer: <%= turnier.Teilnehmeranzahl %></li>
                             <li> Teamgröße: <%= turnier.Teamgroesse %></li>
                             <li> Typ: <%= turnier.Typ %></li>
-                           <% if(turnier.Austragungsort) { %><li> Austragungsort: <%= turnier.Austragungsort %></li><% } %>
+                            <% if(turnier.Austragungsort) { %><li> Austragungsort: <%= turnier.Austragungsort %></li><% } %>
                             <li id="austr"> Austragungszeitraum: <%= turnier.Austragungszeitraum %></li>
                             <li id="stat"> Status: <%= turnier.Status %></li>
                         </ul> 

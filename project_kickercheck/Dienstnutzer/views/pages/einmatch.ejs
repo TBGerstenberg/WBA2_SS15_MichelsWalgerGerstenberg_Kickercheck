@@ -1,745 +1,745 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <% include ../partials/head %>
-</head>
+    <head>
+        <% include ../partials/head %>
+        <script>
+            $(document).ready(function() {
 
-<script>
-$(document).ready(function() {
-	
-		var spielstand1 = $('.sp1pkt').text();
-		var spielstand2 = $('.sp2pkt').text();
-		
-		var team1 = $('#team1').text();
-		var team2 = $('#team2').text();
-		
-		$('#team1end').text(team1);
-		$('#team2end').text(team2);
-	
-		var value1 = parseInt(spielstand1, 10);
-		var value2 = parseInt(spielstand2, 10);
-							
-	var stdModus = $('#modustext').text();
-	
-	if(stdModus == 'Variation') {						
-	if(value1 >= 10 || value2 >= 10) {
-		$('#cancMatch').prop('disabled', true);
-}
-}
-else if(stdModus == 'Klassisch') {
-	if(value1 >= 6 || value2 >= 6) {
-		$('#cancMatch').prop('disabled', true);
-}
-}
+                var spielstand1 = $('.sp1pkt').text();
+                var spielstand2 = $('.sp2pkt').text();
 
- $('#modusPOST').submit(function(e) {
-							e.preventDefault();
-							
-		var spielstand1 = $('.sp1pkt').text();
-		var spielstand2 = $('.sp2pkt').text();
-	
-		var value1 = parseInt(spielstand1, 10);
-		var value2 = parseInt(spielstand2, 10);
+                var team1 = $('#team1').text();
+                var team2 = $('#team2').text();
 
-						var modus = $('#spielmodus').val();
-							
+                $('#team1end').text(team1);
+                $('#team2end').text(team2);
 
- var formData = {spielstandT1: value1,
-	 			spielstandT2: value2,
-	 			Modus: modus
- };
-				  					$.ajax({
-								type: 'PUT',
-								url: window.location.pathname+'/Spielstand',
-								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
-								
-										window.location.reload(true);		
-	
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
-						});	
-								
-						});
+                var value1 = parseInt(spielstand1, 10);
+                var value2 = parseInt(spielstand2, 10);
+
+                var stdModus = $('#modustext').text();
+
+                if(stdModus == 'Variation') {						
+                    if(value1 >= 10 || value2 >= 10) {
+                        $('#cancMatch').prop('disabled', true);
+                    }
+                }
+                else if(stdModus == 'Klassisch') {
+                    if(value1 >= 6 || value2 >= 6) {
+                        $('#cancMatch').prop('disabled', true);
+                    }
+                }
+
+                $('#modusPOST').submit(function(e) {
+                    e.preventDefault();
+
+                    var spielstand1 = $('.sp1pkt').text();
+                    var spielstand2 = $('.sp2pkt').text();
+
+                    var value1 = parseInt(spielstand1, 10);
+                    var value2 = parseInt(spielstand2, 10);
+
+                    var modus = $('#spielmodus').val();
 
 
-		 var d = new Date();
-				var time = d.setDate(d.getDate()-1);
-				
-				 var ortURI = "<%= match.Austragungsort %>".split("/");
-				 var ort = "/"+ortURI[1]+"/"+ortURI[2];
-				 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');
-				 
-				 if(!ortURI[3]) {
-					$('#stdTisch').html('Bitte einen Kickertisch wählen.');
-					 $('#aort').html('');
-				 }
-				 
-				
-				var stdStatus = 'vor_beginn';
- 
-			
-			   $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
-			    $('.timepick').datetimepicker({format:'HH:mm'});
-			    
-			        $('#addTisch').submit(function(e) {
-							e.preventDefault();
-							
-							var tisch = $('#kit').val();
-							var datum = $('#dat').text();
-							var uhrzeit = $('#uhr').text();
-							
-							if(tisch && tisch == '0') {
-								alert('Bitte Tisch wählen');
-								return false;
-							}
-							
+                    var formData = {spielstandT1: value1,
+                                    spielstandT2: value2,
+                                    Modus: modus
+                                   };
+                    $.ajax({
+                        type: 'PUT',
+                        url: window.location.pathname+'/Spielstand',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
 
-			 var formData = {Datum: datum,
-				 Uhrzeit: uhrzeit,
-				  Austragungsort: tisch,
-				   Status:  stdStatus
-			 };
-		
+                            window.location.reload(true);		
 
-							$.ajax({
-								type: 'PUT',
-								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
-						alert('Tisch wurde erfolgreich gesetzt.');
-						
-						window.location.reload(true);
-						
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
-						});
-						});
-			    
-			    $('#startMatch').submit(function(e) {
-							e.preventDefault();
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
 
-							var tisch = $('#aort').attr('href');
-							var datum = $('#dat').text();
-							var uhrzeit = $('#uhr').text();
-							
+                    });	
 
- var formData = {Datum: datum,
-				 Uhrzeit: uhrzeit,
-				  Austragungsort: tisch,
-				   Status:  'aktiv'};
-				  
-				var teilnehmer1 = $('#user0').text();
-				var teilnehmer2 = $('#user1').text();
-				var teilnehmer3 = $('#user2').text();
-				var teilnehmer4 = $('#user3').text();
-				
-				var teilnehmerArray = [];
-	
-		
-	if(teilnehmer1) {
-		teilnehmerArray.push(teilnehmer1);
-	}
-	if(teilnehmer2) {
-		teilnehmerArray.push(teilnehmer2);
-	}
-	if(teilnehmer3) {
-		teilnehmerArray.push(teilnehmer3);
-	}
-	if(teilnehmer4) {
-		teilnehmerArray.push(teilnehmer4);
-	}
-	
-		var anzahl = teilnehmerArray.length;
-		
-				  
-				  var teilnehmerData = {anzahl: anzahl, teilnehmer: teilnehmerArray,
-					 'Herausforderungen': []
-				  }
-
-			$.when(
-							$.ajax({
-								type: 'PUT',
-								contentType: 'application/json',
-								data: JSON.stringify(formData)
-								}),
-								
-								$.ajax({
-								type: 'PUT',
-								url: '<%= match.Austragungsort %>Belegung/',
-								contentType: 'application/json',
-								data: JSON.stringify(teilnehmerData)
-								})
-						).then(function() {
-								
-	window.location.reload(true);
-						
-						
-      
-						});
-						
-								
-						});
-						
-						 $('#endMatch').submit(function(e) {
-							e.preventDefault();
-
-							var tisch = $('#aort').attr('href');
-							var datum = $('#dat').text();
-							var uhrzeit = $('#uhr').text();
-							
-
- var formData = {Datum: datum,
-				 Uhrzeit: uhrzeit,
-				  Austragungsort: tisch,
-				   Status:  'beendet'};
-				  
-				var teilnehmer1 = $('#user0').text();
-				var teilnehmer2 = $('#user1').text();
-				var teilnehmer3 = $('#user2').text();
-				var teilnehmer4 = $('#user3').text();
-				
-				var teilnehmerArray = [];
-	
-		
-	if(teilnehmer1) {
-		teilnehmerArray.push(teilnehmer1);
-	}
-	if(teilnehmer2) {
-		teilnehmerArray.push(teilnehmer2);
-	}
-	if(teilnehmer3) {
-		teilnehmerArray.push(teilnehmer3);
-	}
-	if(teilnehmer4) {
-		teilnehmerArray.push(teilnehmer4);
-	}
-	
-		var anzahl = teilnehmerArray.length;
-		
-				  
-				  var teilnehmerData = {anzahl: 0, teilnehmer: null,
-					 'Herausforderungen': []
-				  }
-
-			$.when(
-							$.ajax({
-								type: 'PUT',
-								contentType: 'application/json',
-								data: JSON.stringify(formData)
-								}),
-								
-								$.ajax({
-								type: 'PUT',
-								url: '<%= match.Austragungsort %>Belegung/',
-								contentType: 'application/json',
-								data: JSON.stringify(teilnehmerData)
-								})
-						).then(function() {
-								
-	window.location.reload(true);
-						
-						
-      
-						});
-						
-								
-						});
-						
-						$('#cancelMatch').submit(function(e) {
-							e.preventDefault();
-
-							var tisch = $('#aort').attr('href');
-							var datum = $('#dat').text();
-							var uhrzeit = $('#uhr').text();
-							
-
- var formData = {Datum: datum,
-				 Uhrzeit: uhrzeit,
-				  Austragungsort: tisch,
-				   Status:  'abgebrochen'};
-				  
-				var teilnehmer1 = $('#user0').text();
-				var teilnehmer2 = $('#user1').text();
-				var teilnehmer3 = $('#user2').text();
-				var teilnehmer4 = $('#user3').text();
-				
-				var teilnehmerArray = [];
-	
-		
-	if(teilnehmer1) {
-		teilnehmerArray.push(teilnehmer1);
-	}
-	if(teilnehmer2) {
-		teilnehmerArray.push(teilnehmer2);
-	}
-	if(teilnehmer3) {
-		teilnehmerArray.push(teilnehmer3);
-	}
-	if(teilnehmer4) {
-		teilnehmerArray.push(teilnehmer4);
-	}
-	
-		var anzahl = teilnehmerArray.length;
-		
-				  
-				  var teilnehmerData = {anzahl: 0, teilnehmer: null,
-					 'Herausforderungen': []
-				  }
-
-			$.when(
-							$.ajax({
-								type: 'PUT',
-								contentType: 'application/json',
-								data: JSON.stringify(formData)
-								}),
-								
-								$.ajax({
-								type: 'PUT',
-								url: '<%= match.Austragungsort %>Belegung/',
-								contentType: 'application/json',
-								data: JSON.stringify(teilnehmerData)
-								})
-						).then(function() {
-								
-	window.location.reload(true);
-						
-						
-      
-						});
-						
-								
-						});
-	
-	$('#changeData').submit(function(e) {
-							e.preventDefault();
-			
-				var datum = $('#datum').val();
-				var uhrzeit = $('#uhrzeit').val();
-				var tisch = $('#aort').attr('href');
-				
-
-							if(!(datum && uhrzeit)) {
-								alert('Bitte Daten spezifizieren.');
-								return false;
-								}
-			 
-			 var formData = {Datum: datum,
-				 Uhrzeit: uhrzeit,
-				  Austragungsort: tisch,
-				   Status:  stdStatus
-			 };
+                });
 
 
-							$.ajax({
-								type: 'PUT',
-								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
-									alert('Daten erfolgreich geändert.');
-									 $('#changeData').each(function() {
-                        this.reset();
-                   });
-                   
-                   
+                var d = new Date();
+                var time = d.setDate(d.getDate()-1);
 
-							  $("#dat").text(data.Datum);
-							  $("#uhr").text(data.Uhrzeit);
-								
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
-						});
-						});
-						
-							$('#sp1').click(function(e) {
-							e.preventDefault();
-				
-							var spielstand1 = $('.sp1pkt').text();
-							var spielstand2 = $('.sp2pkt').text();
-							
-							var value1 = parseInt(spielstand1, 10) + 1;
-							var value2 = parseInt(spielstand2, 10);
-							
-								if(stdModus == 'Variation') {							
-							
-							if(value1 == 10) {
-							$('#cancMatch').prop('disabled', true);
-							}
-							
-														
-							if(value1 >= 11 || spielstand2 == 10) {
-								alert('Regelwidriges Verhalten.');
-								return false;
-							}
-							
-							} else {
-								if(value1 == 6) {
-							$('#cancMatch').prop('disabled', true);
-							}
-							
-														
-							if(value1 >= 7 || spielstand2 == 6) {
-								alert('Regelwidriges Verhalten.');
-								return false;
-							}
-							}
-							
-					
-					var formData = { spielstandT1 : value1,
-						spielstandT2 : value2,
-						Modus: stdModus }
+                var ortURI = "<%= match.Austragungsort %>".split("/");
+                var ort = "/"+ortURI[1]+"/"+ortURI[2];
+                $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');
 
-			 	$.ajax({
-								type: 'PUT',
-								url: window.location.pathname+'/Spielstand',
-								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
-									
-										
-									$('.sp1pkt').text(data.spielstandT1);
-									$('.sp2pkt').text(data.spielstandT2);
-	
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
-						});
+                                 if(!ortURI[3]) {
+                    $('#stdTisch').html('Bitte einen Kickertisch wählen.');
+                    $('#aort').html('');
+                }
 
-						});
-						
-							
-						$('#sp2').click(function(e) {
-							e.preventDefault();
-				
-							var spielstand1 = $('.sp1pkt').text();
-							var spielstand2 = $('.sp2pkt').text();
-							
-							var value1 = parseInt(spielstand1, 10);
-							var value2 = parseInt(spielstand2, 10) + 1;
-							
-									if(stdModus == 'Variation') {							
-							
-							if(value2 == 10) {
-							$('#cancMatch').prop('disabled', true);
-							}
-							
-														
-							if(value2 >= 11 || spielstand1 == 10) {
-								alert('Regelwidriges Verhalten.');
-								return false;
-							}
-							
-							} else {
-								if(value2 == 6) {
-							$('#cancMatch').prop('disabled', true);
-							}
-							
-														
-							if(value2 >= 7 || spielstand1 == 6) {
-								alert('Regelwidriges Verhalten.');
-								return false;
-							}
-							}
-												
-					var formData = { spielstandT1 : value1,
-						spielstandT2 : value2,
-						Modus: stdModus }
 
-			 	$.ajax({
-								type: 'PUT',
-								url: window.location.pathname+'/Spielstand',
-								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
-									
-								
-										
-									$('.sp1pkt').text(data.spielstandT1);
-									$('.sp2pkt').text(data.spielstandT2);
-	
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
-						});
+                var stdStatus = 'vor_beginn';
 
-						});
-						
-});
-</script>
-<body class="container">
-  <header>
-        <% include ../partials/header %>
-    </header>
- <main>
-        <div class="row">
-            <div class="col-sm-12">
-            
-            
-                <div class="jumbotron">
-                    <h1>Match <%= match.id %></h1>
-                   <br />
-                  
-                     <ul>
-            <li>Datum: <span id="dat"><%= match.Datum %></span></li>
-              <li> Startzeitpunkt: <span id="uhr"><%= match.Uhrzeit %></span> Uhr</li>
-               <li> Austragungsort:  <span id="tis"></span></li>
-                <li>Kickertisch: <span id="stdTisch"></span><a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></li>
-              <li id="stat"> Status: <%= match.Status %></li>
-                    </ul> 
-               
-                 <hr />
-                    <div id="teiln">
-                    <p>Liste der Teilnehmer: </p>
-                   
-                    <ul>
-                    
-                      <% for(var i=0; i < benutzerAll.length; i++) { %>
-                    <li id="user<%= i %>"><%= benutzerAll[i].Name %></li>
-                    <% }; %>
-                    </ul>
+
+                $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
+                $('.timepick').datetimepicker({format:'HH:mm'});
+
+                $('#addTisch').submit(function(e) {
+                    e.preventDefault();
+
+                    var tisch = $('#kit').val();
+                    var datum = $('#dat').text();
+                    var uhrzeit = $('#uhr').text();
+
+                    if(tisch && tisch == '0') {
+                        alert('Bitte Tisch wählen');
+                        return false;
+                    }
+
+
+                    var formData = {Datum: datum,
+                                    Uhrzeit: uhrzeit,
+                                    Austragungsort: tisch,
+                                    Status:  stdStatus
+                                   };
+
+
+                    $.ajax({
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+                            alert('Tisch wurde erfolgreich gesetzt.');
+
+                            window.location.reload(true);
+
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
+                    });
+                });
+
+                $('#startMatch').submit(function(e) {
+                    e.preventDefault();
+
+                    var tisch = $('#aort').attr('href');
+                    var datum = $('#dat').text();
+                    var uhrzeit = $('#uhr').text();
+
+
+                    var formData = {Datum: datum,
+                                    Uhrzeit: uhrzeit,
+                                    Austragungsort: tisch,
+                                    Status:  'aktiv'};
+
+                    var teilnehmer1 = $('#user0').text();
+                    var teilnehmer2 = $('#user1').text();
+                    var teilnehmer3 = $('#user2').text();
+                    var teilnehmer4 = $('#user3').text();
+
+                    var teilnehmerArray = [];
+
+
+                    if(teilnehmer1) {
+                        teilnehmerArray.push(teilnehmer1);
+                    }
+                    if(teilnehmer2) {
+                        teilnehmerArray.push(teilnehmer2);
+                    }
+                    if(teilnehmer3) {
+                        teilnehmerArray.push(teilnehmer3);
+                    }
+                    if(teilnehmer4) {
+                        teilnehmerArray.push(teilnehmer4);
+                    }
+
+                    var anzahl = teilnehmerArray.length;
+
+
+                    var teilnehmerData = {anzahl: anzahl, teilnehmer: teilnehmerArray,
+                                          'Herausforderungen': []
+                                         }
+
+                    $.when(
+                        $.ajax({
+                            type: 'PUT',
+                            contentType: 'application/json',
+                            data: JSON.stringify(formData)
+                        }),
+
+                        $.ajax({
+                            type: 'PUT',
+                            url: '<%= match.Austragungsort %>Belegung/',
+                            contentType: 'application/json',
+                            data: JSON.stringify(teilnehmerData)
+                        })
+                    ).then(function() {
+
+                        window.location.reload(true);
+
+
+
+                    });
+
+
+                });
+
+                $('#endMatch').submit(function(e) {
+                    e.preventDefault();
+
+                    var tisch = $('#aort').attr('href');
+                    var datum = $('#dat').text();
+                    var uhrzeit = $('#uhr').text();
+
+
+                    var formData = {Datum: datum,
+                                    Uhrzeit: uhrzeit,
+                                    Austragungsort: tisch,
+                                    Status:  'beendet'};
+
+                    var teilnehmer1 = $('#user0').text();
+                    var teilnehmer2 = $('#user1').text();
+                    var teilnehmer3 = $('#user2').text();
+                    var teilnehmer4 = $('#user3').text();
+
+                    var teilnehmerArray = [];
+
+
+                    if(teilnehmer1) {
+                        teilnehmerArray.push(teilnehmer1);
+                    }
+                    if(teilnehmer2) {
+                        teilnehmerArray.push(teilnehmer2);
+                    }
+                    if(teilnehmer3) {
+                        teilnehmerArray.push(teilnehmer3);
+                    }
+                    if(teilnehmer4) {
+                        teilnehmerArray.push(teilnehmer4);
+                    }
+
+                    var anzahl = teilnehmerArray.length;
+
+
+                    var teilnehmerData = {anzahl: 0, teilnehmer: null,
+                                          'Herausforderungen': []
+                                         }
+
+                    $.when(
+                        $.ajax({
+                            type: 'PUT',
+                            contentType: 'application/json',
+                            data: JSON.stringify(formData)
+                        }),
+
+                        $.ajax({
+                            type: 'PUT',
+                            url: '<%= match.Austragungsort %>Belegung/',
+                            contentType: 'application/json',
+                            data: JSON.stringify(teilnehmerData)
+                        })
+                    ).then(function() {
+
+                        window.location.reload(true);
+
+
+
+                    });
+
+
+                });
+
+                $('#cancelMatch').submit(function(e) {
+                    e.preventDefault();
+
+                    var tisch = $('#aort').attr('href');
+                    var datum = $('#dat').text();
+                    var uhrzeit = $('#uhr').text();
+
+
+                    var formData = {Datum: datum,
+                                    Uhrzeit: uhrzeit,
+                                    Austragungsort: tisch,
+                                    Status:  'abgebrochen'};
+
+                    var teilnehmer1 = $('#user0').text();
+                    var teilnehmer2 = $('#user1').text();
+                    var teilnehmer3 = $('#user2').text();
+                    var teilnehmer4 = $('#user3').text();
+
+                    var teilnehmerArray = [];
+
+
+                    if(teilnehmer1) {
+                        teilnehmerArray.push(teilnehmer1);
+                    }
+                    if(teilnehmer2) {
+                        teilnehmerArray.push(teilnehmer2);
+                    }
+                    if(teilnehmer3) {
+                        teilnehmerArray.push(teilnehmer3);
+                    }
+                    if(teilnehmer4) {
+                        teilnehmerArray.push(teilnehmer4);
+                    }
+
+                    var anzahl = teilnehmerArray.length;
+
+
+                    var teilnehmerData = {anzahl: 0, teilnehmer: null,
+                                          'Herausforderungen': []
+                                         }
+
+                    $.when(
+                        $.ajax({
+                            type: 'PUT',
+                            contentType: 'application/json',
+                            data: JSON.stringify(formData)
+                        }),
+
+                        $.ajax({
+                            type: 'PUT',
+                            url: '<%= match.Austragungsort %>Belegung/',
+                            contentType: 'application/json',
+                            data: JSON.stringify(teilnehmerData)
+                        })
+                    ).then(function() {
+
+                        window.location.reload(true);
+
+
+
+                    });
+
+
+                });
+
+                $('#changeData').submit(function(e) {
+                    e.preventDefault();
+
+                    var datum = $('#datum').val();
+                    var uhrzeit = $('#uhrzeit').val();
+                    var tisch = $('#aort').attr('href');
+
+
+                    if(!(datum && uhrzeit)) {
+                        alert('Bitte Daten spezifizieren.');
+                        return false;
+                    }
+
+                    var formData = {Datum: datum,
+                                    Uhrzeit: uhrzeit,
+                                    Austragungsort: tisch,
+                                    Status:  stdStatus
+                                   };
+
+
+                    $.ajax({
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+                            alert('Daten erfolgreich geändert.');
+                            $('#changeData').each(function() {
+                                this.reset();
+                            });
+
+
+
+                            $("#dat").text(data.Datum);
+                            $("#uhr").text(data.Uhrzeit);
+
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
+                    });
+                });
+
+                $('#sp1').click(function(e) {
+                    e.preventDefault();
+
+                    var spielstand1 = $('.sp1pkt').text();
+                    var spielstand2 = $('.sp2pkt').text();
+
+                    var value1 = parseInt(spielstand1, 10) + 1;
+                    var value2 = parseInt(spielstand2, 10);
+
+                    if(stdModus == 'Variation') {							
+
+                        if(value1 == 10) {
+                            $('#cancMatch').prop('disabled', true);
+                        }
+
+
+                        if(value1 >= 11 || spielstand2 == 10) {
+                            alert('Regelwidriges Verhalten.');
+                            return false;
+                        }
+
+                    } else {
+                        if(value1 == 6) {
+                            $('#cancMatch').prop('disabled', true);
+                        }
+
+
+                        if(value1 >= 7 || spielstand2 == 6) {
+                            alert('Regelwidriges Verhalten.');
+                            return false;
+                        }
+                    }
+
+
+                    var formData = { spielstandT1 : value1,
+                                    spielstandT2 : value2,
+                                    Modus: stdModus }
+
+                    $.ajax({
+                        type: 'PUT',
+                        url: window.location.pathname+'/Spielstand',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+
+
+                            $('.sp1pkt').text(data.spielstandT1);
+                            $('.sp2pkt').text(data.spielstandT2);
+
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
+                    });
+
+                });
+
+
+                $('#sp2').click(function(e) {
+                    e.preventDefault();
+
+                    var spielstand1 = $('.sp1pkt').text();
+                    var spielstand2 = $('.sp2pkt').text();
+
+                    var value1 = parseInt(spielstand1, 10);
+                    var value2 = parseInt(spielstand2, 10) + 1;
+
+                    if(stdModus == 'Variation') {							
+
+                        if(value2 == 10) {
+                            $('#cancMatch').prop('disabled', true);
+                        }
+
+
+                        if(value2 >= 11 || spielstand1 == 10) {
+                            alert('Regelwidriges Verhalten.');
+                            return false;
+                        }
+
+                    } else {
+                        if(value2 == 6) {
+                            $('#cancMatch').prop('disabled', true);
+                        }
+
+
+                        if(value2 >= 7 || spielstand1 == 6) {
+                            alert('Regelwidriges Verhalten.');
+                            return false;
+                        }
+                    }
+
+                    var formData = { spielstandT1 : value1,
+                                    spielstandT2 : value2,
+                                    Modus: stdModus }
+
+                    $.ajax({
+                        type: 'PUT',
+                        url: window.location.pathname+'/Spielstand',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+
+
+
+                            $('.sp1pkt').text(data.spielstandT1);
+                            $('.sp2pkt').text(data.spielstandT2);
+
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
+                    });
+
+                });
+
+            });
+        </script>
+    </head>
+
+    <body class="container">
+        <header>
+            <% include ../partials/header %>
+        </header>
+        <main>
+            <div class="row">
+                <div class="col-sm-12">
+
+
+                    <div class="jumbotron">
+                        <h1>Match <%= match.id %></h1>
+                        <br />
+
+                        <ul>
+                            <li>Datum: <span id="dat"><%= match.Datum %></span></li>
+                            <li> Startzeitpunkt: <span id="uhr"><%= match.Uhrzeit %></span> Uhr</li>
+                            <li> Austragungsort:  <span id="tis"></span></li>
+                            <li>Kickertisch: <span id="stdTisch"></span><a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></li>
+                            <li id="stat"> Status: <%= match.Status %></li>
+                        </ul> 
+
+                        <hr />
+                        <div id="teiln">
+                            <p>Liste der Teilnehmer: </p>
+
+                            <ul>
+
+                                <% for(var i=0; i < benutzerAll.length; i++) { %>
+                                <li id="user<%= i %>"><%= benutzerAll[i].Name %></li>
+                                <% }; %>
+                            </ul>
+                        </div>
+                        <hr />
+
+                        <p>Teams </p>
+
+                        <% if (match.Teilnehmer) { %>
+                        <% if (match.Teilnehmer.length == 1) { %>
+                        <p id="team1">Team 1 : <%= benutzerAll[0].Name %></p>
+                        <% } else if (match.Teilnehmer.length == 2) { %>
+                        <p id="team1">Team 1 : <%= benutzerAll[0].Name %></p>
+                        <p id="team2">Team 2 : <%= benutzerAll[1].Name %></p>
+                        <% } else if (match.Teilnehmer.length == 3) { %>
+                        <p id="team1">Team 1 : <%= benutzerAll[0].Name %> , <%= benutzerAll[1].Name %></p>
+                        <p id="team2">Team 2 : <%= benutzerAll[2].Name %></p>
+                        <% } else if(match.Teilnehmer.length == 4) { %>
+                        <p id="team1">Team 1 : <%= benutzerAll[0].Name %> , <%= benutzerAll[1].Name %></p>
+                        <p id="team2">Team 2 : <%= benutzerAll[2].Name %> , <%= benutzerAll[3].Name %></p>
+                        <% } } %>
+                        <hr />
+                        <% if (match.Status == 'vor_beginn') { %>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <form role="form" action="" method="POST" name="addTisch" id="addTisch">
+                                    <div class="form-group">
+                                        <label for="kickertisch">Kickertisch:</label> <br>
+                                        <select id="kit" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <% kickertische.forEach(function(tisch) { belegungen.forEach(function(belegung) {  %>
+                                            <% if(belegung.id == tisch.id)  { %>
+                                            <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
+                                            <% } }); });   %>
+                                        </select>
+                                    </div>
+                                    <input type="submit" class="btn btn-primary" name="change" value="Kickertisch übernehmen" />
+                                </form>
+                            </div>
+                        </div>
+                        <hr />
+
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p> Match ändern: </p>
+                                <form role="form" action="" method="POST" name="changeData" id="changeData">
+                                    <div class="form-group">
+                                        <label for="datum">Datum:</label> <br>
+                                        <div class="row">
+                                            <div class='col-sm-12'>
+                                                <input type='text' id="datum" placeholder="Datum" class="form-control datepick" />
+                                            </div>
+                                        </div>
+                                        <label for="uhrzeit">Uhrzeit:</label> <br>
+                                        <div class="row">
+                                            <div class='col-sm-12'>
+                                                <input type='text' id="uhrzeit" placeholder="Uhrzeit" class="form-control timepick" />
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                    <input type="submit" class="btn btn-primary" name="change" value="Ändern" />
+                                </form>
+                            </div>
+                        </div>
+                        <hr />
+
+                        <div id="divstart" class="margintop20">
+                            <form role="form" action="" method="PUT" name="startMatch" id="startMatch">
+                                <input type="submit" class="btn btn-success" name="start" value="Match starten" />
+                            </form>
+                        </div>
+                        <hr />
+                        <% } else if (match.Status == 'aktiv') { %>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <form role="form" action="" method="POST" name="modusPOST" id="modusPOST">
+                                    <p>Spielmodus:</p>
+                                    <div class="form-group">
+
+                                        <select id="spielmodus" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <option value="Klassisch">Klassisch (6 Punkte bis zum Sieg)</option>
+                                            <option value="Variation">Variation (10 Punkte bis zum Sieg)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+
+                                        <input type="submit" class="btn btn-primary" id="modusButton" value="Auswählen" />    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <hr />
+                        <form role="form" action="" method="PUT" name="changeSpielstand" id="changeSpielstand">
+
+
+                            <div class="spielstand">
+
+                                <p id="spielst">Spielmodus: <span id="modustext"><%= spielstand.Modus %></span> <% if (spielstand.Modus == 'Klassisch') { %> (6 Punkte bis zum Sieg) <% } else if (spielstand.Modus == 'Variation') { %> (10 Punkte bis zum Sieg) <% } %> </p>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p id="pkt">:</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="col-md-6"><p id="spielst">Team 1</p></div>
+                                    <div class="col-md-6"><p id="spielst">Team 2</p></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="button" id="sp1" class="btn btn-primary btn-lg" value="+" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="button" id="sp2" class="btn btn-primary btn-lg" value="+" />
+                                    </div>
+                                </div>
+
+
+
+
+
+                            </div>
+                        </form>
+
+
+                        <hr />
+                        <div class="row text-center">
+                            <div>
+                                <form role="form" action="" method="PUT" name="endMatch" id="endMatch">
+                                    <input type="submit" class="btn btn-success" name="start" value="Match beenden" />
+                                </form>
+                            </div><br />
+                            <div>
+                                <form role="form" action="" method="PUT" name="cancelMatch" id="cancelMatch">
+                                    <input type="submit" class="btn btn-danger" id="cancMatch" value="Match abbrechen" />
+                                </form>
+                            </div>
+
+                        </div>
+                        <hr />
+                        <% } else if (match.Status == 'beendet') { %>
+                        <div class="spielstand">
+                            <div class="row">
+                                <p id="spielst">Endstand</p>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-6"><p id="spielst">Team 1</p></div>
+                                <div class="col-md-6"><p id="spielst">Team 2</p></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p id="pkt">:</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <p id="spielst"><% if (spielstand.spielstandT1 > spielstand.spielstandT2) { %>
+                                    Gewinner: <br /><span id="team1end"></span>
+                                    <% } else if(spielstand.spielstandT2 > spielstand.spielstandT1) { %>
+                                    Gewinner: <br /><span id="team2end"></span>
+                                    <% } else { %>
+                                    Unentschieden
+                                    <% } %>
+                                </p>
+                            </div> 
+                        </div>		 
+
+
+                        <% } else { %>
+                        <div class="spielstand">
+                            <div class="row">
+                                <p id="spielst">Match abgebrochen</p>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-6"><p id="spielst">Team 1</p></div>
+                                <div class="col-md-6"><p id="spielst">Team 2</p></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p id="pkt">:</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
+                                </div>
+                            </div>
+
+
+                        </div>		
+                        <% } %>
+                        <br />
+                        <br />
+                        <div class="margintop20">
+                            <h4>Regeln</h4>
+                            <br />
+
+                            <p><%= match.Regelwerk.Beschreibung %></p>
+                            <p><a href="<%= match.Regelwerk.OffiziellesRegelwerk %>">Offizielle Kickerregeln</a></p>
+
+                        </div>
                     </div>
-                    <hr />
-                   
-                    <p>Teams </p>
-                    
-                     <% if (match.Teilnehmer) { %>
-	                      <% if (match.Teilnehmer.length == 1) { %>
-			                     <p id="team1">Team 1 : <%= benutzerAll[0].Name %></p>
-			                     <% } else if (match.Teilnehmer.length == 2) { %>
-			                     <p id="team1">Team 1 : <%= benutzerAll[0].Name %></p>
-			                     <p id="team2">Team 2 : <%= benutzerAll[1].Name %></p>
-			                     <% } else if (match.Teilnehmer.length == 3) { %>
-			                     <p id="team1">Team 1 : <%= benutzerAll[0].Name %> , <%= benutzerAll[1].Name %></p>
-			                     <p id="team2">Team 2 : <%= benutzerAll[2].Name %></p>
-			                     <% } else if(match.Teilnehmer.length == 4) { %>
-				                     <p id="team1">Team 1 : <%= benutzerAll[0].Name %> , <%= benutzerAll[1].Name %></p>
-			                     <p id="team2">Team 2 : <%= benutzerAll[2].Name %> , <%= benutzerAll[3].Name %></p>
-				                     <% } } %>
-                    <hr />
-                     <% if (match.Status == 'vor_beginn') { %>
-						 
-						 <div class="row">
-						 <div class="col-md-6">
-                     <form role="form" action="" method="POST" name="addTisch" id="addTisch">
-                        <div class="form-group">
-         <label for="kickertisch">Kickertisch:</label> <br>
-         <select id="kit" class="form-control">
-	     <option value="0">Bitte wählen</option>
-           <% kickertische.forEach(function(tisch) { belegungen.forEach(function(belegung) {  %>
-	           <% if(belegung.id == tisch.id)  { %>
-         <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
-         <% } }); });   %>
-         </select>
-         </div>
-           <input type="submit" class="btn btn-primary" name="change" value="Kickertisch übernehmen" />
-         </form>
-         </div>
-         </div>
-             <hr />
-           
 
-       <div class="row">
-       <div class="col-md-6">
-                    <p> Match ändern: </p>
-                    <form role="form" action="" method="POST" name="changeData" id="changeData">
-                      <div class="form-group">
-		 <label for="datum">Datum:</label> <br>
-		 <div class="row">
-		  <div class='col-sm-12'>
-                    <input type='text' id="datum" placeholder="Datum" class="form-control datepick" />
-                      </div>
-                      </div>
-                       <label for="uhrzeit">Uhrzeit:</label> <br>
-                      <div class="row">
-		  <div class='col-sm-12'>
-                    <input type='text' id="uhrzeit" placeholder="Uhrzeit" class="form-control timepick" />
-                      </div>
-                      </div>
-                      
-                                           
-                      </div>
-                         
-           <input type="submit" class="btn btn-primary" name="change" value="Ändern" />
-           </form>
-          </div>
-          </div>
-           <hr />
-        
-                     <div id="divstart" class="margintop20">
-                    <form role="form" action="" method="PUT" name="startMatch" id="startMatch">
- <input type="submit" class="btn btn-success" name="start" value="Match starten" />
- </form>
-                    </div>
-                    <hr />
-                    <% } else if (match.Status == 'aktiv') { %>
-	                   <div class="row">
-	                   <div class="col-md-4">
-	                   	           <form role="form" action="" method="POST" name="modusPOST" id="modusPOST">
-   <p>Spielmodus:</p>
-             <div class="form-group">
-             
-             <select id="spielmodus" class="form-control">
-             <option value="0">Bitte wählen</option>
-	     <option value="Klassisch">Klassisch (6 Punkte bis zum Sieg)</option>
-	      <option value="Variation">Variation (10 Punkte bis zum Sieg)</option>
-         </select>
-         </div>
-         <div class="form-group">
-       
-           <input type="submit" class="btn btn-primary" id="modusButton" value="Auswählen" />    </div>
-           </form>
-           </div>
                 </div>
-                   <hr />
-                    <form role="form" action="" method="PUT" name="changeSpielstand" id="changeSpielstand">
-                    
-         
-             <div class="spielstand">
-              
-               <p id="spielst">Spielmodus: <span id="modustext"><%= spielstand.Modus %></span> <% if (spielstand.Modus == 'Klassisch') { %> (6 Punkte bis zum Sieg) <% } else if (spielstand.Modus == 'Variation') { %> (10 Punkte bis zum Sieg) <% } %> </p>
-             
-             <div class="row">
-                  <div class="col-md-4">
-                  <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>
-                  </div>
-                   <div class="col-md-4">
-                  <p id="pkt">:</p>
-                  </div>
-                   <div class="col-md-4">
-                  <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
-                  </div>
-                  </div>
-                  
-             <div class="row">
-            
-                  <div class="col-md-6"><p id="spielst">Team 1</p></div>
-                    <div class="col-md-6"><p id="spielst">Team 2</p></div>
-                 </div>
-                   <div class="row">
-                   <div class="col-md-6">
-                  <input type="button" id="sp1" class="btn btn-primary btn-lg" value="+" />
-                 </div>
-                 <div class="col-md-6">
-                  <input type="button" id="sp2" class="btn btn-primary btn-lg" value="+" />
-                  </div>
-                  </div>
-                  
-                   
-                  
-          
 
-		</div>
-                  </form>
-   
-                
-                     <hr />
-                     <div class="row text-center">
-                 <div>
-                    <form role="form" action="" method="PUT" name="endMatch" id="endMatch">
- <input type="submit" class="btn btn-success" name="start" value="Match beenden" />
- </form>
- </div><br />
-         <div>
-                    <form role="form" action="" method="PUT" name="cancelMatch" id="cancelMatch">
- <input type="submit" class="btn btn-danger" id="cancMatch" value="Match abbrechen" />
- </form>
-                    </div>
-                    
-                    </div>
-                 <hr />
-	                    <% } else if (match.Status == 'beendet') { %>
-		                     <div class="spielstand">
-		                      <div class="row">
-		                      <p id="spielst">Endstand</p>
-		                      </div>
-		                     <div class="row">
-            
-                  <div class="col-md-6"><p id="spielst">Team 1</p></div>
-                    <div class="col-md-6"><p id="spielst">Team 2</p></div>
-                 </div>
-             <div class="row">
-                  <div class="col-md-4">
-                  <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>
-                  </div>
-                   <div class="col-md-4">
-                  <p id="pkt">:</p>
-                  </div>
-                   <div class="col-md-4">
-                  <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
-                  </div>
-                  </div>
-<br />
- <div class="row">
-		   <p id="spielst"><% if (spielstand.spielstandT1 > spielstand.spielstandT2) { %>
-			  Gewinner: <br /><span id="team1end"></span>
-			   <% } else if(spielstand.spielstandT2 > spielstand.spielstandT1) { %>
-				   Gewinner: <br /><span id="team2end"></span>
-				   <% } else { %>
-					   Unentschieden
-					   <% } %>
-			                      </p>
-		                      </div> 
-		</div>		 
-		                 
-		
-		 <% } else { %>
-			               <div class="spielstand">
-		                      <div class="row">
-		                      <p id="spielst">Match abgebrochen</p>
-		                      </div>
-		                     <div class="row">
-            
-                  <div class="col-md-6"><p id="spielst">Team 1</p></div>
-                    <div class="col-md-6"><p id="spielst">Team 2</p></div>
-                 </div>
-             <div class="row">
-                  <div class="col-md-4">
-                  <p id="pkt" class="sp1pkt"><%= spielstand.spielstandT1 %></p>
-                  </div>
-                   <div class="col-md-4">
-                  <p id="pkt">:</p>
-                  </div>
-                   <div class="col-md-4">
-                  <p id="pkt" class="sp2pkt"><%= spielstand.spielstandT2 %></p>
-                  </div>
-                  </div>
-                  
-           
-		</div>		
-           <% } %>
-<br />
-<br />
-<div class="margintop20">
-<h4>Regeln</h4>
-<br />
-
-<p><%= match.Regelwerk.Beschreibung %></p>
-<p><a href="<%= match.Regelwerk.OffiziellesRegelwerk %>">Offizielle Kickerregeln</a></p>
-
-  	       </div>
-                </div>
-                
             </div>
-           
-        </div>
-    </main>
- <footer>
-        <% include ../partials/footer %>
-    </footer>
-    
-</body>
+        </main>
+        <footer>
+            <% include ../partials/footer %>
+        </footer>
+
+    </body>
 </html>

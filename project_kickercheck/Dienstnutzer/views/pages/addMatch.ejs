@@ -1,205 +1,207 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <% include ../partials/head %>
-</head>
-<body class="container">
-<script type="text/javascript">
-			$(document).ready(function(){
-				
-				 var d = new Date();
-				var time = d.setDate(d.getDate()-1);
-			
-			   $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
-			    $('.timepick').datetimepicker({format:'HH:mm'});
-					
-				$('#matchAnlegen').submit(function(e) {
-							e.preventDefault();
-							$('.addid').html('');
-	
-	
-								
-							var teilnehmer1 = $('#user1').val();
-							var teilnehmer2 = $('#user2').val();
-							var teilnehmer3 = $('#user3').val();
-							var teilnehmer4 = $('#user4').val();
-							
-							
-							if(teilnehmer1 == '0' && teilnehmer2 == '0' && teilnehmer3 == '0' && teilnehmer4 == '0') {
-								
-								alert('Mindestens 1 Teilnehmer');
-								return false;
-							}
-							
-						
-							
-							
-							var datum = $('#datum').val();
-							var uhrzeit = $('#uhrzeit').val();
-							
-							var austragungsort = $('#ato').val();
-							
-							if(!(datum && uhrzeit)) {
-								alert('Bitte Datum und Uhrzeit spezifizieren.');
-								return false;
-								}
-									
-									if(austragungsort == '0') {
-								alert('Bitte Austragungsort spezifizieren.');
-								return false;
-								}
-								
-								
+    <head>
+        <% include ../partials/head %>
+        <script type="text/javascript">
+            $(document).ready(function(){
+
+                var d = new Date();
+                var time = d.setDate(d.getDate()-1);
+
+                $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
+                $('.timepick').datetimepicker({format:'HH:mm'});
+
+                $('#matchAnlegen').submit(function(e) {
+                    e.preventDefault();
+                    $('.addid').html('');
+
+
+
+                    var teilnehmer1 = $('#user1').val();
+                    var teilnehmer2 = $('#user2').val();
+                    var teilnehmer3 = $('#user3').val();
+                    var teilnehmer4 = $('#user4').val();
+
+
+                    if(teilnehmer1 == '0' && teilnehmer2 == '0' && teilnehmer3 == '0' && teilnehmer4 == '0') {
+
+                        alert('Mindestens 1 Teilnehmer');
+                        return false;
+                    }
 
 
 
 
-	var teilnehmerArray = [];
-	
-		
-	if(teilnehmer1 && teilnehmer1 != '0') {
-		teilnehmerArray.push(teilnehmer1);
-	}
-	if(teilnehmer2 && teilnehmer2 != '0') {
-		teilnehmerArray.push(teilnehmer2);
-	}
-	if(teilnehmer3 && teilnehmer3 != '0') {
-		teilnehmerArray.push(teilnehmer3);
-	}
-	if(teilnehmer4 && teilnehmer4 != '0') {
-		teilnehmerArray.push(teilnehmer4);
-	}
-		
-		
-	
-	
-	console.log(teilnehmerArray);
+                    var datum = $('#datum').val();
+                    var uhrzeit = $('#uhrzeit').val();
 
-	var formData = {
-							Datum : datum,
-						Uhrzeit : uhrzeit,
-						Teilnehmer : teilnehmerArray,
-						Austragungsort: austragungsort,
-						Regelwerk: null,
-						Status: 'vor_beginn'}
+                    var austragungsort = $('#ato').val();
 
-							$.ajax({
-								type: 'POST',
-								contentType: 'application/json',
-								url: '/Match/',
-								
-								data: JSON.stringify(formData),
-								success: function(data) {
-									 $('#matchAnlegen').each(function() {
-                        this.reset();
+                    if(!(datum && uhrzeit)) {
+                        alert('Bitte Datum und Uhrzeit spezifizieren.');
+                        return false;
+                    }
+
+                    if(austragungsort == '0') {
+                        alert('Bitte Austragungsort spezifizieren.');
+                        return false;
+                    }
+
+
+
+
+
+
+                    var teilnehmerArray = [];
+
+
+                    if(teilnehmer1 && teilnehmer1 != '0') {
+                        teilnehmerArray.push(teilnehmer1);
+                    }
+                    if(teilnehmer2 && teilnehmer2 != '0') {
+                        teilnehmerArray.push(teilnehmer2);
+                    }
+                    if(teilnehmer3 && teilnehmer3 != '0') {
+                        teilnehmerArray.push(teilnehmer3);
+                    }
+                    if(teilnehmer4 && teilnehmer4 != '0') {
+                        teilnehmerArray.push(teilnehmer4);
+                    }
+
+
+
+
+                    console.log(teilnehmerArray);
+
+                    var formData = {
+                        Datum : datum,
+                        Uhrzeit : uhrzeit,
+                        Teilnehmer : teilnehmerArray,
+                        Austragungsort: austragungsort,
+                        Regelwerk: null,
+                        Status: 'vor_beginn'}
+
+                    $.ajax({
+                        type: 'POST',
+                        contentType: 'application/json',
+                        url: '/Match/',
+
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+                            $('#matchAnlegen').each(function() {
+                                this.reset();
+                            });
+
+                            $('.addid').append('<a href="/Match/'+data.id+'">Match '+data.id+' angelegt</a>.');
+
+                        },
+                        statusCode: {
+                            400: function() {
+                                alert('Die Anfrage war nicht korrekt.');
+                            }
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
                     });
-						
-							$('.addid').append('<a href="/Match/'+data.id+'">Match '+data.id+' angelegt</a>.');
-									
-								},
-								statusCode: {
-        400: function() {
-           alert('Die Anfrage war nicht korrekt.');
-        }
-        },
-        fail: function() {
-	        alert('Fehler');
-        }
 
-							});
-			
-						});
-		
-			});
-		</script>
-		
-    <header>
-        <% include ../partials/header %>
-    </header>
+                });
 
-    <main>
-        <div class="row">
-            <div class="col-sm-12">
-            
-                <div class="jumbotron">
-                    <h1>Add Match</h1>
-                   
-                   
-					<div class="row">
-						<div class="col-md-6">
-                   <form role="form" action="" method="POST" name="matchAnlegen" id="matchAnlegen">
-                    <div class="form-group">
-          <label for="teilnehmer">Teilnehmer 1:</label> <br>
+            });
+        </script>
+    </head>
 
-    <select id="user1" class="form-control">
-	     <option value="0">Bitte wählen</option>
-	      <% benutzerAll.forEach(function(benutzer) { %>
-	 <option class="teilnehmer1" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
-   <% });  %>
-    </select>
-       
-          <label for="teilnehmer">Teilnehmer 2:</label> <br>
-          <select id="user2" class="form-control">
-	     <option value="0">Bitte wählen</option>
-	       <% benutzerAll.forEach(function(benutzer) { %>
-	 <option class="teilnehmer2" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
-   <% });  %>
-    </select>
-          <label for="teilnehmer">Teilnehmer 3:</label> <br>
-           <select id="user3" class="form-control">
-	     <option value="0">Bitte wählen</option>
-	       <% benutzerAll.forEach(function(benutzer) { %>
-	 <option class="teilnehmer3" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
-   <% });  %>
-    </select>
-          <label for="teilnehmer">Teilnehmer 4:</label> <br>
-          <select id="user4" class="form-control">
-	     <option value="0">Bitte wählen</option>
-	       <% benutzerAll.forEach(function(benutzer) { %>
-	 <option class="teilnehmer4" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
-   <% });  %>
-    </select>
-         </div>
-          <div class="form-group">
-		 <label for="datum">Datum:</label> <br>
-		 <div class="row">
-		  <div class='col-sm-12'>
-                    <input type='text' id="datum" placeholder="Datum" class="form-control datepick" />
-                      </div>
-                      </div>
-                       <label for="uhrzeit">Uhrzeit:</label> <br>
-                      <div class="row">
-		  <div class='col-sm-12'>
-                    <input type='text' id="uhrzeit" placeholder="Uhrzeit" class="form-control timepick" />
-                      </div>
-                      </div>
-                      </div>
-                      <div class="form-group">
-         <label for="austragungsort">Austragungsort:</label> <br>
-         <select id="ato" class="form-control">
-	     <option value="0">Bitte wählen</option>
-           <% austragungsorte.forEach(function(austragungsort) { %>
-         <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %></option>
-         <% });  %>
-         </select>
-         </div>
-                <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
 
-        </form>
-        </div>
-        </div>
-        <br />
-        <p class="addid"></p>
+    <body class="container">
+
+        <header>
+            <% include ../partials/header %>
+        </header>
+
+        <main>
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="jumbotron">
+                        <h1>Add Match</h1>
+
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <form role="form" action="" method="POST" name="matchAnlegen" id="matchAnlegen">
+                                    <div class="form-group">
+                                        <label for="teilnehmer">Teilnehmer 1:</label> <br>
+
+                                        <select id="user1" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <% benutzerAll.forEach(function(benutzer) { %>
+                                            <option class="teilnehmer1" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
+                                            <% });  %>
+                                        </select>
+
+                                        <label for="teilnehmer">Teilnehmer 2:</label> <br>
+                                        <select id="user2" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <% benutzerAll.forEach(function(benutzer) { %>
+                                            <option class="teilnehmer2" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
+                                            <% });  %>
+                                        </select>
+                                        <label for="teilnehmer">Teilnehmer 3:</label> <br>
+                                        <select id="user3" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <% benutzerAll.forEach(function(benutzer) { %>
+                                            <option class="teilnehmer3" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
+                                            <% });  %>
+                                        </select>
+                                        <label for="teilnehmer">Teilnehmer 4:</label> <br>
+                                        <select id="user4" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <% benutzerAll.forEach(function(benutzer) { %>
+                                            <option class="teilnehmer4" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
+                                            <% });  %>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="datum">Datum:</label> <br>
+                                        <div class="row">
+                                            <div class='col-sm-12'>
+                                                <input type='text' id="datum" placeholder="Datum" class="form-control datepick" />
+                                            </div>
+                                        </div>
+                                        <label for="uhrzeit">Uhrzeit:</label> <br>
+                                        <div class="row">
+                                            <div class='col-sm-12'>
+                                                <input type='text' id="uhrzeit" placeholder="Uhrzeit" class="form-control timepick" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="austragungsort">Austragungsort:</label> <br>
+                                        <select id="ato" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <% austragungsorte.forEach(function(austragungsort) { %>
+                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %></option>
+                                            <% });  %>
+                                        </select>
+                                    </div>
+                                    <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
+
+                                </form>
+                            </div>
+                        </div>
+                        <br />
+                        <p class="addid"></p>
+                    </div>
+
                 </div>
-                
-            </div>
-           
-        </div>
-    </main>
 
-    <footer>
-        <% include ../partials/footer %>
-    </footer>
-    
-</body>
+            </div>
+        </main>
+
+        <footer>
+            <% include ../partials/footer %>
+        </footer>
+
+    </body>
 </html>
