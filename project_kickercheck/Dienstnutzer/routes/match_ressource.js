@@ -1,4 +1,5 @@
 var app = express.Router();
+var clientFaye = new faye.Client("http://localhost:8000/faye");
 
 app.get('/addMatch', function(req, res) {
 
@@ -519,9 +520,10 @@ app.get('/:MatchId/Liveticker', function(req, res) {
                 
                 //Path of the Topic
               var path = "/liveticker/"+matchId;
+                console.log(path);
   
                 //Publish to the specific topic path  
-                var publication = client.publish(path,{
+                var publication = clientFaye.publish(path,{
                     'SpielstandT1': MatchSpielstand.spielstandT1,
                     'SpielstandT2': MatchSpielstand.spielstandT2,
                 });
@@ -529,14 +531,12 @@ app.get('/:MatchId/Liveticker', function(req, res) {
     publication.then(
                 
     function(){
-        console.log("Nachricht wurde versendet.");
+  
     }
                 
     ,
                 
     function(){
-        console.log("Nachricht wurde nicht versendet.");
- 
     }
                 
                 

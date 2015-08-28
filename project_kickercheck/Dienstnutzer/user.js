@@ -23,12 +23,12 @@ app.use(express.static(__dirname + '/views'));
 app.set('view engine', 'ejs');
 
 var bayeux = new faye.NodeAdapter({
-	mount: '/faye'
+	mount: '/faye',
 })
 
 bayeux.attach(server);
 
-var client = new faye.Client('http://localhost:3001/faye');
+var client = new faye.Client('http://localhost:8000/faye');
 
 // use res.render to load up an ejs view file
 
@@ -53,3 +53,6 @@ app.listen(app.get('port'), function () {
   console.log('Server is listening on port ' + app.get('port'));
 });
 
+server.listen(8000, function() {
+    console.log("Server listens on Port 8000.");
+});
