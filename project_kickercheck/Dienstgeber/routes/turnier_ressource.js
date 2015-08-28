@@ -287,7 +287,7 @@ app.post('/:TurnierId/Match',function(req,res){
                     client.LPUSH("Turnier "+turnierId+" Matches",id)
 
                     //Schreibe Turnierdaten zurück 
-                    client.set('Turnier ' + turnierId,JSON.stringify(turnier));
+                    //client.set('Turnier ' + turnierId,JSON.stringify(turnier));
 
                     //Sende Statuscode 201-Created , da hier ein neues Match angelegt wurde 
                     res.status(201).set('Location',"Turnier/"+turnierId+/Match/+id).json(matchObj).end();
@@ -311,7 +311,7 @@ app.get('/:TurnierId/Teilnehmer',function(req,res){
     client.lrange(listenKey, 0, -1, function(err,items) {
 
         //Antworte mit der aktualisierten Teilnehmerliste
-        res.set("Content-Type", 'application/json').status(200).json(items).end();
+        res.set("Content-Type", 'application/json').status(200).json(JSON.stringify(items)).end();
     }); 
 });
 

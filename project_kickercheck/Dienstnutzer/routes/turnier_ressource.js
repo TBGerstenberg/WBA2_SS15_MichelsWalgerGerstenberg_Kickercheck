@@ -125,13 +125,24 @@ app.post('/', function(req, res) {
 //Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann 
 app.put('/:TurnierId/Spielplan',function(req,res){
 
+    //Vorgehen: 
+    //Stelle Turnieranfrage, extrahiere URI um Matches zu Posten 
+    //Stelle Teilnehmerliste Anfrage für das Turnier für das Teilnehmer>Teams mapping 
+    //Poste Matches nach dem Spielplan
+
+    var turnierId=req.params.TurnierId;
+
     console.log("Spielplan für Turnier" + req.params.TurnierId + "angefordert");
+
+    //Benötigt um Anfragen zu loopen
+    var turnierAgent = new http.Agent({maxSockets: 1});
 
     //Options um die Matchliste 
     var options1 = {
         host: 'localhost',
         port: 3000,
-        path: '/Turnier/'+req.params.TurnierId,
+        path: '/Turnier/'+turnierId,
+        agent:turnierAgent,
         method: 'GET',
         headers: {
             accept: 'application/json'
@@ -168,25 +179,6 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
             if(turnier.Austragungsort){
 
-                // HTTP Header für Match Posts vorbereiten 
-                var matchHeader = {
-                    'Accept':'application/json',
-                    'Content-Type':'application/json'
-                };
-
-                //Benötigt um Anfragen zu loopen
-                var myAgent = new http.Agent({maxSockets: 1});
-
-                //Extrahiere Link um Matches dem Turnier hinzuzufügen und Poste darauf 
-                var optionsMatches = {
-                    host: 'localhost',
-                    port: 3000,
-                    agent: myAgent,
-                    path: turnier.MatchHinzufuegen,
-                    method: 'POST',
-                    headers: matchHeader
-                };
-
                 var teilnehmerHeader={
                     'Accept':'application/json'
                 };
@@ -195,19 +187,31 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                 var optionsTeilnehmer = {
                     host: 'localhost',
                     port: 3000,
-                    path: "Turnier/"+req.params.TurnierId+"/Teilnehmer",
+                    path: "/Turnier/"+turnierId+"/Teilnehmer",
+                    agent:turnierAgent,
                     method: 'GET',
                     headers: teilnehmerHeader
                 };
 
                 console.log("Starte Teilnehmerrequest");
 
+                var teilnehmerRequestJson='';
+
                 var teilnehmerRequest=http.request(optionsTeilnehmer, function(teilnehmerRequestResponse) {
 
-                    //Wenn die Antwort der letzten Anfrage ankommt
+                    teilnehmerRequest.on('error',function(e){
+                        console.log("Fehler"+e.message);
+                    });
+
                     teilnehmerRequestResponse.on("data",function(chunk){
+                        teilnehmerRequestJson+=chunk;
+                    })
+
+                    //Wenn die Antwort der letzten Anfrage ankommt
+                    teilnehmerRequestResponse.on("end",function(){
 
                         console.log("KOMMST DU HIER HER JA?");
+                        var Teilnehmer=JSON.parse(teilnehmerRequestJson);
 
                         //Bilde die Teams
                         //Beispiel: //https://jsfiddle.net/fwrun1or/
@@ -230,7 +234,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                                     //Teilnehmer hinzufügen 
                                     teamObj[teamName]={
-                                        "Teilnehmer1":turnier.Teilnehmer[i]
+                                        "Teilnehmer1":Teilnehmer[i]
                                     }
 
                                     //Team dem Teamarray hinzufügen 
@@ -252,8 +256,8 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                                     //Teilnehmer hinzufügen 
                                     teamObj[teamName]={
-                                        "Teilnehmer1":turnier.Teilnehmer[i],
-                                        "Teilnehmer2":turnier.Teilnehmer[i+1]
+                                        "Teilnehmer1":Teilnehmer[i],
+                                        "Teilnehmer2":Teilnehmer[i+1]
                                     }
 
                                     //Team dem Teamarray hinzufügen 
@@ -266,10 +270,28 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                         console.log('teams array ist leer'+teams);
 
+                        // HTTP Header für Match Posts vorbereiten 
+                        var matchHeader = {
+                            'Accept':'application/json',
+                            'Content-Type':'application/json'
+                        };
+
+                        
+                        console.log("Path für die Matches" + turnier.MatchHinzufuegen);
+                        //Benötigt um Anfragen zu loopen
+                        var myAgent = new http.Agent({maxSockets: 1});
+
+                        //Extrahiere Link um Matches dem Turnier hinzuzufügen und Poste darauf 
+                        var optionsMatches = {
+                            host: 'localhost',
+                            port: 3000,
+                            path: turnier.MatchHinzufuegen,
+                            agent:myAgent,
+                            method: 'POST',
+                            headers: matchHeader
+                        };
+
                         var j = 0;
-
-                        console.log("Spielplan der ficker"+turnier.Spielplan);
-
                         async.each(turnier.Spielplan, function(listItem, next) {
 
                             console.log("Listenitem: "+listItem);
@@ -299,7 +321,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             matchAnfrage.Teilnehmer.push(teams[matchConfig.Team2]);
 
                             console.log("Starte Matchanfrage für den Spielplan von Turnier" + req.params.TurnierId);
-            
+
                             //Stelle Match Post-Anfragen 
                             var matchRequest = http.request(optionsMatches, function(matchRequestResponse) {
 
