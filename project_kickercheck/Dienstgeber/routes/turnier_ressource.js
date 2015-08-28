@@ -233,23 +233,16 @@ app.get('/:TurnierId/Match',function(req,res){
             //Hole alle Assoziierten Matches 
             client.lrange(listenKey, 0, -1, function(err,items) {
 
-                //Wenn es Matches gibt 
-                if(items.length!=0){
-                    
-                    //Füge der Gespeicherten ID noch das prefix "/Match/" hinzu 
-                    items.forEach(function(entry){
-                        matches.push("/Match/"+entry);
-                    });
-                }
-            }); 
+                items.forEach(function(entry){
+                    matches.push("Match/"+entry);
+                });
 
-            //Liefere die Matchliste
-            res.status(200).json(matches).end();
+                //Liefere die Matchliste
+                res.status(200).json(matches).end();
+            });  
         }
     });
 });
-
-
 
 //Fügt einem Turnier ein Match hinzu , benötigt eine Matchrepräsentation im Body 
 //Legt ein neues Match an , wiederholte Anfragen führen zu immer neuen Matches 
@@ -291,7 +284,7 @@ app.post('/:TurnierId/Match',function(req,res){
                     client.set('Match ' + id, JSON.stringify(matchObj));
 
                     //Pushe das angelegte Match in die Liste der Matches
-                    client.LPUSH('Turnier '+turnierId+' Match',id)
+                    client.LPUSH("Turnier "+turnierId+" Matches",id)
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Turnier ' + turnierId,JSON.stringify(turnier));
@@ -311,7 +304,7 @@ app.post('/:TurnierId/Match',function(req,res){
 //Ruft die Teilnehmerliste eines Turnieres ab , liefert leeres Array wenn 
 //Kein Teilnemer vorhanden ist 
 app.get('/:TurnierId/Teilnehmer',function(req,res){
-    
+
     var listenKey="Turnier "+req.params.TurnierId+" Teilnehmer";
 
     //Hole alle Assoziierten Teilnehmer
@@ -319,7 +312,6 @@ app.get('/:TurnierId/Teilnehmer',function(req,res){
 
         //Antworte mit der aktualisierten Teilnehmerliste
         res.set("Content-Type", 'application/json').status(200).json(items).end();
-
     }); 
 });
 
@@ -348,9 +340,9 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
             var Turnierdaten = JSON.parse(turnierdata);
 
             var listenKey="Turnier "+turnierId+" Teilnehmer";
-            
+
             var teilnehmer=[];
-            
+
             //Hole alle Assoziierten Teilnehmer
             client.lrange(listenKey, 0, -1, function(err,items) {
 
@@ -378,7 +370,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
                     else{
                         //Pushe Teilnehmer in die Liste 
                         client.LPUSH("Turnier "+turnierId+" Teilnehmer",req.body.Teilnehmer);
-                        
+
                         //Hole alle Assoziierten Teilnehmer
                         client.lrange(listenKey, 0, -1, function(err,items) {
                             //Antworte mit der aktualisierten Teilnehmerliste
