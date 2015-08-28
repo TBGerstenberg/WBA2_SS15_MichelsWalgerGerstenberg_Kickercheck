@@ -96,9 +96,7 @@ app.post('/', function(req, res) {
 
 
     externalRequest.write(JSON.stringify(AustragungsortAnfrage));
-
     externalRequest.end();
-
 });
 
 app.put('/:AustragungsortId', function(req, res) {

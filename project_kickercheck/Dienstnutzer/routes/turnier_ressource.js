@@ -297,11 +297,15 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                             console.log("Listenitem: "+listItem);
 
-                            listItem.position = j;
+                            /*
+                            j=listItem.position;
+                            console.log(listItem.position);
+                            //listItem.position = j;
+                            */
 
                             //Lese die vorberechnete Paarung aus 
-                            var matchConfig=turnier.Spielplan[j];
-
+                            var matchConfig=listItem;
+                            
                             //Setze matchanfrage zusammen 
                             var matchAnfrage={
                                 'Datum' : "TO BE SPECIFIED",
@@ -317,6 +321,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                 spielstandT2: 0,
                                 Modus: 'Klassisch'
                             }
+                            
                             //Pushe Teams zu den Teilnehmern des Matches 
                             matchAnfrage.Teilnehmer.push(teams[matchConfig.Team1]);
                             matchAnfrage.Teilnehmer.push(teams[matchConfig.Team2]);
@@ -328,7 +333,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                                 //Wenn die Antwort der letzten Anfrage ankommt
                                 matchRequestResponse.on('data',function(match){
-                                    console.log(JSON.parse(match));
+                                    //console.log(JSON.parse(match));
                                     next();
                                 });      
                             });
@@ -338,7 +343,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             });
 
                             matchRequest.write(JSON.stringify(matchAnfrage));
-                            console.log(matchAnfrage);
+                            //console.log(matchAnfrage);
                             matchRequest.end();
 
                         }, function(err) {
@@ -349,13 +354,13 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             var matchListeOptions={
                                 host: 'localhost',
                                 port: 3000,
-                                path: "Turnier/"+req.params.TurnierId+"/Match",
+                                path: "/Turnier/"+req.params.TurnierId+"/Match",
                                 method: 'GET',
                                 headers: teilnehmerHeader
                             };
 
                             var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
-                                machListeResponse.on('data',function(matchListeData){
+                                matchListeResponse.on('data',function(matchListeData){
                                     res.status(200).json(JSON.parse(matchListeData)).end();
                                 });
                             });
