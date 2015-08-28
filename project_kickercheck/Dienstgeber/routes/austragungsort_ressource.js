@@ -7,28 +7,28 @@ app.get('/',function(req,res){
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Austragungsort *', function (err, key) {
-	    
-	        if(key.length == 0) {
-		    res.json(response);
-		    return;
-	    }
-	   
-	     client.mget(key, function (err, austragungsort) {
-		     
-        //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-       austragungsort.forEach(function (val) {
-	     
-       response.push(JSON.parse(val));
+
+        if(key.length == 0) {
+            res.json(response);
+            return;
+        }
+
+        client.mget(key, function (err, austragungsort) {
+
+            //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+            austragungsort.forEach(function (val) {
+
+                response.push(JSON.parse(val));
             });
-            
-    
-    res.status(200).set("Content-Type","application/json").json(response).end();
-    
-    });
-       });
+
+
+            res.status(200).set("Content-Type","application/json").json(response).end();
+
         });
-        
-        
+    });
+});
+
+
 app.get('/:AustragungsortId', function(req, res) {
 
     //Angefragte Id extrahieren 
@@ -54,16 +54,16 @@ app.get('/:AustragungsortId', function(req, res) {
                 case "application/json":
 
                     client.mget('Austragungsort ' + austragungsortId, function(err,austragungsortdata){
-	                    
-                        
-	                    var Austragungsortdaten = JSON.parse(austragungsortdata);
-						
-                         
-                            //Setze Contenttype der Antwort auf application/json
-                            res.set("Content-Type", 'application/json').status(200).json(Austragungsortdaten).end();
-                            
+
+
+                        var Austragungsortdaten = JSON.parse(austragungsortdata);
+
+
+                        //Setze Contenttype der Antwort auf application/json
+                        res.set("Content-Type", 'application/json').status(200).json(Austragungsortdaten).end();
+
                     });
-                    
+
                     break;
 
                 default:
@@ -78,7 +78,7 @@ app.get('/:AustragungsortId', function(req, res) {
 });
 
 app.post('/',function(req, res) {
-	
+
 
     //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
     var contentType = req.get('Content-Type');
@@ -92,21 +92,21 @@ app.post('/',function(req, res) {
 
     else{
 
-	var Austragungsort = req.body;
-	
+        var Austragungsort = req.body;
+
         // LokalitaetId in redis erhöhen, atomare Aktion 
         client.incr('AustragungsortId', function(err, id) {
-	        
-	          var austragungsortObj={
+
+            var austragungsortObj={
                 'id' : id,
-                 'Name': Austragungsort.Name,
+                'Name': Austragungsort.Name,
                 'Adresse': Austragungsort.Adresse,
                 'Beschreibung': Austragungsort.Beschreibung
             };
-            
-             client.set('Austragungsort ' + id, JSON.stringify(austragungsortObj));
-             
-              //Setze Contenttype der Antwort auf application/atom+xml
+
+            client.set('Austragungsort ' + id, JSON.stringify(austragungsortObj));
+
+            //Setze Contenttype der Antwort auf application/atom+xml
             res.set("Content-Type", 'application/json').set("Location", "/Austragungsort/" + id).status(201).json(austragungsortObj).end();
 
         });
@@ -143,12 +143,12 @@ app.put('/:AustragungsortId', function(req, res) {
 
             //Ressource existiert     
             else {
-	            
-	            //Lese aktuellen Zustand des Turniers aus DB
+
+                //Lese aktuellen Zustand des Turniers aus DB
                 client.mget('Austragungsort '+austragungsortId,function(err,austragungsortdata){
 
-				var Austragungsortdaten = JSON.parse(austragungsortdata);
-				
+                    var Austragungsortdaten = JSON.parse(austragungsortdata);
+
                     //Aktualisiere änderbare Daten 
                     Austragungsort.Name = req.body.Name;
                     Austragungsort.Adresse = req.body.Adresse;
@@ -157,13 +157,13 @@ app.put('/:AustragungsortId', function(req, res) {
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Austragungsort ' + austragungsortId,JSON.stringify(Austragungsortdaten));
-           
 
-            //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-            res.set("Content-Type", 'application/json').status(201).json(Austragungsortdaten).end();
 
-             
-            });
+                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                    res.set("Content-Type", 'application/json').status(201).json(Austragungsortdaten).end();
+
+
+                });
             }
         });
     }

@@ -1,130 +1,131 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <% include ../partials/head %>
-</head>
- <header>
-        <% include ../partials/header %>
-    </header>
-<body class="container">
-<script>
-$(document).ready(function() {
-	
-	var loc = window.location.pathname+"/Kickertisch";
-	
-	$('#alltables').attr('href',loc); 
-	
-	$('#kickertischAnlegen').submit(function(e) {
-							e.preventDefault();
-							$('.addid').html('');
+    <head>
+        <% include ../partials/head %>
+        <script>
+            $(document).ready(function() {
 
-							var hersteller = $('#hersteller').val();
-							var typ = $('#typ').val();
-							var merkmale = $('#merkmale').val();
-							var zustand = $('#zustand').val();
-							
-							if(!(hersteller && typ && merkmale)) {
-								alert('Bitte Felder ausfüllen');
-								return false;
-								}
-								
-								if(!zustand) {
-									zustand = 'Neu';
-								}
-				
+                var loc = window.location.pathname+"/Kickertisch";
 
-	var formData = {
-							Hersteller : hersteller,
-							Typ : typ,
-							Zustand : zustand,
-							Merkmale : merkmale }
+                $('#alltables').attr('href',loc); 
 
-							$.ajax({
-								type: 'POST',
-								contentType: 'application/json',
-								url: '/Austragungsort/<%= austragungsort.id %>/Kickertisch/',
-								
-								data: JSON.stringify(formData),
-								success: function(data) {
-									 $('#kickertischAnlegen').each(function() {
+                $('#kickertischAnlegen').submit(function(e) {
+                    e.preventDefault();
+                    $('.addid').html('');
+
+                    var hersteller = $('#hersteller').val();
+                    var typ = $('#typ').val();
+                    var merkmale = $('#merkmale').val();
+                    var zustand = $('#zustand').val();
+
+                    if(!(hersteller && typ && merkmale)) {
+                        alert('Bitte Felder ausfüllen');
+                        return false;
+                    }
+
+                    if(!zustand) {
+                        zustand = 'Neu';
+                    }
+
+
+                    var formData = {
+                        Hersteller : hersteller,
+                        Typ : typ,
+                        Zustand : zustand,
+                        Merkmale : merkmale }
+
+                    $.ajax({
+                        type: 'POST',
+                        contentType: 'application/json',
+                        url: '/Austragungsort/<%= austragungsort.id %>/Kickertisch/',
+
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+                        $('#kickertischAnlegen').each(function() {
                         this.reset();
                     });
-						
-							$('.addid').append('<a href="/Austragungsort/<%= austragungsort.id %>/Kickertisch/'+data.id+'">Kickertisch '+data.id+' angelegt</a>.');
-									
-								},
-								statusCode: {
-        400: function() {
-           alert('Die Anfrage war nicht korrekt.');
-        }
-        },
-        fail: function() {
-	        alert('Fehler');
-        }
 
-							});
-			
-						});
-			});
-						</script>
- 
- <main>
-        <div class="row">
-            <div class="col-sm-12">
-            
-                <div class="jumbotron">
-                    <h1>Austragungsort <%= austragungsort.Name %></h1>
-                   <br />
-                     <ul>
-            <li>Adresse: <%= austragungsort.Adresse %></li>
-            <li>Beschreibung: <%= austragungsort.Beschreibung %></li>
-                    </ul> 
-                    <br />
-                    <hr />
-                    <div class="row">
-                  
-                    <a href="" id="alltables" class="btn btn-primary" role="button">Alle Tische dieses Ortes anzeigen</a>
+                    $('.addid').append('<a href="/Austragungsort/<%= austragungsort.id %>/Kickertisch/'+data.id+'">Kickertisch '+data.id+' angelegt</a>.');
+
+                                       },
+                                       statusCode: {
+                                       400: function() {
+                        alert('Die Anfrage war nicht korrekt.');
+                    }
+                },
+                                                fail: function() {
+                    alert('Fehler');
+                }
+
+            });
+
+            });
+            });
+        </script>
+    </head>
+
+
+    <body class="container">
+        <header>
+            <% include ../partials/header %>
+        </header>
+        <main>
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="jumbotron">
+                        <h1>Austragungsort <%= austragungsort.Name %></h1>
+                        <br />
+                        <ul>
+                            <li>Adresse: <%= austragungsort.Adresse %></li>
+                            <li>Beschreibung: <%= austragungsort.Beschreibung %></li>
+                        </ul> 
+                        <br />
+                        <hr />
+                        <div class="row">
+
+                            <a href="" id="alltables" class="btn btn-primary" role="button">Alle Tische dieses Ortes anzeigen</a>
+                        </div>
+                        <hr />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p>Tisch hinzufügen</p>
+                                <form role="form" action="" method="POST" name="kickertischAnlegen" id="kickertischAnlegen">
+                                    <div class="form-group">
+                                        <label for="hersteller">Hersteller:</label> <br>
+                                        <input type="text" id="hersteller" class="form-control" placeholder="Hersteller" maxlength="100" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="typ">Typ:</label> <br>
+                                        <input type="text" id="typ" class="form-control" placeholder="Typ" maxlength="100" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Merkmale">Merkmale:</label> <br>
+                                        <input type="text" id="merkmale" class="form-control" placeholder="Merkmale" maxlength="100" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Zustand">Zustand (optional):</label> <br>
+                                        <input type="text" id="zustand" class="form-control" placeholder="Optionale Angabe des Zustands. Standard: Neu" maxlength="100" />
+                                    </div>
+                                    <input type="submit" class="btn btn-primary" name="send" value="Tisch hinzufügen" />
+
+                                </form> 
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <p class="addid"></p>
+                        </div>
                     </div>
-                    <hr />
-            
-                 <div class="row">
-                 <div class="col-md-6">
-                 <p>Tisch hinzufügen</p>
-                 <form role="form" action="" method="POST" name="kickertischAnlegen" id="kickertischAnlegen">
-               <div class="form-group">
-		 <label for="hersteller">Hersteller:</label> <br>
-        <input type="text" id="hersteller" class="form-control" placeholder="Hersteller" maxlength="100" />
-        	</div>
-        	<div class="form-group">
-         <label for="typ">Typ:</label> <br>
-        <input type="text" id="typ" class="form-control" placeholder="Typ" maxlength="100" />
-         </div>
-         <div class="form-group">
-         <label for="Merkmale">Merkmale:</label> <br>
-        <input type="text" id="merkmale" class="form-control" placeholder="Merkmale" maxlength="100" />
-         </div>
-         <div class="form-group">
-         <label for="Zustand">Zustand (optional):</label> <br>
-        <input type="text" id="zustand" class="form-control" placeholder="Optionale Angabe des Zustands. Standard: Neu" maxlength="100" />
-         </div>
-                <input type="submit" class="btn btn-primary" name="send" value="Tisch hinzufügen" />
 
-        </form> 
-        </div>
-        </div>
-<br />
-<div class="row">
-        <p class="addid"></p>
-  	       </div>
                 </div>
-                
+
             </div>
-           
-        </div>
-    </main>
- <footer>
-        <% include ../partials/footer %>
-    </footer>
-    
-</body>
+        </main>
+        <footer>
+            <% include ../partials/footer %>
+        </footer>
+
+    </body>
 </html>

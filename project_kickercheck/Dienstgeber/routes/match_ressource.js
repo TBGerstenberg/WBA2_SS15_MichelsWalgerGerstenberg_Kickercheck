@@ -7,30 +7,30 @@ app.get('/',function(req,res){
 
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Match *', function (err, key) {
-	    
-	        if(key.length == 0) {
-		    res.json(response);
-		    return;
-	    }
 
-	  var sorted =  key.sort();
-	  
+        if(key.length == 0) {
+            res.json(response);
+            return;
+        }
 
-	     client.mget(sorted, function (err, match) {
-		     
-		     
-        //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-        match.forEach(function (val) {
-	     
-       response.push(JSON.parse(val));
+        var sorted =  key.sort();
 
 
-        });
-        
-        
+        client.mget(sorted, function (err, match) {
+
+
+            //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+            match.forEach(function (val) {
+
+                response.push(JSON.parse(val));
+
+
+            });
+
+
             res.status(200).set("Content-Type","application/json").json(response).end();
+        });
     });
-});
 });
 
 //Match Methoden

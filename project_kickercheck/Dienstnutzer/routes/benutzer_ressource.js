@@ -77,8 +77,8 @@ app.post('/', function(req, res) {
 
     var externalRequest = http.request(options, function(externalResponse) {
 
-         //console.log(JSON.stringify(externalResponse.headers.location));
-        
+        //console.log(JSON.stringify(externalResponse.headers.location));
+
         if(externalResponse.statusCode == 400){
             res.status(400).end();
         };
@@ -143,7 +143,7 @@ app.put('/:BenutzerId', function(req, res) {
 });
 
 app.delete('/:BenutzerId', function(req, res) {
-	
+
     var benutzerId = req.params.BenutzerId;
 
     // HTTP Header setzen
@@ -174,6 +174,6 @@ app.delete('/:BenutzerId', function(req, res) {
 
     externalRequest.end();
 
-   });
+});
 
 module.exports = app;

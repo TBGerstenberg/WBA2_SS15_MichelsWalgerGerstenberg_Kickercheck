@@ -160,7 +160,8 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
             //Checke ob schon ein Spielplan existiert 
             if(turnier.Matches.length != 0){
-                res.status(200).end();
+                res.status(200).json(turnier).end();
+                return;
             }
 
             console.log("Stelle Turnierrequest für den Spielplan von Turnier" + req.params.TurnierId);
@@ -256,17 +257,20 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         break;
                 }
 
-
-
                 console.log('teams array ist leer'+teams);
 
+                var j = 0;
+                
+                console.log("Spielplan der ficker"+turnier.Spielplan);
 
-
-
-                for(var i=0;i<turnier.Spielplan.length;i++){
+                async.each(turnier.Spielplan, function(listItem, next) {
+                    
+                    console.log("Listenitem: "+listItem);
+                     
+                    listItem.position = j;
 
                     //Lese die vorberechnete Paarung aus 
-                    var matchConfig=turnier.Spielplan[i];
+                    var matchConfig=turnier.Spielplan[j];
 
                     //Setze matchanfrage zusammen 
                     var matchAnfrage={
@@ -277,29 +281,27 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         'Austragungsort': turnier.Austragungsort,
                         'Status':"vor_beginn"
                     };
-
+                    
+                    var spielstandAnfrage = {
+                    spielstandT1: 0,
+                                    spielstandT2: 0,
+                                    Modus: 'Klassisch'
+                    }
                     //Pushe Teams zu den Teilnehmern des Matches 
                     matchAnfrage.Teilnehmer.push(teams[matchConfig.Team1]);
                     matchAnfrage.Teilnehmer.push(teams[matchConfig.Team2]);
 
                     console.log("Starte Matchanfrage für den Spielplan von Turnier" + req.params.TurnierId);
                     //console.log(util.inspect(matchAnfrage, false, null));
-
+                    
+                    
                     //Stelle Match Post-Anfragen 
                     var matchRequest = http.request(optionsMatches, function(matchRequestResponse) {
 
-                        var matchRequestAntwort;
-
-                        matchRequestResponse.on('data',function(chunk){
-                            //                             console.log(util.inspect(JSON.parse(chunk), false, null));
-                            matchRequestAntwort = JSON.parse(chunk);   
-                        });
-
                         //Wenn die Antwort der letzten Anfrage ankommt
-                        matchRequestResponse.on('end',function(){
-                            if(i==turnier.Spielplan.length-1){ 
-                                res.status(200).json(matchRequestAntwort).end();
-                            }     
+                        matchRequestResponse.on('data',function(match){
+                            console.log(JSON.parse(match));
+                            next();
                         });      
                     });
 
@@ -310,155 +312,250 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     matchRequest.write(JSON.stringify(matchAnfrage));
                     console.log(matchAnfrage);
                     matchRequest.end();
-                }                
-            } 
-        });   
+
+                }, function(err) {
+                    
+                    //Antwort für die Abfrage des Turniers 
+                    var jsonString;
+
+                    var turnierRequest = http.request(options1, function(externalResponse){
+                            externalResponse.on('data',function(turnierAntwort){
+                                res.status(200).json(JSON.parse(turnierAntwort)).end();
+                            });
+                    });
+                    turnierRequest.end();
+                });
+            }
+        });
     });
-    externalRequest.end(); 
+    externalRequest.end();
 });
 
-app.get('/:TurnierId', function(req, res) {
 
-    var options1 = {
-        host: 'localhost',
-        port: 3000,
-        path: '/Turnier/'+req.params.TurnierId,
-        method: 'GET',
-        headers: {
-            accept: 'application/json'
-        }
-    };
+/*
+                    for(var i=0;i<turnier.Spielplan.length;i++){
 
-    var options2 = {
+                        //Lese die vorberechnete Paarung aus 
+                        var matchConfig=turnier.Spielplan[i];
+
+                        //Setze matchanfrage zusammen 
+                        var matchAnfrage={
+                            'Datum' : "TO BE SPECIFIED",
+                            'Uhrzeit': "TO BE SPECIFIED",
+                            'Teilnehmer' : [],
+                            'Regelwerk':Regelwerk,
+                            'Austragungsort': turnier.Austragungsort,
+                            'Status':"vor_beginn"
+                        };
+
+                        //Pushe Teams zu den Teilnehmern des Matches 
+                        matchAnfrage.Teilnehmer.push(teams[matchConfig.Team1]);
+                        matchAnfrage.Teilnehmer.push(teams[matchConfig.Team2]);
+
+                        console.log("Starte Matchanfrage für den Spielplan von Turnier" + req.params.TurnierId);
+                        //console.log(util.inspect(matchAnfrage, false, null));
+
+                        //Stelle Match Post-Anfragen 
+                        var matchRequest = http.request(optionsMatches, function(matchRequestResponse) {
+
+                            var matchRequestAntwort;
+
+                            matchRequestResponse.on('data',function(chunk){
+                                //                             console.log(util.inspect(JSON.parse(chunk), false, null));
+                                matchRequestAntwort = JSON.parse(chunk);   
+                            });
+
+                            //Wenn die Antwort der letzten Anfrage ankommt
+                            matchRequestResponse.on('end',function(){
+                                if(i==turnier.Spielplan.length-1){ 
+                                    res.status(200).json(matchRequestAntwort).end();
+                                }     
+                            });      
+                        });
+
+                        matchRequest.on('error',function(e){
+                            console.log("Fehler"+e.message);
+                        });
+
+                        matchRequest.write(JSON.stringify(matchAnfrage));
+                        console.log(matchAnfrage);
+                        matchRequest.end();
+                    }                
+                } 
+                           });   
+            });
+            externalRequest.end(); 
+        });
+        */
+
+        app.get('/:TurnierId', function(req, res) {
+
+            var options1 = {
+                host: 'localhost',
+                port: 3000,
+                path: '/Turnier/'+req.params.TurnierId,
+                method: 'GET',
+                headers: {
+                    accept: 'application/json'
+                }
+            };
+
+            var options2 = {
+                host: "localhost",
+                port: 3000,
+                path: "/Benutzer",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
+            
+
+            var x = http.request(options1, function(externalResponse){
+
+                var y = http.request(options2, function(externalrep){
+
+                    externalResponse.on("data", function(chunk){
+
+                        var turnier = JSON.parse(chunk);
+                        
+                                 var options3 = {
         host: "localhost",
         port: 3000,
-        path: "/Benutzer",
+        path: turnier.Austragungsort,
         method:"GET",
         headers:{
             accept:"application/json"
         }
     }
 
+                        
+                           var z = http.request(options3, function(externalrepo){
 
-    var x = http.request(options1, function(externalResponse){
 
-        var y = http.request(options2, function(externalrep){
+                               externalrepo.on("data", function(chunko){
 
-            externalResponse.on("data", function(chunk){
+                    var austragungsort = JSON.parse(chunko);
 
-                var turnier = JSON.parse(chunk);
+
+
+                        externalrep.on("data", function(chunks){
+
+                            var benutzerAll = JSON.parse(chunks);
+
+                            res.render('pages/einturnier', {
+                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort                     
+                            });
+
+                            res.end();
+                        });
+                    });
+                });
+                z.end();
+            });
+        
+        });
+     y.end();
+            });
+            x.end();
+            
+        });
+    
+
+        app.delete('/:TurnierId', function(req, res) {
+
+            console.log("Springe in DeleteTurnier aufm Dienstntuzer");
+
+            var options1 = {
+                host: 'localhost',
+                port: 3000,
+                path: '/Turnier/'+req.params.TurnierId,
+                method: 'DELETE',
+                headers: {
+                    accept: 'application/json'
+                }
+            };
+
+            var y = http.request(options1, function(externalrep){
 
                 externalrep.on("data", function(chunks){
-
-                    var benutzerAll = JSON.parse(chunks);
-
-                    res.render('pages/einturnier', {
-                        turnier: turnier ,benutzerAll:benutzerAll                     
-                    });
-
+                    JSON.parse(chunks);
+                    res.status(externalrep.statusCode);
                     res.end();
                 });
             });
+            y.end();
         });
-        y.end();
-    });
-    x.end();
-});
 
-app.delete('/:TurnierId', function(req, res) {
+        app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
-    console.log("Springe in DeleteTurnier aufm Dienstntuzer");
+            // Speichert req.body
+            var Teilnehmer = req.body;
+            console.log(Teilnehmer);
+            var turnierId = req.params.TurnierId;
 
-    var options1 = {
-        host: 'localhost',
-        port: 3000,
-        path: '/Turnier/'+req.params.TurnierId,
-        method: 'DELETE',
-        headers: {
-            accept: 'application/json'
-        }
-    };
+            // HTTP Header setzen
+            var headers = {
+                'Content-Type': 'application/json'
+            };
 
-    var y = http.request(options1, function(externalrep){
+            // Mit Server verbinden
+            var options = {
+                host: 'localhost',
+                port: 3000,
+                path: '/Turnier/'+turnierId+'/Teilnehmer',
+                method: 'PUT',
+                headers: headers
+            };
 
-        externalrep.on("data", function(chunks){
-            JSON.parse(chunks);
-            res.status(externalrep.statusCode);
-            res.end();
+            var externalRequest = http.request(options, function(externalResponse) {
+
+                if(externalResponse.statusCode == 409){
+                    res.status(409).end();
+                };
+
+                externalResponse.on('data', function (chunk) {
+                    var completeTurnierplan = JSON.parse(chunk);
+                    //console.log(util.inspect(completeTurnierplan, false, null));
+                    res.json(completeTurnierplan);
+                    res.end();
+                });
+            });
+            externalRequest.write(JSON.stringify(Teilnehmer));
+            externalRequest.end();
         });
-    });
-    y.end();
-});
 
-app.put('/:TurnierId/Teilnehmer', function(req, res) {
+        app.put('/:TurnierId', function(req, res) {
 
-    // Speichert req.body
-    var Teilnehmer = req.body;
-    console.log(Teilnehmer);
-    var turnierId = req.params.TurnierId;
+            var TurnierDaten = req.body;
+            var turnierId = req.params.TurnierId;
+            var responseString = '';
+            //console.log(util.inspect(TurnierDaten, false, null));
 
-    // HTTP Header setzen
-    var headers = {
-        'Content-Type': 'application/json'
-    };
+            // HTTP Header setzen
+            var headers = {
+                'Content-Type': 'application/json'
+            };
 
-    // Mit Server verbinden
-    var options = {
-        host: 'localhost',
-        port: 3000,
-        path: '/Turnier/'+turnierId+'/Teilnehmer',
-        method: 'PUT',
-        headers: headers
-    };
+            // Mit Server verbinden
+            var options = {
+                host: 'localhost',
+                port: 3000,
+                path: '/Turnier/'+turnierId,
+                method: 'PUT',
+                headers: headers
+            };
 
-    var externalRequest = http.request(options, function(externalResponse) {
-
-        if(externalResponse.statusCode == 409){
-            res.status(409).end();
-        };
-
-        externalResponse.on('data', function (chunk) {
-            var completeTurnierplan = JSON.parse(chunk);
-            //console.log(util.inspect(completeTurnierplan, false, null));
-            res.json(completeTurnierplan);
-            res.end();
+            var externalRequest = http.request(options, function(externalResponse) {
+                externalResponse.on('data', function (chunk) {
+                    var completeTurnierplan = JSON.parse(chunk);
+                    //console.log(util.inspect(completeTurnierplan, false, null));
+                    res.json(completeTurnierplan);
+                    res.end();
+                });
+            });
+            externalRequest.write(JSON.stringify(TurnierDaten))
+            externalRequest.end();
         });
-    });
-    externalRequest.write(JSON.stringify(Teilnehmer));
-    externalRequest.end();
-});
 
-app.put('/:TurnierId', function(req, res) {
-
-    var TurnierDaten = req.body;
-    var turnierId = req.params.TurnierId;
-    var responseString = '';
-    //console.log(util.inspect(TurnierDaten, false, null));
-
-    // HTTP Header setzen
-    var headers = {
-        'Content-Type': 'application/json'
-    };
-
-    // Mit Server verbinden
-    var options = {
-        host: 'localhost',
-        port: 3000,
-        path: '/Turnier/'+turnierId,
-        method: 'PUT',
-        headers: headers
-    };
-
-    var externalRequest = http.request(options, function(externalResponse) {
-        externalResponse.on('data', function (chunk) {
-            var completeTurnierplan = JSON.parse(chunk);
-            //console.log(util.inspect(completeTurnierplan, false, null));
-            res.json(completeTurnierplan);
-            res.end();
-        });
-    });
-    externalRequest.write(JSON.stringify(TurnierDaten))
-    externalRequest.end();
-});
-
-module.exports = app;
+        module.exports = app;

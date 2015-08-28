@@ -1,133 +1,133 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <% include ../partials/head %>
-</head>
-<script>
-$(document).ready(function() {
-	
-	$('#deleteTable').submit(function(e) {
-							e.preventDefault();
-				
-							if (confirm('Möchten Sie fortfahren?') == false) {
-								return false;
-								}
-			 	$.ajax({
-								type: 'DELETE',
-								url: '',
-								contentType: 'application/json',
-								success: function(data) {
-									alert('Tisch gelöscht. Weiterleitung zum Standort.');
-									location.href = "/Austragungsort/<%= ort.id %>"
-				
-								
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
-						});
-						});
-	
-	$('#changeData').submit(function(e) {
-							e.preventDefault();
-			
-				 var zustand = $('#zustand').val();
-				
+    <head>
+        <% include ../partials/head %>
+        <script>
+            $(document).ready(function() {
 
-							if(!(zustand)) {
-								alert('Bitte Daten spezifizieren.');
-								return false;
-								}
-			 
-			 var formData = {Zustand: zustand
-			 };
+                $('#deleteTable').submit(function(e) {
+                    e.preventDefault();
+
+                    if (confirm('Möchten Sie fortfahren?') == false) {
+                        return false;
+                    }
+                    $.ajax({
+                        type: 'DELETE',
+                        url: '',
+                        contentType: 'application/json',
+                        success: function(data) {
+                            alert('Tisch gelöscht. Weiterleitung zum Standort.');
+                            location.href = "/Austragungsort/<%= ort.id %>"
 
 
-							$.ajax({
-								type: 'PUT',
-								url: '',
-								contentType: 'application/json',
-								data: JSON.stringify(formData),
-								success: function(data) {
-									
-									 $('#changeData').each(function() {
-                        this.reset();
-                   });
-                   
-                   			alert('Zustand erfolgreich geändert.');
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
 
-							  $("#zus").text('Zustand: '+data.Zustand);
-				
-								
-								},
-        fail: function() {
-	        alert('Fehler');
-        }
-			
-						});
-						});
-});
-</script>
- <header>
-        <% include ../partials/header %>
-    </header>
-<body class="container">
- 
- <main>
-        <div class="row">
-            <div class="col-sm-12">
-            
-                <div class="jumbotron">
-                    <h1>Kickertisch <%= tisch.id %></h1>
-                   <br />
-                     <ul>
-            <li>Hersteller: <%= tisch.Hersteller %></li>
-             <li>Typ: <%= tisch.Typ %></li>
-              <li>Ort: <a href="/Austragungsort/<%= ort.id %>"><%= ort.Name %></a></li>
-              <li>Merkmale: <%= tisch.Merkmale %></li>
-            <li id="zus">Zustand: <%= tisch.Zustand %></li>
-          
-                    </ul> 
-                    <br />
-   <p> Belegung:  </p>
-   <ul><li> <%= belegung.Anzahl %> Spieler</li>
-   <% if(belegung.Anzahl > 0) { %>
-   <li>Namen der Spieler: <%= belegung.Teilnehmer %> </li>
-   <li> Herausforderungen: <%= belegung.Herausforderungen %> </li>
-   <% } %>
-   </ul>
-   
-                    <hr />
-                    
-  <p> Kickertisch ändern: </p>
-                   <div class="row">
-                   <div class="col-md-6">
-                  
-                    <form role="form" action="" method="PUT" name="changeData" id="changeData">
-   
-             <div class="form-group"><label for="zustand">Zustand:</label><input type="text" id="zustand" class="form-control" name="zustand"></div>
-           <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form>
-           </div>
-           </div>
-<br />
-<hr />
+                    });
+                });
 
-<form role="form" action="" method="DELETE" name="deleteTable" id="deleteTable">
- <input type="submit" class="btn btn-danger" name="del" value="Tisch löschen" />
- </form>
+                $('#changeData').submit(function(e) {
+                    e.preventDefault();
 
-<hr />
-  	       
+                    var zustand = $('#zustand').val();
+
+
+                    if(!(zustand)) {
+                        alert('Bitte Daten spezifizieren.');
+                        return false;
+                    }
+
+                    var formData = {Zustand: zustand
+                                   };
+
+
+                    $.ajax({
+                        type: 'PUT',
+                        url: '',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+
+                            $('#changeData').each(function() {
+                                this.reset();
+                            });
+
+                            alert('Zustand erfolgreich geändert.');
+
+                            $("#zus").text('Zustand: '+data.Zustand);
+
+
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
+                    });
+                });
+            });
+        </script>
+    </head>
+
+    <body class="container">
+        <header>
+            <% include ../partials/header %>
+        </header>
+        <main>
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="jumbotron">
+                        <h1>Kickertisch <%= tisch.id %></h1>
+                        <br />
+                        <ul>
+                            <li>Hersteller: <%= tisch.Hersteller %></li>
+                            <li>Typ: <%= tisch.Typ %></li>
+                            <li>Ort: <a href="/Austragungsort/<%= ort.id %>"><%= ort.Name %></a></li>
+                            <li>Merkmale: <%= tisch.Merkmale %></li>
+                            <li id="zus">Zustand: <%= tisch.Zustand %></li>
+
+                        </ul> 
+                        <br />
+                        <p> Belegung:  </p>
+                        <ul><li> <%= belegung.Anzahl %> Spieler</li>
+                            <% if(belegung.Anzahl > 0) { %>
+                            <li>Namen der Spieler: <%= belegung.Teilnehmer %> </li>
+                            <li> Herausforderungen: <%= belegung.Herausforderungen %> </li>
+                            <% } %>
+                        </ul>
+
+                        <hr />
+
+                        <p> Kickertisch ändern: </p>
+                        <div class="row">
+                            <div class="col-md-6">
+
+                                <form role="form" action="" method="PUT" name="changeData" id="changeData">
+
+                                    <div class="form-group"><label for="zustand">Zustand:</label><input type="text" id="zustand" class="form-control" name="zustand"></div>
+                                    <input type="submit" class="btn btn-primary" name="change" value="Ändern" /></form>
+                            </div>
+                        </div>
+                        <br />
+                        <hr />
+
+                        <form role="form" action="" method="DELETE" name="deleteTable" id="deleteTable">
+                            <input type="submit" class="btn btn-danger" name="del" value="Tisch löschen" />
+                        </form>
+
+                        <hr />
+
+                    </div>
+
                 </div>
-                
+
             </div>
-           
-        </div>
-    </main>
- <footer>
-        <% include ../partials/footer %>
-    </footer>
-    
-</body>
+        </main>
+        <footer>
+            <% include ../partials/footer %>
+        </footer>
+
+    </body>
 </html>

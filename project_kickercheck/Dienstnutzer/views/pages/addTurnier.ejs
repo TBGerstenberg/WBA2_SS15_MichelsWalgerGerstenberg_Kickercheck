@@ -2,8 +2,7 @@
 <html>
     <head>
         <% include ../partials/head %>
-    </head>
-    <body class="container">
+
         <script type="text/javascript">
             $(document).ready(function(){
 
@@ -20,13 +19,17 @@
                         return false;
                     }
                     
+                    if(austragungsort == '0') {
+                        austragungsort = null;
+                    }
+
                     /*
                     if(teilnehmer < 0 || !(teamgroesse == 1 || teamgroesse==2)){
                         alert('Bitte Daten überprüfen'); 
                         return false;
                     }  */
-                    
-                    
+
+
                     //Legt fest wieviele Teams es geben wird 
                     var anzahlTeams=teilnehmer / teamgroesse;
 
@@ -70,11 +73,13 @@
 
             });
         </script>
+    </head>
+
+    <body class="container">
 
         <header>
             <% include ../partials/header %>
         </header>
-
         <main>
             <div class="row">
                 <div class="col-sm-12">
@@ -82,29 +87,34 @@
                     <div class="jumbotron">
                         <h1>Turnier</h1>
 
-						<div class="row">
-						<div class="col-md-6">
-                        <form role="form" action="" method="POST" name="turnierAnlegen" id="turnierAnlegen">
-                            <div class="form-group">
-                                <label for="teilnehmer">Teilnehmer:</label> <br>
-                                <input type="text" id="teilnehmer" class="form-control" placeholder="Wie viele Spieler?" maxlength="100" /> 
-                            </div>
-                            <div class="form-group">
-                                <label for="teamgroesse">Teamgroesse:</label> <br>
-                                <input type="text" id="teamgroesse" class="form-control" placeholder="Wie viele pro Team?" maxlength="100" />
-                            </div>
-                            <div class="form-group">
-         <label for="austragungsort">Austragungsort (optional):</label> <br>
-                                <input type="text" id="austragungsort"  class="form-control" placeholder="Ort an dem das Turnier stattfindet" maxlength="100" />
-         </div>
-                            <div class="form-group">
-                                <label for="typ">Art des Turniers:</label> <br>
-                                <input type="text" id="typ"  class="form-control" placeholder="Art des Turniers" maxlength="100" />
-                            </div>
-                            <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <form role="form" action="" method="POST" name="turnierAnlegen" id="turnierAnlegen">
+                                    <div class="form-group">
+                                        <label for="teilnehmer">Teilnehmer:</label> <br>
+                                        <input type="text" id="teilnehmer" class="form-control" placeholder="Wie viele Spieler?" maxlength="100" /> 
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="teamgroesse">Teamgroesse:</label> <br>
+                                        <input type="text" id="teamgroesse" class="form-control" placeholder="Wie viele pro Team?" maxlength="100" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="austragungsort">Austragungsort:</label> <br>
+                                        <select id="austragungsort" class="form-control">
+                                            <option value="0">Bitte wählen (optional)</option>
+                                            <% austragungsorte.forEach(function(austragungsort) { %>
+                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %></option>
+                                            <% });  %>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="typ">Art des Turniers:</label> <br>
+                                        <input type="text" id="typ"  class="form-control" placeholder="Art des Turniers" maxlength="100" />
+                                    </div>
+                                    <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
 
-                        </form>
-                        </div>
+                                </form>
+                            </div>
                         </div>
                         <br />
                         <p class="addid"></p>
