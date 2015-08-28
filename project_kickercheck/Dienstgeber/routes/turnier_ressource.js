@@ -23,6 +23,7 @@ app.get('/',function(req,res){
             turnier.forEach(function (val) {
                 response.push(JSON.parse(val));
             });
+         
             res.status(200).set("Content-Type","application/json").json(response).end();
         });
     });
@@ -305,13 +306,13 @@ app.post('/:TurnierId/Match',function(req,res){
 //Kein Teilnemer vorhanden ist 
 app.get('/:TurnierId/Teilnehmer',function(req,res){
 
-    var listenKey="Turnier "+req.params.TurnierId+" Teilnehmer";
+    var listenKey="EinTurnier "+req.params.TurnierId+" Teilnehmer";
 
     //Hole alle Assoziierten Teilnehmer
     client.lrange(listenKey, 0, -1, function(err,items) {
 
         //Antworte mit der aktualisierten Teilnehmerliste
-        res.set("Content-Type", 'application/json').status(200).json(JSON.stringify(items)).end();
+        res.set("Content-Type", 'application/json').status(200).json(items).end();
     }); 
 });
 
@@ -339,7 +340,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
             var Turnierdaten = JSON.parse(turnierdata);
 
-            var listenKey="Turnier "+turnierId+" Teilnehmer";
+            var listenKey="EinTurnier "+turnierId+" Teilnehmer";
 
             var teilnehmer=[];
 
@@ -369,7 +370,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
                     //Benutzer ist nicht vorhanden 
                     else{
                         //Pushe Teilnehmer in die Liste 
-                        client.LPUSH("Turnier "+turnierId+" Teilnehmer",req.body.Teilnehmer);
+                        client.LPUSH("EinTurnier "+turnierId+" Teilnehmer",req.body.Teilnehmer);
 
                         //Hole alle Assoziierten Teilnehmer
                         client.lrange(listenKey, 0, -1, function(err,items) {

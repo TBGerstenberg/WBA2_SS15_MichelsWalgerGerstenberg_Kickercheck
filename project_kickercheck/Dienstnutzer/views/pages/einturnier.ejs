@@ -9,14 +9,15 @@
                 //Klickt der Nutzer den generiereSpielplan button wird ein
                 //Get Request auf Turnier/:TurnierId/Spielplan abgesetzt 
                 $('#generiereSpielplan').click(function(e){
-
+                    e.preventDefault();
 
                     $.ajax({
                         type: 'PUT',
                         url: '/Turnier/<%= turnier.id %>/Spielplan',
                         contentType:"application/json",
                         success: function(data) {
-                           window.location.reload(true);		
+                       
+                        window.location.reload(true);
                         },
                         statusCode: {
          
@@ -43,7 +44,7 @@
 
                 $.ajax({
                     type: 'PUT',
-                    url: '/Turnier/<%= turnier.id %>/Teilnehmer',
+                    url: "/Turnier/<%= turnier.id %>/Teilnehmer",
                     contentType: 'application/json',
                     data: JSON.stringify(formData),
                     success: function(data) {
@@ -200,13 +201,14 @@
                                         <th>Runde</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-
-                                    <% for(var i=0; i < turnier.Matches.length; i++) { %>
+                                <tbody id="matches">
+                                   <% if(matches) { %>
+                                    <% for(var i=0; i < matches.length; i++) { %>
                                     <tr>
-                                        <td><%= turnier.Matches[i] %></td>
+                                        <td><%= matches[i] %></td>
                                     </tr>
                                     <% }; %>
+                                   <% } %>
                                 </tbody>
                             </table> 
                         </div>

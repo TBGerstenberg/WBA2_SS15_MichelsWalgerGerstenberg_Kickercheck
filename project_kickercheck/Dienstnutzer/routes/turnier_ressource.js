@@ -125,7 +125,7 @@ app.post('/', function(req, res) {
 //Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann 
 
 app.put('/:TurnierId/Spielplan',function(req,res){
-
+console.log('put?');
     //Vorgehen: 
     //Stelle Turnieranfrage, extrahiere URI um Matches zu Posten 
     //Stelle Teilnehmerliste Anfrage für das Turnier für das Teilnehmer>Teams mapping 
@@ -196,7 +196,6 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                 console.log("Starte Teilnehmerrequest");
 
-                var teilnehmerRequestJson='';
 
                 var teilnehmerRequest=http.request(optionsTeilnehmer, function(teilnehmerRequestResponse) {
 
@@ -205,19 +204,15 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     });
 
                     teilnehmerRequestResponse.on("data",function(chunk){
-                        teilnehmerRequestJson+=chunk;
-                    })
-
-                    //Wenn die Antwort der letzten Anfrage ankommt
-                    teilnehmerRequestResponse.on("end",function(){
-
-                        console.log("KOMMST DU HIER HER JA?");
-                        var Teilnehmer=JSON.parse(teilnehmerRequestJson);
-
+                        
+                        var Teilnehmer = JSON.parse(chunk);
+                        
                         //Bilde die Teams
                         //Beispiel: //https://jsfiddle.net/fwrun1or/
                         var teams=[];
                         var anzahlTeams=turnier.Teilnehmeranzahl / turnier.Teamgroesse;
+                        
+                        console.log(Teilnehmer);
 
                         //Beim Kicker sind nur die Teamgrößen 1 und 2 zulässig
                         //Teilnehmer sind nummeriert durch ihren index im Teilnehmerarray 
@@ -228,7 +223,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                 for(var j=0;j<anzahlTeams;j++){
 
                                     //Name des jeweiligen Teams
-                                    var teamName="Team"+j.toString();
+                                    var teamName="Team"+(j+1);
 
                                     //Objekt das unter dem Key <teamName> die Tielnehmer enthält
                                     var teamObj={};
@@ -237,6 +232,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                     teamObj[teamName]={
                                         "Teilnehmer1":Teilnehmer[i]
                                     }
+                                  
 
                                     //Team dem Teamarray hinzufügen 
                                     teams.push(teamObj);
@@ -248,9 +244,9 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                                 var i=0;
                                 for(var j=0;j<anzahlTeams;j++){
-
+                               
                                     //Name des jeweiligen Teams
-                                    var teamName="Team"+j.toString();
+                                    var teamName="Team"+(j+1);
 
                                     //Objekt das unter dem Key <teamName> die Tielnehmer enthält
                                     var teamObj={}
@@ -260,7 +256,8 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                         "Teilnehmer1":Teilnehmer[i],
                                         "Teilnehmer2":Teilnehmer[i+1]
                                     }
-
+                                    
+                                
                                     //Team dem Teamarray hinzufügen 
                                     teams.push(teamObj);
                                     i+=2;
@@ -277,7 +274,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             'Content-Type':'application/json'
                         };
 
-                        
+
                         console.log("Path für die Matches" + turnier.MatchHinzufuegen);
                         //Benötigt um Anfragen zu loopen
                         var myAgent = new http.Agent({maxSockets: 1});
@@ -293,14 +290,11 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         };
 
                         var j = 0;
+
                         async.each(turnier.Spielplan, function(listItem, next) {
 
-                            console.log("Listenitem: "+listItem);
-
-                            listItem.position = j;
-
                             //Lese die vorberechnete Paarung aus 
-                            var matchConfig=turnier.Spielplan[j];
+                            var matchConfig=listItem;
 
                             //Setze matchanfrage zusammen 
                             var matchAnfrage={
@@ -312,14 +306,12 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                 'Status':"vor_beginn"
                             };
 
-                            var spielstandAnfrage = {
-                                spielstandT1: 0,
-                                spielstandT2: 0,
-                                Modus: 'Klassisch'
-                            }
+
                             //Pushe Teams zu den Teilnehmern des Matches 
                             matchAnfrage.Teilnehmer.push(teams[matchConfig.Team1]);
                             matchAnfrage.Teilnehmer.push(teams[matchConfig.Team2]);
+                            
+                            console.log(matchAnfrage.Teilnehmer);
 
                             console.log("Starte Matchanfrage für den Spielplan von Turnier" + req.params.TurnierId);
 
@@ -328,7 +320,37 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                                 //Wenn die Antwort der letzten Anfrage ankommt
                                 matchRequestResponse.on('data',function(match){
-                                    console.log(JSON.parse(match));
+
+                                    var matchExpose = JSON.parse(match);
+
+                                    var spielstandAnfrage = {
+                                        spielstandT1: 0,
+                                        spielstandT2: 0,
+                                        Modus: 'Klassisch'
+                                    }
+
+                                    // HTTP Header für Match Posts vorbereiten 
+                                    var spielstandHeader = {
+                                        'Accept':'application/json',
+                                        'Content-Type':'application/json'
+                                    };
+
+
+                                    var optionsSpielstand = {
+                                        host: 'localhost',
+                                        port: 3001,
+                                        path: '/Match/'+matchExpose.id+'/Spielstand',
+                                        method: 'PUT',
+                                        headers: spielstandHeader
+                                    };
+
+                                    var spielstandRequest = http.request(optionsSpielstand, function(spielstandResponse) {
+
+                                    });
+
+                                    spielstandRequest.write(JSON.stringify(spielstandAnfrage));
+                                    spielstandRequest.end();
+
                                     next();
                                 });      
                             });
@@ -349,13 +371,13 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             var matchListeOptions={
                                 host: 'localhost',
                                 port: 3000,
-                                path: "Turnier/"+req.params.TurnierId+"/Match",
+                                path: "/Turnier/"+req.params.TurnierId+"/Match",
                                 method: 'GET',
                                 headers: teilnehmerHeader
                             };
 
                             var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
-                                machListeResponse.on('data',function(matchListeData){
+                                matchListeResponse.on('data',function(matchListeData){
                                     res.status(200).json(JSON.parse(matchListeData)).end();
                                 });
                             });
@@ -448,6 +470,7 @@ app.get('/:TurnierId', function(req, res) {
             accept:"application/json"
         }
     }
+    
 
 
     var x = http.request(options1, function(externalResponse){
@@ -467,7 +490,7 @@ app.get('/:TurnierId', function(req, res) {
                         accept:"application/json"
                     }
                 }
-
+                
 
                 var z = http.request(options3, function(externalrepo){
 
@@ -481,22 +504,44 @@ app.get('/:TurnierId', function(req, res) {
                         externalrep.on("data", function(chunks){
 
                             var benutzerAll = JSON.parse(chunks);
+                            
+        var options4 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Turnier/"+req.params.TurnierId+"/Match",
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+    }
+            
+          var matchesReq = http.request(options4, function(externalmatches){
+
+
+                    externalmatches.on("data", function(chunkv){
+
+                        var matches = JSON.parse(chunkv);
 
                             res.render('pages/einturnier', {
-                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort                     
+                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort, matches: matches                   
                             });
 
-                            res.end();
+                        
                         });
                     });
+                    matchesReq.end();        
                 });
-                z.end();
+               
             });
 
         });
-        y.end();
+                 z.end();
+      
     });
-    x.end();
+        });
+          y.end();
+});
+  x.end();
 
 });
 

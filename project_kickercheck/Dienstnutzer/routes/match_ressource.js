@@ -182,17 +182,36 @@ console.log(match.Austragungsort);
 
                                     var spielstand = JSON.parse(chunkw);
 
-
+                                    
+                                     var teilnehmerAusMatchAnfrage = [];
+                                    
+                               
+                                    
+                                    if(match.Teilnehmer[0].Team2.Teilnehmer1) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer1);
+                                    }
+                                     if(match.Teilnehmer[0].Team2.Teilnehmer2) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer2);
+                                    }
+                                     if(match.Teilnehmer[1].Team1.Teilnehmer1) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[1].Team1.Teilnehmer1);
+                                    }
+                                     if(match.Teilnehmer[1].Team1.Teilnehmer2) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[1].Team1.Teilnehmer2);
+                                    }
+                               
+                                    console.log(teilnehmerAusMatchAnfrage);
+                                    
+                                
 
                                     var benutzerAll = [];
 
-                                    var j = 0;
+                          
 
                                     var myAgent = new http.Agent({maxSockets: 1});
 
-                                    async.each(match.Teilnehmer, function(listItem, next) {
+                                    async.each(teilnehmerAusMatchAnfrage, function(listItem, next) {
 
-                                        listItem.position = j;
 
                                         var options = {
                                             host: "localhost",
@@ -223,7 +242,8 @@ console.log(match.Austragungsort);
 
 
                                     }, function(err) {
-
+                                            
+                                        console.log(match.Teilnehmer);
 
                                         res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand, belegungen: belegungen });	
 
