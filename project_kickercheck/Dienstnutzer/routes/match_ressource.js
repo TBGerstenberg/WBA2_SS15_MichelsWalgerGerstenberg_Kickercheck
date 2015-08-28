@@ -122,8 +122,10 @@ app.get('/:MatchId', function(req, res) {
 
             var match = JSON.parse(chunk);
 
+            if(match.Austragungsort) {
 
-
+console.log(match.Austragungsort);
+                
             var ortURI = match.Austragungsort.split("/");
             var ort = "/"+ortURI[1]+"/"+ortURI[2];
 
@@ -240,10 +242,87 @@ app.get('/:MatchId', function(req, res) {
 
             });
             y.end();
-        });
-    });
-    x.end();
+            }
+            else {
+                
+                console.log('garkeinort');
+            
+                   var options4 = {
+                host: 'localhost',
+                port: 3001,
+                path: '/Match/'+req.params.MatchId+"/Spielstand",
+                method: 'GET',
+                headers: {
+                    accept: 'application/json'
+                }
+            };
 
+                  var w = http.request(options4, function(externalrepw){
+
+                                externalrepw.on("data", function(chunkw){
+
+                                    var spielstand = JSON.parse(chunkw);
+
+
+
+                                    var benutzerAll = [];
+
+                                    var j = 0;
+
+                                    var myAgent = new http.Agent({maxSockets: 1});
+
+                                    async.each(match.Teilnehmer, function(listItem, next) {
+
+                                        listItem.position = j;
+
+                                        var options = {
+                                            host: "localhost",
+                                            port: 3000,
+                                            agent: myAgent,
+                                            path: listItem,
+                                            method:"GET",
+                                            headers:{
+                                                accept : "application/json",
+                                                contentType : "application/json"
+                                            }
+                                        }
+
+
+                                        var exreq = http.request(options, function(externalrep){
+
+                                            externalrep.on("data", function(chunks){
+
+                                                var user = JSON.parse(chunks);
+                                                benutzerAll.push(user);
+                                                next();
+                                            });
+
+
+                                        });
+
+                                        exreq.end();
+
+
+                                    }, function(err) {
+
+
+                                        res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, spielstand:spielstand });	
+
+                                    });
+
+
+                                });
+
+                            });
+                            w.end();
+                
+            }
+        });
+        
+    });
+    
+    x.end();
+    
 
 });
 

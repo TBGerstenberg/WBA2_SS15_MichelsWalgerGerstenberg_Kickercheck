@@ -126,7 +126,7 @@
                             <li>Anzahl Teilnehmer: <%= turnier.Teilnehmeranzahl %></li>
                             <li> Teamgröße: <%= turnier.Teamgroesse %></li>
                             <li> Typ: <%= turnier.Typ %></li>
-                            <% if(turnier.Austragungsort) { %><li> Austragungsort: <%= turnier.Austragungsort %></li><% } %>
+                            <% if(turnier.Austragungsort) { %><li> Austragungsort: <a href="<%= turnier.Austragungsort %>"><%= austragungsort.Name %></a></li><% } %>
                             <li id="austr"> Austragungszeitraum: <%= turnier.Austragungszeitraum %></li>
                             <li id="stat"> Status: <%= turnier.Status %></li>
                         </ul> 

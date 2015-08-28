@@ -18,6 +18,10 @@
                         alert('Bitte Felder ausfüllen');
                         return false;
                     }
+                    
+                    if(austragungsort == '0') {
+                        austragungsort = null;
+                    }
 
                     /*
                     if(teilnehmer < 0 || !(teamgroesse == 1 || teamgroesse==2)){
@@ -95,8 +99,13 @@
                                         <input type="text" id="teamgroesse" class="form-control" placeholder="Wie viele pro Team?" maxlength="100" />
                                     </div>
                                     <div class="form-group">
-                                        <label for="austragungsort">Austragungsort (optional):</label> <br>
-                                        <input type="text" id="austragungsort"  class="form-control" placeholder="Ort an dem das Turnier stattfindet" maxlength="100" />
+                                        <label for="austragungsort">Austragungsort:</label> <br>
+                                        <select id="austragungsort" class="form-control">
+                                            <option value="0">Bitte wählen (optional)</option>
+                                            <% austragungsorte.forEach(function(austragungsort) { %>
+                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %></option>
+                                            <% });  %>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="typ">Art des Turniers:</label> <br>
