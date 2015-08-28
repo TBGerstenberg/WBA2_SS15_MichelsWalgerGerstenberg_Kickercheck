@@ -281,19 +281,26 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         'Austragungsort': turnier.Austragungsort,
                         'Status':"vor_beginn"
                     };
-
+                    
+                    var spielstandAnfrage = {
+                    spielstandT1: 0,
+                                    spielstandT2: 0,
+                                    Modus: 'Klassisch'
+                    }
                     //Pushe Teams zu den Teilnehmern des Matches 
                     matchAnfrage.Teilnehmer.push(teams[matchConfig.Team1]);
                     matchAnfrage.Teilnehmer.push(teams[matchConfig.Team2]);
 
                     console.log("Starte Matchanfrage für den Spielplan von Turnier" + req.params.TurnierId);
                     //console.log(util.inspect(matchAnfrage, false, null));
-
+                    
+                    
                     //Stelle Match Post-Anfragen 
                     var matchRequest = http.request(optionsMatches, function(matchRequestResponse) {
 
                         //Wenn die Antwort der letzten Anfrage ankommt
-                        matchRequestResponse.on('data',function(){
+                        matchRequestResponse.on('data',function(match){
+                            console.log(JSON.parse(match));
                             next();
                         });      
                     });
@@ -323,14 +330,6 @@ app.put('/:TurnierId/Spielplan',function(req,res){
     });
     externalRequest.end();
 });
-
-
-
-
-
-
-
-
 
 
 /*
@@ -410,7 +409,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     accept:"application/json"
                 }
             }
-
+            
 
             var x = http.request(options1, function(externalResponse){
 
@@ -419,23 +418,49 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     externalResponse.on("data", function(chunk){
 
                         var turnier = JSON.parse(chunk);
+                        
+                                 var options3 = {
+        host: "localhost",
+        port: 3000,
+        path: turnier.Austragungsort,
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+    }
+
+                        
+                           var z = http.request(options3, function(externalrepo){
+
+
+                               externalrepo.on("data", function(chunko){
+
+                    var austragungsort = JSON.parse(chunko);
+
+
 
                         externalrep.on("data", function(chunks){
 
                             var benutzerAll = JSON.parse(chunks);
 
                             res.render('pages/einturnier', {
-                                turnier: turnier ,benutzerAll:benutzerAll                     
+                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort                     
                             });
 
                             res.end();
                         });
                     });
                 });
-                y.end();
+                z.end();
+            });
+        
+        });
+     y.end();
             });
             x.end();
+            
         });
+    
 
         app.delete('/:TurnierId', function(req, res) {
 
