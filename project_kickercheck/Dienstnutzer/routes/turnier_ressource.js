@@ -16,35 +16,35 @@ var Regelwerk=
 
 
 app.get('/addTurnier', function(req, res) {
-	
-	 var options = {
+
+    var options = {
         host: "localhost",
         port: 3000,
         path: "/Austragungsort",
         method:"GET",
         headers:{
-          accept:"application/json"
+            accept:"application/json"
         }
-      }
-      
-             var x = http.request(options, function(externalrep){
-      
-                
-            externalrep.on("data", function(chunks){
+    }
 
-                var austragungsorte = JSON.parse(chunks);
-                
-                 res.render('pages/addTurnier',{austragungsorte:austragungsorte});
-       
-                res.end();
-             
-            });
-    
-  });
-  x.end();
+    var x = http.request(options, function(externalrep){
 
-            });
-      
+
+        externalrep.on("data", function(chunks){
+
+            var austragungsorte = JSON.parse(chunks);
+
+            res.render('pages/addTurnier',{austragungsorte:austragungsorte});
+
+            res.end();
+
+        });
+
+    });
+    x.end();
+
+});
+
 app.get('/alleTurniere', function(req, res) {
 
     var options = {
@@ -123,7 +123,6 @@ app.post('/', function(req, res) {
 //Diese Operation verändert den Server-State und ist daher ein Put , kein Get 
 //Per Definition ist Put Idempotent , liefert also bei wiederholter Ausführung immer das selbse 
 //Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann 
-
 app.put('/:TurnierId/Spielplan',function(req,res){
 
     console.log("Spielplan für Turnier" + req.params.TurnierId + "angefordert");
@@ -158,12 +157,10 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
             //Parse die Antwort
             var turnier = jsonString;
-            
+
             //Checke ob schon ein Spielplan existiert 
             if(turnier.Matches.length != 0){
-	       
                 res.status(200).end();
-            
             }
 
             console.log("Stelle Turnierrequest für den Spielplan von Turnier" + req.params.TurnierId);
@@ -208,7 +205,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                 //Beispiel: //https://jsfiddle.net/fwrun1or/
                 var teams=[];
                 var anzahlTeams=turnier.Teilnehmeranzahl / turnier.Teamgroesse;
-               
+
 
                 //Beim Kicker sind nur die Teamgrößen 1 und 2 zulässig
                 //Teilnehmer sind nummeriert durch ihren index im Teilnehmerarray 
@@ -228,7 +225,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             teamObj[teamName]={
                                 "Teilnehmer1":turnier.Teilnehmer[i]
                             }
-						
+
                             //Team dem Teamarray hinzufügen 
                             teams.push(teamObj);
                             i++;
@@ -236,7 +233,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         break;
 
                     case 2:
-					
+
                         var i=0;
                         for(var j=0;j<anzahlTeams;j++){
 
@@ -245,29 +242,26 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                             //Objekt das unter dem Key <teamName> die Tielnehmer enthält
                             var teamObj={}
-							
+
                             //Teilnehmer hinzufügen 
                             teamObj[teamName]={
                                 "Teilnehmer1":turnier.Teilnehmer[i],
                                 "Teilnehmer2":turnier.Teilnehmer[i+1]
                             }
-								
+
                             //Team dem Teamarray hinzufügen 
                             teams.push(teamObj);
                             i+=2;
                         }
                         break;
-
-                    default:
-                        res.status(409).send("ungültige Teamgröße").end();
                 }
-                
-                
-                
-              console.log('teams array ist leer'+teams);
-              
-              
-              
+
+
+
+                console.log('teams array ist leer'+teams);
+
+
+
 
                 for(var i=0;i<turnier.Spielplan.length;i++){
 
@@ -294,16 +288,16 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     //Stelle Match Post-Anfragen 
                     var matchRequest = http.request(optionsMatches, function(matchRequestResponse) {
 
-					var matchRequestAntwort;
-					
+                        var matchRequestAntwort;
+
                         matchRequestResponse.on('data',function(chunk){
-//                             console.log(util.inspect(JSON.parse(chunk), false, null));
-                          matchRequestAntwort = JSON.parse(chunk);   
+                            //                             console.log(util.inspect(JSON.parse(chunk), false, null));
+                            matchRequestAntwort = JSON.parse(chunk);   
                         });
 
                         //Wenn die Antwort der letzten Anfrage ankommt
                         matchRequestResponse.on('end',function(){
-                            if(i==anzahlTeams-1){ 
+                            if(i==turnier.Spielplan.length-1){ 
                                 res.status(200).json(matchRequestAntwort).end();
                             }     
                         });      
