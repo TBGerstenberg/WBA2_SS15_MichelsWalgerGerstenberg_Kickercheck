@@ -293,8 +293,15 @@ console.log('put?');
 
                         async.each(turnier.Spielplan, function(listItem, next) {
 
+                            /*
+                            j=listItem.position;
+                            console.log(listItem.position);
+                            //listItem.position = j;
+                            */
+
                             //Lese die vorberechnete Paarung aus 
                             var matchConfig=listItem;
+                            
 
                             //Setze matchanfrage zusammen 
                             var matchAnfrage={
@@ -320,6 +327,7 @@ console.log('put?');
 
                                 //Wenn die Antwort der letzten Anfrage ankommt
                                 matchRequestResponse.on('data',function(match){
+
 
                                     var matchExpose = JSON.parse(match);
 
@@ -351,6 +359,9 @@ console.log('put?');
                                     spielstandRequest.write(JSON.stringify(spielstandAnfrage));
                                     spielstandRequest.end();
 
+
+                                    //console.log(JSON.parse(match));
+
                                     next();
                                 });      
                             });
@@ -360,7 +371,7 @@ console.log('put?');
                             });
 
                             matchRequest.write(JSON.stringify(matchAnfrage));
-                            console.log(matchAnfrage);
+                            //console.log(matchAnfrage);
                             matchRequest.end();
 
                         }, function(err) {
