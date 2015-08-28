@@ -14,9 +14,10 @@
                     $.ajax({
                         type: 'PUT',
                         url: '/Turnier/<%= turnier.id %>/Spielplan',
+                        contentType:"application/json",
                         success: function(data) {
                         
-                            location.reload();
+                           window.location.reload(true);		
                         },
                         statusCode: {
          
