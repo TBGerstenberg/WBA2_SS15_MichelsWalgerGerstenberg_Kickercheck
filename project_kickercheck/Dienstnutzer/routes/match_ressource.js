@@ -524,7 +524,6 @@ app.get('/:MatchId/Liveticker', function(req, res) {
   
                 //Publish to the specific topic path  
                 var publication = clientFaye.publish(path,{
-                   
                     'SpielstandT1': MatchSpielstand.spielstandT1,
                     'SpielstandT2': MatchSpielstand.spielstandT2,
                 });
@@ -532,14 +531,12 @@ app.get('/:MatchId/Liveticker', function(req, res) {
     publication.then(
                 
     function(){
-        console.log("Nachricht wurde versendet.");
+  
     }
                 
     ,
                 
     function(){
-        console.log("Nachricht wurde nicht versendet.");
- 
     }
                 
                 

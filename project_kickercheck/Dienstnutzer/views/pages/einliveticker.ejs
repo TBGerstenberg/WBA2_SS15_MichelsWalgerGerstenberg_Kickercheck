@@ -13,10 +13,10 @@
     
     var client = new Faye.Client('http://localhost:8000/faye');
     
-    var subscription = client.subscribe('liveticker/'+pathurl, function(message) {
+    var subscription = client.subscribe('/liveticker/'+pathurl, function(message) {
 
-        var div= document.getElementById('messages');
-        div.innerHTML += "<p> Spielstand Team1: " + message.SpielstandT1 + "<br> Spielstand Team2: " + message.SpielstandT2 + "</p>";
+        var div = $('#messages');
+        div.append("<p> Spielstand Team1: " + message.SpielstandT1 + "<br> Spielstand Team2: " + message.SpielstandT2 + "</p>");
         
     });
 </script>
