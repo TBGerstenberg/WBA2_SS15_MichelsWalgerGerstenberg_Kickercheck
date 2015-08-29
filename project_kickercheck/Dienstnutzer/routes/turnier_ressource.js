@@ -248,6 +248,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                     
 
                                    //Pflege Teams in DB ein
+                                   
                                     client.LPUSH('einTurnier '+turnierId+' Teams',JSON.stringify(objTeam));
 
                                     //Team dem Teamarray hinzufügen 
@@ -632,7 +633,14 @@ app.get('/:TurnierId/Teams',function(req,res){
 
             //Hole alle Teams aus DB 
             client.lrange(listenKey, 0, -1, function(err,items) {
-                res.status(200).json(JSON.parse(items)).end();  
+             
+                var itemsArray = [];
+                
+                for(var i=0;i<items.length;i++) {
+                  itemsArray.push(JSON.parse(items[i]));
+                }
+                
+                res.status(200).json(itemsArray).end();  
             });
         }
     });
