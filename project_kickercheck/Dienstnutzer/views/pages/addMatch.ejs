@@ -67,22 +67,22 @@
                     if(teilnehmer4 && teilnehmer4 != '0') {
                         teilnehmerArray.push(teilnehmer4);
                     }
-                    
-                        if(teilnehmerArray.length == 1) {
-                         var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: null, Teilnehmer2: null } },
-  { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } } ]
-                        } else if (teilnehmerArray.length == 2) {
-                             var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: null } },
-  { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } } ]
-                        } else if(teilnehmerArray.length == 3) {
-                              var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: teilnehmer3 } },
-  { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } } ]
-                        } else if (teilnehmerArray.length == 4) {
-                              var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: teilnehmer4 } },
-  { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } } ]
-                        }
 
-                   
+                    if(teilnehmerArray.length == 1) {
+                        var teilnehmerTeamArray = [{ Team2: { Teilnehmer1: null, Teilnehmer2: null },
+                                                    Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } } ]
+                        } else if (teilnehmerArray.length == 2) {
+                            var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: null },
+                                                         Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } } ]
+                            } else if(teilnehmerArray.length == 3) {
+                                var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: teilnehmer3 } ,
+                                                             Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } } ]
+                                } else if (teilnehmerArray.length == 4) {
+                                    var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: teilnehmer4 } ,
+                                                                 Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } } ]
+                                    }
+
+
 
                     var formData = {
                         Datum : datum,
@@ -139,9 +139,9 @@
 
                         <p>Konvention (bzw. Crashvermeidung):</p><p>Bei 2 Spielern ist Teilnehmer1 erstes Team-Mitglied und Teilnehmer2 zweites Team-Mitglied.</p><p>Bei 3 Spielern ist Teilnehmer1 erstes Team-Mitglied, Teilnehmer2 zweites Team-Mitglied und Teilnehmer3 drittes Team-Mitglied.</p>
                         <div class="row">
-                        
+
                             <div class="col-md-6">
-                          
+
                                 <form role="form" action="" method="POST" name="matchAnlegen" id="matchAnlegen">
                                     <div class="form-group">
                                         <label for="teilnehmer">Teilnehmer 1:</label> <br>

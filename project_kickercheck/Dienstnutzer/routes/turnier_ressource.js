@@ -223,10 +223,10 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         if(turnier.Teamgroesse == 1) {
 
                             var i=0;
-                            async.each(Teilnehmer, function(listItem, next) {
+                          //  async.each(anzahlTeams, function(listItem, next) {
 
 
-                                for(var j=0;j<anzahlTeams;j++){
+                               for(var j=0;j<anzahlTeams;j++){
 
                                     //Name des jeweiligen Teams
                                     var teamName="Team"+j
@@ -238,23 +238,38 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                     teamObj={
                                         "Teilnehmer1":Teilnehmer[i]
                                     }
+                                    
+                                    var objTeam ={
+                                        "teamName":teamName,
+                                        "Team":teamObj
+                                    }
+                                    
+                                     console.log(util.inspect(objTeam,false, null));
+                                    
+
+                                   //Pflege Teams in DB ein
+                                    client.LPUSH('einTurnier '+turnierId+' Teams',JSON.stringify(objTeam));
 
                                     //Team dem Teamarray hinzufügen 
                                     teams.push(teamObj);
 
                                     i++;
+                                 //   next();
                                 }
 
-                            }, function(err) {
+                   /*         }, function(err) {
 
-                            });
+                            }); */
                         }
                         else {
 
                             var i=0;
-                            async.each(Teilnehmer, function(listItem, next) {
+                          //  async.each(anzahlTeams, function(listItem, next) {
 
                                 for(var j=0;j<anzahlTeams;j++){
+
+                                    //Name des jeweiligen Teams
+                                    var teamName="Team"+j
 
                                     //Objekt das unter dem Key <teamName> die Tielnehmer enthält
                                     var teamObj={}
@@ -265,16 +280,25 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                         "Teilnehmer2":Teilnehmer[i+1]
                                     }
 
+                                    var objTeam ={
+                                        "teamName":teamName,
+                                        "Teilnehmer":teamObj
+                                    }
+
+                                    //Pflege Teams in DB ein
+                                    client.LPUSH('einTurnier '+turnierId+' Teams',JSON.stringify(objTeam));
+
                                     //Team dem Teamarray hinzufügen 
                                     teams.push(teamObj);
 
-                                    i+=2;                                        
+                                    i+=2;
+                                 //   next();
                                 }
-
+/*
                             }, function(err) {
 
 
-                            });
+                            }); */
                         }
 
                         // HTTP Header für Match Posts vorbereiten 
@@ -588,17 +612,44 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
     externalRequest.end();
 });
 
+//Gibt eine Liste aller Teams eines Turnieres zurück 
 app.get('/:TurnierId/Teams',function(req,res){
 
-    //Hole alle Teamliste aus DB 
+    var turnierId=req.params.TurnierId;
 
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    client.exists('Turnier ' + turnierId, function(err, IdExists) {
 
+        //client.exists hat false geliefert 
+        if (!IdExists) {
+            res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+            return;
+        }
 
+        else{
 
+            var listenKey="einTurnier "+turnierId+" Teams"
 
-
-
+            //Hole alle Teams aus DB 
+            client.lrange(listenKey, 0, -1, function(err,items) {
+                res.status(200).json(JSON.parse(items)).end();  
+            });
+        }
+    });
 });
+
+/*
+app.get('',function(req,res){
+
+
+
+
+
+});*/
+
+
+
+
 
 //Ändert die Daten eines Turnieres
 app.put('/:TurnierId', function(req, res) {

@@ -193,11 +193,11 @@ console.log(match.Austragungsort);
                                      if(match.Teilnehmer[0].Team2.Teilnehmer2) {
                                     teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer2);
                                     }
-                                     if(match.Teilnehmer[1].Team1.Teilnehmer1) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[1].Team1.Teilnehmer1);
+                                     if(match.Teilnehmer[0].Team1.Teilnehmer1) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer1);
                                     }
-                                     if(match.Teilnehmer[1].Team1.Teilnehmer2) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[1].Team1.Teilnehmer2);
+                                     if(match.Teilnehmer[0].Team1.Teilnehmer2) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer2);
                                     }
                                
                                     console.log(teilnehmerAusMatchAnfrage);
@@ -573,6 +573,9 @@ app.get('/:MatchId/Liveticker', function(req, res) {
     });
 
 });
+
+
+
 
 
 

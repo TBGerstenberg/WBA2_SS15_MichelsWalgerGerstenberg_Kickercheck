@@ -536,16 +536,16 @@
 
                         <% if (match.Teilnehmer) { %>
                         <% if (benutzerAll.length == 1) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[1].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a></p>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a></p>
                         <% } else if (benutzerAll.length == 2) { %>
                         <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[1].Team1.Teilnehmer1 %>"><span id="spieler2team1"></span></a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler2team1"></span></a></p>
                         <% } else if (benutzerAll.length == 3) { %>
                         <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[1].Team1.Teilnehmer1 %>"><span id="spieler1team2"></span></a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team2"></span></a></p>
                         <% } else if(benutzerAll.length == 4) { %>
                         <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[1].Team1.Teilnehmer1 %>"><span id="spieler1team2"></span></a> , <a href="<%= match.Teilnehmer[1].Team1.Teilnehmer2 %>"><span id="spieler2team2"></span></a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team2"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team2"></span></a></p>
                         <% } } %>
                         <hr />
                         <% if (match.Status == 'vor_beginn') { %>
