@@ -123,7 +123,6 @@ app.post('/', function(req, res) {
 //Diese Operation verändert den Server-State und ist daher ein Put , kein Get 
 //Per Definition ist Put Idempotent , liefert also bei wiederholter Ausführung immer das selbse 
 //Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann 
-
 app.put('/:TurnierId/Spielplan',function(req,res){
     console.log('put?');
     //Vorgehen: 
@@ -246,8 +245,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                 }
 
                             }, function(err) {
-
-
+                                
                             });
                         }
                         else {
@@ -404,10 +402,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                 teilnehmerRequest.end();
             }
         });
-
-
     });
-
     externalRequest.end();
 });
 
@@ -590,6 +585,14 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
     });
     externalRequest.write(JSON.stringify(Teilnehmer));
     externalRequest.end();
+});
+
+app.get('/:TurnierId/Teams',function(req,res){
+
+
+
+
+
 });
 
 //Ändert die Daten eines Turnieres
