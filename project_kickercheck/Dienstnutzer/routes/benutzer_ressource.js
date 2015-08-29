@@ -173,7 +173,6 @@ app.delete('/:BenutzerId', function(req, res) {
     });
 
     externalRequest.end();
-
 });
 
 module.exports = app;
