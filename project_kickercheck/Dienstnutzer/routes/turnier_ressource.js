@@ -211,37 +211,25 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                         var Teilnehmer = teilnehmerRequestJson;
 
-                            //Bilde die Teams
-                            //Beispiel: //https://jsfiddle.net/fwrun1or/
-                            var teams=[];
-                            var anzahlTeams=turnier.Teilnehmeranzahl / turnier.Teamgroesse;  
-                        
-                            //Beim Kicker sind nur die Teamgrößen 1 und 2 zulässig
-                            //Teilnehmer sind nummeriert durch ihren index im Teilnehmerarray 
-                            //Dieser Index wird nun genutzt um Teilnehmer auf Teamnummern aus dem Speilplan abzubilden
-                        
-                             if(turnier.Teamgroesse == 1) {
-                                 
-                                   var i=0;
-                                    async.each(Teilnehmer, function(listItem, next) {
+                        //Bilde die Teams
+                        //Beispiel: //https://jsfiddle.net/fwrun1or/
+                        var teams=[];
+                        var anzahlTeams=turnier.Teilnehmeranzahl / turnier.Teamgroesse;  
 
-                                        
-                                    for(var j=0;j<anzahlTeams;j++){
+                        //Beim Kicker sind nur die Teamgrößen 1 und 2 zulässig
+                        //Teilnehmer sind nummeriert durch ihren index im Teilnehmerarray 
+                        //Dieser Index wird nun genutzt um Teilnehmer auf Teamnummern aus dem Speilplan abzubilden
 
-                                        //Name des jeweiligen Teams
-                                        var teamName="Team"+j
+                        if(turnier.Teamgroesse == 1) {
 
-                                        //Objekt das unter dem Key <teamName> die Tielnehmer enthält
-                                        var teamObj={};
+                            var i=0;
+                            async.each(Teilnehmer, function(listItem, next) {
 
-                                        //Teilnehmer hinzufügen 
-                                        teamObj={
-                                            "Teilnehmer1":Teilnehmer[i]
-                                        }
 
+                                for(var j=0;j<anzahlTeams;j++){
 
                                     //Name des jeweiligen Teams
-                                    var teamName="Team"+j;
+                                    var teamName="Team"+j
 
                                     //Objekt das unter dem Key <teamName> die Tielnehmer enthält
                                     var teamObj={};
@@ -258,7 +246,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                 }
 
                             }, function(err) {
-                                
+
                             });
                         }
                         else {
@@ -601,11 +589,11 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 });
 
 app.get('/:TurnierId/Teams',function(req,res){
-    
+
     //Hole alle Teamliste aus DB 
-    
-    
-    
+
+
+
 
 
 
