@@ -48,11 +48,8 @@
                         contentType: 'application/json',
                         data: JSON.stringify(formData),
                         success: function(data) {
-                            $('#addTeilnehmer').each(function() {
-                                this.reset();
-                            });
-
-                            $("#teiln ul").append('<li>'+teilnehmer+'</li>');
+                
+                        window.location.reload(true);
 
                         },
                         statusCode: {
@@ -133,8 +130,11 @@
                             <ul>
                                 <% if (turnierTeilnehmer) { %>
                                 <% for(var i=0; i < turnierTeilnehmer.length; i++) { %>
-                                <li><%= turnierTeilnehmer[i] %></li>
-                                <% }}; %>
+                                <% benutzerAll.forEach(function(benutzer) { %>
+                                <% var turnierTeilnehmerId = turnierTeilnehmer[i].split("/"); 
+                                if(benutzer.id == turnierTeilnehmerId[2]) { %>
+                                <li><a href="<%= turnierTeilnehmer[i] %>"><%= benutzer.Name %></a></li>
+                                <% } }); }}; %>
                             </ul>
                         </div>
                         <hr />
@@ -198,8 +198,7 @@
                                     <% if(matches) { %>
                                     <% for(var i=0; i < matches.length; i++) { %>
                                     <tr>
-                                        <td> <a href="<%= matches[i]%>">Match <%=i%></a> </td>                               <% var urls = matches[i].split("/"); %> 
-                                        <!--<td><a href="/<%= matches[i] %>">Match <%= urls[1] %></a></td>-->
+                                        <td> <a href="/<%= matches[i]%>">Match <%=i+1%></a> </td>                               
                                     </tr>
                                     <% }; %>
                                     <% } %>
