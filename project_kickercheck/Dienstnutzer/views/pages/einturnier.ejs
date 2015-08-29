@@ -16,96 +16,91 @@
                         url: '/Turnier/<%= turnier.id %>/Spielplan',
                         contentType:"application/json",
                         success: function(data) {
-                       
-                        window.location.reload(true);
+
+                            window.location.reload(true);
                         },
                         statusCode: {
-         
+
                         },
                         fail: function() {
                             alert('Fehler');
                         }
                     });
-                
-            }); 
 
-            $('#addTeilnehmer').submit(function(e) {
-                e.preventDefault();
+                }); 
 
-                var teilnehmer = $('#teilnehmer').val();
+                $('#addTeilnehmer').submit(function(e) {
+                    e.preventDefault();
+
+                    var teilnehmer = $('#teilnehmer').val();
 
 
-                if(teilnehmer == '0') {
-                    alert('Bitte Teilnehmer spezifizieren.');
-                    return false;
-                }
+                    if(teilnehmer == '0') {
+                        alert('Bitte Teilnehmer spezifizieren.');
+                        return false;
+                    }
 
-                var formData = {'Teilnehmer' : teilnehmer};
+                    var formData = {'Teilnehmer' : teilnehmer};
 
-                $.ajax({
-                    type: 'PUT',
-                    url: "/Turnier/<%= turnier.id %>/Teilnehmer",
-                    contentType: 'application/json',
-                    data: JSON.stringify(formData),
-                    success: function(data) {
-                    $('#addTeilnehmer').each(function() {
-                    this.reset();
+                    $.ajax({
+                        type: 'PUT',
+                        url: "/Turnier/<%= turnier.id %>/Teilnehmer",
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+                            $('#addTeilnehmer').each(function() {
+                                this.reset();
+                            });
+
+                            $("#teiln ul").append('<li>'+teilnehmer+'</li>');
+
+                        },
+                        statusCode: {
+                            409: function() {
+                                alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
+                            }
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+                    });
                 });
 
-                $("#teiln ul").append('<li>'+teilnehmer+'</li>');
+                $('#changeData').submit(function(e) {
+                    e.preventDefault();
 
-            },
-                                       statusCode: {
-                                       409: function() {
-                alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
-            }
-            },
-                fail: function() {
-                    alert('Fehler');
-                }
-            });
-            });
+                    var austragungszeitraum = $('.austragungszeitraum').val();
+                    var status = $('.status').val();
 
-            $('#changeData').submit(function(e) {
-                e.preventDefault();
+                    if(!(austragungszeitraum && status)) {
+                        alert('Bitte Daten spezifizieren.');
+                        return false;
+                    }
 
-                var austragungszeitraum = $('.austragungszeitraum').val();
-                var status = $('.status').val();
+                    var formData = {
+                        Austragungszeitraum : austragungszeitraum,
+                        Status: status
+                    };
 
-                if(!(austragungszeitraum && status)) {
-                    alert('Bitte Daten spezifizieren.');
-                    return false;
-                }
+                    $.ajax({
+                        type: 'PUT',
+                        url: '/Turnier/<%= turnier.id %>',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
 
-                var formData = {
-                    Austragungszeitraum : austragungszeitraum,
-                    Status: status
-                };
+                            $('#changeData').each(function() {
+                                this.reset();
+                            });
 
-                $.ajax({
-                    type: 'PUT',
-                    url: '/Turnier/<%= turnier.id %>',
-                    contentType: 'application/json',
-                    data: JSON.stringify(formData),
-                    success: function(data) {
-
-                    $('#changeData').each(function() {
-                    this.reset();
+                            $("#austr").text('Austragungszeitraum: '+data.Austragungszeitraum);
+                            $("#stat").text('Status: '+data.Status);
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+                    });
                 });
-
-
-
-                $("#austr").text('Austragungszeitraum: '+data.Austragungszeitraum);
-                $("#stat").text('Status: '+data.Status);
-
-            },
-                                    fail: function() {
-                alert('Fehler');
-            }
-
-            });
-            });
-
             });
 
         </script>
@@ -188,27 +183,25 @@
                                 </tbody>
                             </table> 
 
-
                             <!--Button um den Spielplan zu erstellen -->
-
-                            <input id="generiereSpielplan" class="btn btn-default" value="Generiere Spielplan" type="button" />
+                            <input id="generiereSpielplan" class="btn btn-default" value="Generiere Matches" type="button" />
 
                             <!--Anzeige für den fertigen Spielplan -->
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Match</th>
+                                        <th>Matches</th>
                                         <th>Runde</th>
                                     </tr>
                                 </thead>
                                 <tbody id="matches">
-                                   <% if(matches) { %>
+                                    <% if(matches) { %>
                                     <% for(var i=0; i < matches.length; i++) { %>
                                     <tr>
-                                        <td><%= matches[i] %></td>
+                                        <td> <a href="<%= matches[i]%>">Match <%=i%></a> </td>
                                     </tr>
                                     <% }; %>
-                                   <% } %>
+                                    <% } %>
                                 </tbody>
                             </table> 
                         </div>

@@ -23,7 +23,7 @@ app.get('/',function(req,res){
             turnier.forEach(function (val) {
                 response.push(JSON.parse(val));
             });
-         
+
             res.status(200).set("Content-Type","application/json").json(response).end();
         });
     });
