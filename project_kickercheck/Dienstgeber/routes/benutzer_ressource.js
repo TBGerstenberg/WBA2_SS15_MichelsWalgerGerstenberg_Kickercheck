@@ -4,67 +4,56 @@ app.get('/:BenutzerId', function(req, res) {
 
     //BenutzerId aus der URI extrahieren
     var benutzerId = req.params.BenutzerId;    
-    /*
-	TODO
 
-	  // hget return 0 wenn key auf false sonst 1 , hier wird geprüft ob der Benutzer nach außen sichtbar sein möchte
 
-        client.hget('Benutzer ' + benutzerId, "isActive", function(err, benutzerValid) {
-
-            //Der Benutzer existiert im System und ist nicht für den Zugriff von außen gesperrt
-            if (IdExists == 1 && benutzerValid == 1) {
-*/
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
 
+        client.mget('Benutzer ' + benutzerId, function(err, benutzerData) {
 
-        //Das Match existiert nicht im System 
-        if (!IdExists) {
-            res.status(404).send("Die Ressource wurde nicht gefunden.").end();
-        }
+            var benutzerObj=JSON.parse(benutzerData);
 
-        //Das Match existiert 
-        else  {
+            if(IdExists==1 && benutzerObj.isActive == 1) {
+                //Setze das isActive Attribut des Benutzers in der Datenbank auf 0 , so bleiben seine Daten für statistische Zwecke erhalten , nach 				   
+                //außen ist die Ressource aber nicht mehr erreichbar 
 
-            //Headerfeld Accept abfragen
-            var acceptedTypes = req.get('Accept');
 
-            //Es wird zunaechst nur text/html 
-            switch (acceptedTypes) {
+                //Das Match existiert 
 
-                    //client kann application/json verarbeiten     
-                case "application/json":
 
-                    client.mget('Benutzer ' + benutzerId, function(err,benutzerdata){
+                //Headerfeld Accept abfragen
+                var acceptedTypes = req.get('Accept');
 
-                        var Benutzerdaten = JSON.parse(benutzerdata);
+                //Es wird zunaechst nur text/html 
+                switch (acceptedTypes) {
 
-                        //Setze Contenttype der Antwort auf application/json
-                        res.set("Content-Type", 'application/json').status(200).json(Benutzerdaten).end();
-                    });
-                    break;
+                        //client kann application/json verarbeiten     
+                    case "application/json":
 
-                default:
-                    //Der gesendete Accept header enthaelt kein unterstuetztes Format 
-                    res.status(406).send("Content Type wird nicht unterstuetzt").end();
-                    break;
+                        client.mget('Benutzer ' + benutzerId, function(err,benutzerdata){
+
+                            var Benutzerdaten = JSON.parse(benutzerdata);
+
+                            //Setze Contenttype der Antwort auf application/json
+                            res.set("Content-Type", 'application/json').status(200).json(Benutzerdaten).end();
+                        });
+                        break;
+
+                    default:
+                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
+                        res.status(406).send("Content Type wird nicht unterstuetzt").end();
+                        break;
+                }
             }
-        }
-
-        /*
-	TODO
-            else if(IdExists == 1 && benutzerValid == 0) {
-                //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
+            else if(IdExists == 1 && benutzerObj.isActive == 0) {
                 res.status(404).send("Die Ressource wurde für den Zugriff von außen gesperrt.").end();
             }
-
-
             else {
-                //Der Benutzer mit der angefragten ID existiert nicht oder wurde für den Zugriff von außen gesperrt
                 res.status(404).send("Die Ressource wurde nicht gefunden.").end();
             }
-      */
+
+        });
     });
 });
 

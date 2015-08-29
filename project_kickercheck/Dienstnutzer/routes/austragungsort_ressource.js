@@ -640,18 +640,18 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res)
             //Ressource existiert     
             else {
                 
+                 var Forderung = req.body;
+                   
+            
+                
                  client.mget('Belegung '+tischId,function(err,belegungdaten){
 
                         var belegung = JSON.parse(belegungdaten);
                      
-                     if(belegung.Anzahl == 0) {
-                         res.status(400).send("Es darf nicht gefordert werden an einem leeren Tisch.").end();
-                         return;
-                     }
 
                 client.incr('ForderungId', function(err, id) {
 
-                    var Forderung = req.body;
+                   
 
                     console.log(Forderung);
 
@@ -667,8 +667,11 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res)
                         'Timestamp': timestamp
                     };
 
-                    console.log(forderungObj);
-
+                    for(var i=0;i<belegung.Forderungen.length;i++) {
+                   if(Forderung.Benutzer == belegung.Forderungen[i].Benutzer);
+                       res.end();
+                        return;
+                    }
                     client.set('Forderung ' + id, JSON.stringify(forderungObj));
 
                         belegung.Forderungen.push({Benutzer : Forderung.Benutzer, Timestamp: timestamp});
@@ -679,8 +682,7 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res)
                         res.set("Content-Type", 'application/json').status(200).json(forderungObj).end();
 
                     });
-
-                });
+              });
             }
         });
 

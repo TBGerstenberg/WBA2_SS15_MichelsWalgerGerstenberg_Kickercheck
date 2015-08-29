@@ -131,7 +131,7 @@
                              <% } %>
                      <hr />
                         <p>Forderungen: <%= belegung.Forderungen.length %></p>
-                        
+                        <% if(belegung.Forderungen.length > 0) { %>
                   <p>Spieler die gefordert haben:</p>
                     <ul>
                                 <% for(var i=0; i < belegung.Forderungen.length; i++) { %>
@@ -140,6 +140,7 @@
                         <li id="forderer"><a href="<%= belegung.Forderungen[i].Benutzer %>"><%= benutzer.Name %></a></li>
                                <% }; }); }; %>
                         </ul>
+                        <% } %>
 <hr />
                         <p>Diesen Tisch fordern: </p>
                           <div class="row">
