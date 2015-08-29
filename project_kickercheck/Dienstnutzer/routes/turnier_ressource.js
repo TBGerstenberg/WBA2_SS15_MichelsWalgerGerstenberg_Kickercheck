@@ -411,53 +411,6 @@ app.put('/:TurnierId/Spielplan',function(req,res){
     externalRequest.end();
 });
 
-
-/*
-                    for(var i=0;i<turnier.Spielplan.length;i++){
-                        //Lese die vorberechnete Paarung aus 
-                        var matchConfig=turnier.Spielplan[i];
-                        //Setze matchanfrage zusammen 
-                        var matchAnfrage={
-                            'Datum' : "TO BE SPECIFIED",
-                            'Uhrzeit': "TO BE SPECIFIED",
-                            'Teilnehmer' : [],
-                            'Regelwerk':Regelwerk,
-                            'Austragungsort': turnier.Austragungsort,
-                            'Status':"vor_beginn"
-                        };
-                        //Pushe Teams zu den Teilnehmern des Matches 
-                        matchAnfrage.Teilnehmer.push(teams[matchConfig.Team1]);
-                        matchAnfrage.Teilnehmer.push(teams[matchConfig.Team2]);
-                        console.log("Starte Matchanfrage für den Spielplan von Turnier" + req.params.TurnierId);
-                        //console.log(util.inspect(matchAnfrage, false, null));
-                        //Stelle Match Post-Anfragen 
-                        var matchRequest = http.request(optionsMatches, function(matchRequestResponse) {
-                            var matchRequestAntwort;
-                            matchRequestResponse.on('data',function(chunk){
-                                //                             console.log(util.inspect(JSON.parse(chunk), false, null));
-                                matchRequestAntwort = JSON.parse(chunk);   
-                            });
-                            //Wenn die Antwort der letzten Anfrage ankommt
-                            matchRequestResponse.on('end',function(){
-                                if(i==turnier.Spielplan.length-1){ 
-                                    res.status(200).json(matchRequestAntwort).end();
-                                }     
-                            });      
-                        });
-                        matchRequest.on('error',function(e){
-                            console.log("Fehler"+e.message);
-                        });
-                        matchRequest.write(JSON.stringify(matchAnfrage));
-                        console.log(matchAnfrage);
-                        matchRequest.end();
-                    }                
-                } 
-                           });   
-            });
-            externalRequest.end(); 
-        });
-        */
-
 //Holt ein einzelnes Turnier und seine Teilnehmer
 app.get('/:TurnierId', function(req, res) {
 
