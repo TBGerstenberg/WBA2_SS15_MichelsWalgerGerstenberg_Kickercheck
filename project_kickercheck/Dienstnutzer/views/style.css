@@ -13,3 +13,9 @@
 .spielstand {
 	text-align: center;
 }
+#allmatchticker {
+    position: relative;
+    z-index: 200;
+	float:right;
+	margin-top:-60px;
+}

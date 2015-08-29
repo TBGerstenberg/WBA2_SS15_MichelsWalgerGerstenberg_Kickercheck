@@ -188,10 +188,10 @@ app.delete('/:TurnierId', function(req, res) {
 
         else {
             client.del('Turnier '+ turnierId);
-            client.del('Turnier ' + turnierId + ' Teilnehmer');
+            client.del('einTurnier ' + turnierId + ' Teilnehmer');
 
 
-            var listenKey="Turnier "+turnierId+"Matches"; 
+            var listenKey="einTurnier "+turnierId+"Matches"; 
             //Hole alle Assoziierten Matches 
             client.lrange(listenKey, 0, -1, function(err,items) {
 
@@ -206,7 +206,7 @@ app.delete('/:TurnierId', function(req, res) {
             });
 
             //Lösche MatchListe
-            client.del('Turnier ' + turnierId + ' Matches');
+            client.del('einTurnier ' + turnierId + ' Matches');
 
             //Zeige mit Status 204-No Content Erfolg des Löschvorgangs
             res.status(204).send("Das hat funktioniert! Turnier gelöscht.").end();
@@ -229,7 +229,7 @@ app.get('/:TurnierId/Match',function(req,res){
         else{
 
             var matches=[];
-            var listenKey="Turnier "+turnierId+" Matches";
+            var listenKey="einTurnier "+turnierId+" Matches";
 
             //Hole alle Assoziierten Matches 
             client.lrange(listenKey, 0, -1, function(err,items) {
@@ -285,7 +285,7 @@ app.post('/:TurnierId/Match',function(req,res){
                     client.set('Match ' + id, JSON.stringify(matchObj));
 
                     //Pushe das angelegte Match in die Liste der Matches
-                    client.LPUSH("Turnier "+turnierId+" Matches",id)
+                    client.LPUSH("einTurnier "+turnierId+" Matches",id)
 
                     //Schreibe Turnierdaten zurück 
                     //client.set('Turnier ' + turnierId,JSON.stringify(turnier));
@@ -306,7 +306,7 @@ app.post('/:TurnierId/Match',function(req,res){
 //Kein Teilnemer vorhanden ist 
 app.get('/:TurnierId/Teilnehmer',function(req,res){
 
-    var listenKey="EinTurnier "+req.params.TurnierId+" Teilnehmer";
+    var listenKey="einTurnier "+req.params.TurnierId+" Teilnehmer";
 
     //Hole alle Assoziierten Teilnehmer
     client.lrange(listenKey, 0, -1, function(err,items) {
@@ -340,7 +340,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
             var Turnierdaten = JSON.parse(turnierdata);
 
-            var listenKey="EinTurnier "+turnierId+" Teilnehmer";
+            var listenKey="einTurnier "+turnierId+" Teilnehmer";
 
             var teilnehmer=[];
 
@@ -370,7 +370,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
                     //Benutzer ist nicht vorhanden 
                     else{
                         //Pushe Teilnehmer in die Liste 
-                        client.LPUSH("EinTurnier "+turnierId+" Teilnehmer",req.body.Teilnehmer);
+                        client.LPUSH("einTurnier "+turnierId+" Teilnehmer",req.body.Teilnehmer);
 
                         //Hole alle Assoziierten Teilnehmer
                         client.lrange(listenKey, 0, -1, function(err,items) {

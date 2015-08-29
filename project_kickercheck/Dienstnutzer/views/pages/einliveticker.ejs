@@ -16,7 +16,7 @@
     var subscription = client.subscribe('/liveticker/'+pathurl, function(message) {
 
         var div = $('#messages');
-        div.append("<p> Spielstand Team1: " + message.SpielstandT1 + "<br> Spielstand Team2: " + message.SpielstandT2 + "</p>");
+        div.prepend("<p> Spielstand Team1: " + message.SpielstandT1 + "<br> Spielstand Team2: " + message.SpielstandT2 + "</p>");
         
     });
 </script>
@@ -28,8 +28,19 @@
 <body class="container">
 
 <main>
-    <div id="messages"></div>
-</main>
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="jumbotron">
+                        <h1>Liveticker</h1>
+                        <br />
+                       <div id="messages"></div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
     
 <footer>
     <% include ../partials/footer %>

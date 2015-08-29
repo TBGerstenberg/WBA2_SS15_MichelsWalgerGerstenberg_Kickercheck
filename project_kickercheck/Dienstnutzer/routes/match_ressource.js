@@ -538,9 +538,10 @@ app.get('/:MatchId/Liveticker', function(req, res) {
                 
 	     var MatchSpielstand = req.body;
                 
+                
+                
                 //Path of the Topic
               var path = "/liveticker/"+matchId;
-                console.log(path);
   
                 //Publish to the specific topic path  
                 var publication = clientFaye.publish(path,{
