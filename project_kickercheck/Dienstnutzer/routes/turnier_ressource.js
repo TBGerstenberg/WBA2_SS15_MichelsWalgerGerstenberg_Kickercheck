@@ -4,11 +4,11 @@ var app = express.Router();
 //Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen  ,dass die 
 //Spezifika eines Wettkampfes beschreibt. So ist erreicht ,dass der Dienst für unterschiedlichste Wettkampfarten nutzbar ist.
 
- var Regelwerk =
-        {
-            "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
-            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
-        }
+var Regelwerk =
+    {
+        "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
+        "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
+    }
 
 
 app.get('/addTurnier', function(req, res) {
@@ -645,26 +645,28 @@ app.post('/:TurnierId/Ligatabelle',function(req,res){
 
         for(var i=0;i<items.length;i++) {
 
-            //Sorted Set of Scores
-            //In diesem Set wird unter dem Key "teamName" der Score des Teams gespeichet
-            client.zadd('einTurnier '+turnierId+' Tabelle',0,items[i].teamName,function(err,data){
+            var tabellenListenKey="einTurnier "+ turnierId +" Tabelle";
 
-                var team=JSON.parse(items[i]);
-               
-                //Push to Tabelle 
-                var teamUndPunkte={
-                    "Team":team,
-                    "Punktestand":0,
-                }
-
-                ligaTabelle.push(teamUndPunkte);
-
-            });
+            var team=JSON.parse(items[i]);
+            
+            //Push to Tabelle 
+            var teamUndPunkte={
+                "Team":team,
+                "Punktestand":0
+            }
+            
+             console.log(util.inspect(teamUndPunkte, false, null));
+        
+            client.LPUSH(tabellenListenKey,JSON.stringify(teamUndPunkte));
+            
+            ligaTabelle.push(teamUndPunkte);
         }
 
         res.status(200).json(ligaTabelle).end(); 
     });
 });
+
+
 
 app.get('/:TurnierId/Ligatabelle',function(req,res){
 
@@ -672,35 +674,18 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
     var turnierId=req.params.TurnierId;
 
     //Key für die Collection der Teams dieses Turnieres 
-    var listenKey="einTurnier "+turnierId+" Teams";
+    var listenKey="einTurnier "+ turnierId +" Tabelle";
 
     //Hole alle Teams aus DB 
     client.lrange(listenKey, 0, -1, function(err,items) {
 
-        var ligaTabelle=[];
+        var itemsArray = [];
 
-        var i=0;
+        for(var i=0;i<items.length;i++) {
+            itemsArray.push(JSON.parse(items[i]));
+        }
 
-        async.each(items,function(listItem,next){
-
-            var team=JSON.parse(items[i]);
-
-            client.zscore(team.teamName,function(err,punktestand){
-
-                //Push to Tabelle 
-                var teamUndPunkte={
-                    Team:JSON.parse(items[i]),
-                    Punktestand:punktestand,
-                }
-
-                ligaTabelle.push(teamUndPunkte);
-                i++;
-                next()
-            });   
-
-        },function(err){
-            res.status(200).json(ligaTabelle).end(); 
-        });
+        res.status(200).json(itemsArray).end();  
     });
 });
 
@@ -710,7 +695,7 @@ app.put('/:TurnierId', function(req, res) {
     var TurnierDaten = req.body;
     var turnierId = req.params.TurnierId;
     var responseString = '';
-   
+
 
     // HTTP Header setzen
     var headers = {
