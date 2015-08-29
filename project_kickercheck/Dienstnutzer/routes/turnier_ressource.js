@@ -633,7 +633,7 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
     // Speichert req.body
     var Teilnehmer = req.body;
-    console.log(Teilnehmer);
+   
     var turnierId = req.params.TurnierId;
 
     // HTTP Header setzen
@@ -658,7 +658,7 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
         externalResponse.on('data', function (chunk) {
             var completeTurnierplan = JSON.parse(chunk);
-            //console.log(util.inspect(completeTurnierplan, false, null));
+            console.log(util.inspect(completeTurnierplan, false, null));
             res.json(completeTurnierplan);
             res.end();
         });

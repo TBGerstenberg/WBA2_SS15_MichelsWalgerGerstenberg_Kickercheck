@@ -205,7 +205,8 @@
                                    <% if(matches) { %>
                                     <% for(var i=0; i < matches.length; i++) { %>
                                     <tr>
-                                        <td><%= matches[i] %></td>
+                                        <% var urls = matches[i].split("/"); %> 
+                                        <td><a href="/<%= matches[i] %>">Match <%= urls[1] %></a></td>
                                     </tr>
                                     <% }; %>
                                    <% } %>
