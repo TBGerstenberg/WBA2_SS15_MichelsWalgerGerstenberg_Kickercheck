@@ -4,15 +4,11 @@ var app = express.Router();
 //Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen  ,dass die 
 //Spezifika eines Wettkampfes beschreibt. So ist erreicht ,dass der Dienst für unterschiedlichste Wettkampfarten nutzbar ist.
 
-var Regelwerk=
-    {
-        "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
-        "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm",
-        "Spielstand":{
-            "SpielstandT1":null,
-            "SpielstandT2":null
+ var Regelwerk =
+        {
+            "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
+            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
         }
-    }
 
 
 app.get('/addTurnier', function(req, res) {

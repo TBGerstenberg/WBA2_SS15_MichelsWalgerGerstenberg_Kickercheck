@@ -36,7 +36,7 @@ app.get('/:AustragungsortId', function(req, res) {
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     client.exists('Austragungsort ' + austragungsortId, function(err, IdExists) {
-
+        
         //Die Lokalitaet existiert im System und ist nicht für den Zugriff von außen gesperrt
         if (!IdExists) {
             res.status(404).send("Die Ressource wurde nicht gefunden.");
@@ -131,9 +131,10 @@ app.put('/:AustragungsortId', function(req, res) {
     else {    
         //Extrahiere Id aus der Anfrage 
         var austragungsortId = req.params.AustragungsortId;
+        var Austragungsort = req.body;
 
         //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-        client.exists('Austragungsort' + AustragungsortId, function(err, IdExists) {
+        client.exists('Austragungsort ' + austragungsortId, function(err, IdExists) {
 
             //client.exists hat false geliefert 
             if (!IdExists) {
@@ -150,9 +151,9 @@ app.put('/:AustragungsortId', function(req, res) {
                     var Austragungsortdaten = JSON.parse(austragungsortdata);
 
                     //Aktualisiere änderbare Daten 
-                    Austragungsort.Name = req.body.Name;
-                    Austragungsort.Adresse = req.body.Adresse;
-                    Austragungsort.Beschreibung = req.body.Beschreibung;
+                    Austragungsortdaten.Name = Austragungsort.Name;
+                    Austragungsortdaten.Adresse = Austragungsort.Adresse;
+                    Austragungsortdaten.Beschreibung = Austragungsort.Beschreibung;
 
 
                     //Schreibe Turnierdaten zurück 
@@ -172,28 +173,60 @@ app.put('/:AustragungsortId', function(req, res) {
 app.delete('/:AustragungsortId', function(req, res) {
 
     //Extrahiere Id aus der Anfrage 
-    var AustragungsortId = req.params.AustragungsortId;
+    var austragungsortId = req.params.AustragungsortId;
 
     //Prüfe ob Lokalitaet existiert 
-    client.exists('Austragungsort ' + AustragungsortId, function(err, IdExists) {
+    client.exists('Austragungsort ' + austragungsortId, function(err, IdExists) {
 
         //Lokalitaet existiert 
         if(IdExists) {
+           
+             //Speichert die alle Benutzer
+    var response=[];    
 
-            //Entferne EIntrag aus der Datenbank 
-            client.del('Austragungsort ' + AustragungsortId);
+    //returned ein Array aller Keys die das Pattern Benutzer* matchen 
+    client.keys('Match *', function (err, key) {
+
+        if(key.length == 0) {
+            res.json(response);
+            return;
+        }
+
+        client.mget(key, function (err, match) {
+
+            //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+            match.forEach(function (val) {
+
+              var dieseMatch = JSON.parse(val);
+                
+                var ortURI = "/Austragungsort/"+austragungsortId;
+                
+                if(dieseMatch.Austragungsort == ortURI) {
+                    
+                  dieseMatch.Austragungsort = null;
+                    
+                    client.set('Match '+dieseMatch.id,JSON.stringify(dieseMatch));
+               
+                }
+
+                         //Entferne EIntrag aus der Datenbank 
+            client.del('Austragungsort ' + austragungsortId);
+                          
 
             //Alles ok , sende 200 
-            res.status(204).send("Das hat funktioniert! Austragungsort gelöscht");
-
+            res.status(200).send("Das hat funktioniert! Austragungsort gelöscht");
+   });
             //Antwort beenden
             res.end();
+        });
+    });
         }
 
         else {
             res.status(404).send("Die Ressource wurde nicht gefunden.");
             res.end();
         }
+    
     });
 });
 

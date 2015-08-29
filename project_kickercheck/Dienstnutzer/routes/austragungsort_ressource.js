@@ -128,8 +128,6 @@ app.put('/:AustragungsortId', function(req, res) {
 
             var changeAustragungsort = JSON.parse(chunk);
 
-            console.log(util.inspect(changeAustragungsort, false, null));
-
             res.json(changeAustragungsort);
             res.end();
 
@@ -139,6 +137,49 @@ app.put('/:AustragungsortId', function(req, res) {
     });
 
     externalRequest.write(JSON.stringify(AustragungsortDaten));
+    externalRequest.end();
+
+});
+
+app.delete('/:AustragungsortId', function(req, res) {
+
+    var austragungsortId = req.params.AustragungsortId;
+
+    // Mit Server verbinden
+    var options = {
+        host: 'localhost',
+        port: 3000,
+        path: '/Austragungsort/'+austragungsortId,
+        method: 'DELETE'
+    };
+
+    var externalRequest = http.request(options, function(externalResponse) {
+
+
+        externalResponse.on('data', function (chunk) {
+            
+            client.del("Ort " +austragungsortId+ " Tische");
+            
+            var listenKey="Ort " +austragungsortId+ " Tische";
+            
+             client.lrange(listenKey, 0, -1, function(err,items) {
+
+                //Wenn es Matches gibt 
+                if(items.length!=0){
+                    //Lösche alle
+                    items.foreach(function(entry){
+                        //Lösche Eintrag aus der DB
+                        client.del('Kickertisch ' + item);
+                    });
+                }
+            });
+
+            res.status(200).end();
+
+
+        });
+
+    });
 
     externalRequest.end();
 

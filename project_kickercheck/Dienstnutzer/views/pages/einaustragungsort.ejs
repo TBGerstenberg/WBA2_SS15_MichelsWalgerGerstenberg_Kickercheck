@@ -9,6 +9,28 @@
 
                 $('#alltables').attr('href',loc); 
 
+                $('#deleteAustragungsort').submit(function(e) {
+                    e.preventDefault();
+
+                    if (confirm('Möchten Sie fortfahren?') == false) {
+                        return false;
+                    }
+                    $.ajax({
+                        type: 'DELETE',
+                        contentType: 'application/json',
+                        success: function(data) {
+                            alert('Austragungsort gelöscht. Weiterleitung zu allen Austragungsorten.');
+                            location.href = "/Austragungsort/alleaustragungsorte"
+
+
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
+                    });
+                });
+
                 $('#kickertischAnlegen').submit(function(e) {
                     e.preventDefault();
                     $('.addid').html('');
@@ -41,6 +63,7 @@
 
                         data: JSON.stringify(formData),
                         success: function(data) {
+
                         $('#kickertischAnlegen').each(function() {
                         this.reset();
                     });
@@ -60,7 +83,54 @@
             });
 
             });
+
+            $('#changeData').submit(function(e) {
+                e.preventDefault();
+
+                var austragungsortname = $('#austragungsortname').val();
+                var austragungsortadresse = $('#austragungsortadresse').val();
+                var austragungsortbeschreibung = $('#austragungsortbeschreibung').val();
+
+                if(!(austragungsortname && austragungsortadresse && austragungsortbeschreibung)) {
+                    alert('Bitte Daten spezifizieren.');
+                    return false;
+                }
+
+
+
+                var formData = {Name: austragungsortname,
+                                Adresse: austragungsortadresse,
+                                Beschreibung: austragungsortbeschreibung
+                               };
+
+
+                $.ajax({
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(data) {
+
+                        $('#changeData').each(function() {
+                            this.reset();
+                        });
+
+                        alert('Daten erfolgreich geändert.');
+
+                        $("#newName").text(data.Name);
+                        $("#newAddress").text(data.Adresse);
+                        $("#newDesc").text(data.Beschreibung);
+
+
+                    },
+                    fail: function() {
+                        alert('Fehler');
+                    }
+
+                });
             });
+
+            });
+
         </script>
     </head>
 
@@ -74,17 +144,32 @@
                 <div class="col-sm-12">
 
                     <div class="jumbotron">
-                        <h1>Austragungsort <%= austragungsort.Name %></h1>
+                        <h1>Austragungsort <span id="newName"><%= austragungsort.Name %></span></h1>
                         <br />
                         <ul>
-                            <li>Adresse: <%= austragungsort.Adresse %></li>
-                            <li>Beschreibung: <%= austragungsort.Beschreibung %></li>
+                            <li>Adresse: <span id="newAddress"><%= austragungsort.Adresse %></span></li>
+                            <li>Beschreibung: <span id="newDesc"><%= austragungsort.Beschreibung %></span></li>
                         </ul> 
                         <br />
                         <hr />
                         <div class="row">
+                            <div class="col-md-6">
+                                <p>Daten des Austragungsortes ändern</p>
+                                <form role="form" action="" method="PUT" name="changeData" id="changeData">
 
-                            <a href="" id="alltables" class="btn btn-primary" role="button">Alle Tische dieses Ortes anzeigen</a>
+                                    <div class="form-group"><label for="austragungsortname">Name:</label><input type="text" id="austragungsortname" class="form-control" name="austragungsortname"></div>
+                                    <div class="form-group"><label for="austragungsortadresse">Adresse:</label><input type="text" id="austragungsortadresse" class="form-control"></div>
+                                    <div class="form-group"><label for="austragungsortbeschreibung">Beschreibung:</label><input type="text" id="austragungsortbeschreibung" class="form-control"></div>
+                                    <input type="submit" class="btn btn-primary" name="change" value="Ändern" />
+                                </form>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a href="" id="alltables" class="btn btn-default" role="button">Alle Tische dieses Ortes anzeigen</a>
+                            </div>
                         </div>
                         <hr />
 
@@ -116,6 +201,14 @@
                         <br />
                         <div class="row">
                             <p class="addid"></p>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-6">
+                                    <form role="form" action="" method="DELETE" name="deleteAustragungsort" id="deleteAustragungsort">
+                            <input type="submit" class="btn btn-danger" name="del" value="Austragungsort löschen" />
+                        </form> 
+                            </div>
                         </div>
                     </div>
 

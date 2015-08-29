@@ -78,6 +78,7 @@
                 var d = new Date();
                 var time = d.setDate(d.getDate()-1);
 
+               <% if(match.Austragungsort)  { %>
                 var ortURI = "<%= match.Austragungsort %>".split("/");
                 var ort = "/"+ortURI[1]+"/"+ortURI[2];
                 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');
@@ -86,8 +87,7 @@
                     $('#stdTisch').html('Bitte einen Kickertisch wählen.');
                     $('#aort').html('');
                 }
-
-
+            <% } %>
                 var stdStatus = 'vor_beginn';
 
 
@@ -547,28 +547,33 @@
                         <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
                         <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team2"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team2"></span></a></p>
                         <% } } %>
-                        <hr />
                         <% if (match.Status == 'vor_beginn') { %>
-
+                         <hr />
+                         <% if(typeof kickertische != 'undefined') { %>
                         <div class="row">
                             <div class="col-md-6">
+                                
                                 <form role="form" action="" method="POST" name="addTisch" id="addTisch">
                                     <div class="form-group">
+                                        
                                         <label for="kickertisch">Kickertisch:</label> <br>
                                         <select id="kit" class="form-control">
                                             <option value="0">Bitte wählen</option>
+                                           
                                             <% kickertische.forEach(function(tisch) { belegungen.forEach(function(belegung) {  %>
                                             <% if(belegung.id == tisch.id)  { %>
                                             <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
                                             <% } }); });   %>
                                         </select>
+                                       
                                     </div>
                                     <input type="submit" class="btn btn-primary" name="change" value="Kickertisch übernehmen" />
                                 </form>
+                             
                             </div>
                         </div>
                         <hr />
-
+    <% } %>
 
                         <div class="row">
                             <div class="col-md-6">

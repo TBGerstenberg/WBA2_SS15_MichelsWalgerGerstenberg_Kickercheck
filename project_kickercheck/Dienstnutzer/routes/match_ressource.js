@@ -284,17 +284,30 @@ console.log(match.Austragungsort);
 
                                     var spielstand = JSON.parse(chunkw);
 
-
-
                                     var benutzerAll = [];
+                                     var teilnehmerAusMatchAnfrage = [];
+                                    
+                               
+                                    
+                                    if(match.Teilnehmer[0].Team2.Teilnehmer1) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer1);
+                                    }
+                                     if(match.Teilnehmer[0].Team2.Teilnehmer2) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer2);
+                                    }
+                                     if(match.Teilnehmer[0].Team1.Teilnehmer1) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer1);
+                                    }
+                                     if(match.Teilnehmer[0].Team1.Teilnehmer2) {
+                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer2);
+                                    }
+                               
+                                    console.log(teilnehmerAusMatchAnfrage);
 
-                                    var j = 0;
 
                                     var myAgent = new http.Agent({maxSockets: 1});
-
-                                    async.each(match.Teilnehmer, function(listItem, next) {
-
-                                        listItem.position = j;
+                                 
+                                    async.each(teilnehmerAusMatchAnfrage, function(listItem, next) {
 
                                         var options = {
                                             host: "localhost",
