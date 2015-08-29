@@ -211,21 +211,34 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                         var Teilnehmer = teilnehmerRequestJson;
 
-                        //Bilde die Teams
-                        //Beispiel: //https://jsfiddle.net/fwrun1or/
-                        var teams=[];
-                        var anzahlTeams=turnier.Teilnehmeranzahl / turnier.Teamgroesse;  
+                            //Bilde die Teams
+                            //Beispiel: //https://jsfiddle.net/fwrun1or/
+                            var teams=[];
+                            var anzahlTeams=turnier.Teilnehmeranzahl / turnier.Teamgroesse;  
+                        
+                            //Beim Kicker sind nur die Teamgrößen 1 und 2 zulässig
+                            //Teilnehmer sind nummeriert durch ihren index im Teilnehmerarray 
+                            //Dieser Index wird nun genutzt um Teilnehmer auf Teamnummern aus dem Speilplan abzubilden
+                        
+                             if(turnier.Teamgroesse == 1) {
+                                 
+                                   var i=0;
+                                    async.each(Teilnehmer, function(listItem, next) {
 
-                        //Beim Kicker sind nur die Teamgrößen 1 und 2 zulässig
-                        //Teilnehmer sind nummeriert durch ihren index im Teilnehmerarray 
-                        //Dieser Index wird nun genutzt um Teilnehmer auf Teamnummern aus dem Speilplan abzubilden
+                                        
+                                    for(var j=0;j<anzahlTeams;j++){
 
-                        if(turnier.Teamgroesse == 1) {
+                                        //Name des jeweiligen Teams
+                                        var teamName="Team"+j
 
-                            var i=0;
-                            async.each(Teilnehmer, function(listItem, next) {
+                                        //Objekt das unter dem Key <teamName> die Tielnehmer enthält
+                                        var teamObj={};
 
-                                for(var j=0;j<anzahlTeams;j++){
+                                        //Teilnehmer hinzufügen 
+                                        teamObj[teamName]={
+                                            "Teilnehmer1":Teilnehmer[i]
+                                        }
+
 
                                     //Name des jeweiligen Teams
                                     var teamName="Team"+j;

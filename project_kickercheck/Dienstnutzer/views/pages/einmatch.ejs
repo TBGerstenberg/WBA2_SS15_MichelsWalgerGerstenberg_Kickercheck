@@ -133,11 +133,15 @@
 
                 $('#startMatch').submit(function(e) {
                     e.preventDefault();
-
+                    
                     var tisch = $('#aort').attr('href');
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
 
+                     if(!ortURI[3]) {
+                        alert('Bitte einen Kickertisch auswählen.');
+                        return false;
+                    }
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
@@ -172,7 +176,7 @@
 
 
                     var teilnehmerData = {anzahl: anzahl, teilnehmer: teilnehmerArray,
-                                          'Herausforderungen': []
+                                          'Forderungen': 0
                                          }
 
                     $.when(
@@ -237,7 +241,7 @@
 
 
                     var teilnehmerData = {anzahl: 0, teilnehmer: null,
-                                          'Herausforderungen': []
+                                          'Forderungen': 0
                                          }
 
                     $.when(
@@ -302,7 +306,7 @@
 
 
                     var teilnehmerData = {anzahl: 0, teilnehmer: null,
-                                          'Herausforderungen': []
+                                          'Forderungen': 0
                                          }
 
                     $.when(
