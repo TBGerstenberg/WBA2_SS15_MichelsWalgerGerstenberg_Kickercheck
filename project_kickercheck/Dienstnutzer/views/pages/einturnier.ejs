@@ -198,7 +198,8 @@
                                     <% if(matches) { %>
                                     <% for(var i=0; i < matches.length; i++) { %>
                                     <tr>
-                                        <td> <a href="<%= matches[i]%>">Match <%=i%></a> </td>
+                                        <td> <a href="<%= matches[i]%>">Match <%=i%></a> </td>                               <% var urls = matches[i].split("/"); %> 
+                                        <!--<td><a href="/<%= matches[i] %>">Match <%= urls[1] %></a></td>-->
                                     </tr>
                                     <% }; %>
                                     <% } %>
