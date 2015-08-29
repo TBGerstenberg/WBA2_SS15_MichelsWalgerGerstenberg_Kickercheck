@@ -235,7 +235,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                         var teamObj={};
 
                                         //Teilnehmer hinzufügen 
-                                        teamObj[teamName]={
+                                        teamObj={
                                             "Teilnehmer1":Teilnehmer[i]
                                         }
 
@@ -601,7 +601,11 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 });
 
 app.get('/:TurnierId/Teams',function(req,res){
-
+    
+    //Hole alle Teamliste aus DB 
+    
+    
+    
 
 
 
