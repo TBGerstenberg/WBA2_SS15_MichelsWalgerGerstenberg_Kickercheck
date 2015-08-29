@@ -223,83 +223,71 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         if(turnier.Teamgroesse == 1) {
 
                             var i=0;
-                          //  async.each(anzahlTeams, function(listItem, next) {
+                            //  async.each(anzahlTeams, function(listItem, next) {
 
 
-                               for(var j=0;j<anzahlTeams;j++){
+                            for(var j=0;j<anzahlTeams;j++){
 
-                                    //Name des jeweiligen Teams
-                                    var teamName="Team"+j
+                                //Name des jeweiligen Teams
+                                var teamName="Team"+j
 
-                                    //Objekt das unter dem Key <teamName> die Tielnehmer enthält
-                                    var teamObj={};
+                                //Objekt das unter dem Key <teamName> die Tielnehmer enthält
+                                var teamObj={};
 
-                                    //Teilnehmer hinzufügen 
-                                    teamObj={
-                                        "Teilnehmer1":Teilnehmer[i]
-                                    }
-                                    
-                                    var objTeam ={
-                                        "teamName":teamName,
-                                        "Team":teamObj
-                                    }
-                                    
-                                     console.log(util.inspect(objTeam,false, null));
-                                    
-
-                                   //Pflege Teams in DB ein
-                                   
-                                    client.LPUSH('einTurnier '+turnierId+' Teams',JSON.stringify(objTeam));
-
-                                    //Team dem Teamarray hinzufügen 
-                                    teams.push(teamObj);
-
-                                    i++;
-                                 //   next();
+                                //Teilnehmer hinzufügen 
+                                teamObj={
+                                    "Teilnehmer1":Teilnehmer[i]
                                 }
 
-                   /*         }, function(err) {
+                                var objTeam ={
+                                    "teamName":teamName,
+                                    "Team":teamObj
+                                }
 
-                            }); */
+                                console.log(util.inspect(objTeam,false, null));
+
+
+                                //Pflege Teams in DB ein
+
+                                client.LPUSH('einTurnier '+turnierId+' Teams',JSON.stringify(objTeam));
+
+                                //Team dem Teamarray hinzufügen 
+                                teams.push(teamObj);
+
+                                i++;
+                                //   next();
+                            }
                         }
                         else {
-
                             var i=0;
-                          //  async.each(anzahlTeams, function(listItem, next) {
 
-                                for(var j=0;j<anzahlTeams;j++){
+                            for(var j=0;j<anzahlTeams;j++){
 
-                                    //Name des jeweiligen Teams
-                                    var teamName="Team"+j
+                                //Name des jeweiligen Teams
+                                var teamName="Team"+j
 
-                                    //Objekt das unter dem Key <teamName> die Tielnehmer enthält
-                                    var teamObj={}
+                                //Objekt das unter dem Key <teamName> die Tielnehmer enthält
+                                var teamObj={}
 
-                                    //Teilnehmer hinzufügen 
-                                    teamObj={
-                                        "Teilnehmer1":Teilnehmer[i],
-                                        "Teilnehmer2":Teilnehmer[i+1]
-                                    }
-
-                                    var objTeam ={
-                                        "teamName":teamName,
-                                        "Teilnehmer":teamObj
-                                    }
-
-                                    //Pflege Teams in DB ein
-                                    client.LPUSH('einTurnier '+turnierId+' Teams',JSON.stringify(objTeam));
-
-                                    //Team dem Teamarray hinzufügen 
-                                    teams.push(teamObj);
-
-                                    i+=2;
-                                 //   next();
+                                //Teilnehmer hinzufügen 
+                                teamObj={
+                                    "Teilnehmer1":Teilnehmer[i],
+                                    "Teilnehmer2":Teilnehmer[i+1]
                                 }
-/*
-                            }, function(err) {
 
+                                var objTeam ={
+                                    "teamName":teamName,
+                                    "Teilnehmer":teamObj
+                                }
 
-                            }); */
+                                //Pflege Teams in DB ein
+                                client.LPUSH('einTurnier '+turnierId+' Teams',JSON.stringify(objTeam));
+
+                                //Team dem Teamarray hinzufügen 
+                                teams.push(teamObj);
+
+                                i+=2;
+                            }
                         }
 
                         // HTTP Header für Match Posts vorbereiten 
@@ -629,35 +617,96 @@ app.get('/:TurnierId/Teams',function(req,res){
 
         else{
 
-            var listenKey="einTurnier "+turnierId+" Teams"
+            var listenKey="einTurnier "+turnierId+" Teams";
 
             //Hole alle Teams aus DB 
             client.lrange(listenKey, 0, -1, function(err,items) {
-             
+
                 var itemsArray = [];
-                
+
                 for(var i=0;i<items.length;i++) {
-                  itemsArray.push(JSON.parse(items[i]));
+                    itemsArray.push(JSON.parse(items[i]));
                 }
-                
+
                 res.status(200).json(itemsArray).end();  
             });
         }
     });
 });
 
-/*
-app.get('',function(req,res){
+app.post('/:TurnierId/Ligatabelle',function(req,res){
 
+    //Turnier Id extrahieren
+    var turnierId=req.params.TurnierId;
 
+    //Key für die Collection der Teams dieses Turnieres 
+    var listenKey="einTurnier "+turnierId+" Teams";
 
+    //Hole alle Teams aus DB 
+    client.lrange(listenKey, 0, -1, function(err,items) {
 
+        var ligaTabelle=[];
 
-});*/
+        for(var i=0;i<items.length;i++) {
 
+            //Sorted Set of Scores
+            //In diesem Set wird unter dem Key "teamName" der Score des Teams gespeichet
+            client.zadd('einTurnier '+turnierId+' Tabelle',0,items[i].teamName,function(err,data){
 
+                var team=JSON.parse(items[i]);
+               
+                //Push to Tabelle 
+                var teamUndPunkte={
+                    "Team":team,
+                    "Punktestand":0,
+                }
 
+                ligaTabelle.push(teamUndPunkte);
 
+            });
+        }
+
+        res.status(200).json(ligaTabelle).end(); 
+    });
+});
+
+app.get('/:TurnierId/Ligatabelle',function(req,res){
+
+    //Turnier Id extrahieren
+    var turnierId=req.params.TurnierId;
+
+    //Key für die Collection der Teams dieses Turnieres 
+    var listenKey="einTurnier "+turnierId+" Teams";
+
+    //Hole alle Teams aus DB 
+    client.lrange(listenKey, 0, -1, function(err,items) {
+
+        var ligaTabelle=[];
+
+        var i=0;
+
+        async.each(items,function(listItem,next){
+
+            var team=JSON.parse(items[i]);
+
+            client.zscore(team.teamName,function(err,punktestand){
+
+                //Push to Tabelle 
+                var teamUndPunkte={
+                    Team:JSON.parse(items[i]),
+                    Punktestand:punktestand,
+                }
+
+                ligaTabelle.push(teamUndPunkte);
+                i++;
+                next()
+            });   
+
+        },function(err){
+            res.status(200).json(ligaTabelle).end(); 
+        });
+    });
+});
 
 //Ändert die Daten eines Turnieres
 app.put('/:TurnierId', function(req, res) {
@@ -665,7 +714,7 @@ app.put('/:TurnierId', function(req, res) {
     var TurnierDaten = req.body;
     var turnierId = req.params.TurnierId;
     var responseString = '';
-    //console.log(util.inspect(TurnierDaten, false, null));
+   
 
     // HTTP Header setzen
     var headers = {
