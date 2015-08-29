@@ -136,14 +136,12 @@ app.put('/:TurnierId/Spielplan',function(req,res){
     console.log("Spielplan für Turnier" + req.params.TurnierId + "angefordert");
 
     //Benötigt um Anfragen zu loopen
-    var turnierAgent = new http.Agent({maxSockets: 1});
 
     //Options um die Matchliste 
     var options1 = {
         host: 'localhost',
         port: 3000,
         path: '/Turnier/'+turnierId,
-        agent:turnierAgent,
         method: 'GET',
         headers: {
             accept: 'application/json'
@@ -217,17 +215,18 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             //Bilde die Teams
                             //Beispiel: //https://jsfiddle.net/fwrun1or/
                             var teams=[];
-                            var anzahlTeams=turnier.Teilnehmeranzahl / turnier.Teamgroesse;
-
-                           
-                            
+                            var anzahlTeams=turnier.Teilnehmeranzahl / turnier.Teamgroesse;  
                         
                             //Beim Kicker sind nur die Teamgrößen 1 und 2 zulässig
                             //Teilnehmer sind nummeriert durch ihren index im Teilnehmerarray 
                             //Dieser Index wird nun genutzt um Teilnehmer auf Teamnummern aus dem Speilplan abzubilden
-                            switch(turnier.Teamgroesse){
-                                case 1:
-                                    var i=0;
+                        
+                             if(turnier.Teamgroesse == 1) {
+                                 
+                                   var i=0;
+                                    async.each(Teilnehmer, function(listItem, next) {
+
+                                        
                                     for(var j=0;j<anzahlTeams;j++){
 
                                         //Name des jeweiligen Teams
@@ -247,11 +246,19 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                         
                                         i++;
                                     }
-                                    break;
 
-                                case 2:
+                                    }, function(err) {
+                                            
 
-                                    var i=0;
+                                    });
+                                 
+                            
+                        }
+                        else {
+                            
+                             var i=0;
+                                    async.each(Teilnehmer, function(listItem, next) {
+
                                     for(var j=0;j<anzahlTeams;j++){
 
                                         //Name des jeweiligen Teams
@@ -274,11 +281,15 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                         i+=2;
                                         
                                     }
-                                    break;
-                            }
 
-                            console.log('teams leer');
-                            console.log(teams);
+                                    }, function(err) {
+                                            
+                                    
+                                    });
+                          
+                           
+                        }
+
 
                             // HTTP Header für Match Posts vorbereiten 
                             var matchHeader = {
