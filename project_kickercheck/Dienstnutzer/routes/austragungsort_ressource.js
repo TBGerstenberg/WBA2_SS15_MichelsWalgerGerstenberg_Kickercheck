@@ -346,7 +346,7 @@ app.post('/:AustragungsortId/Kickertisch/',function(req, res){
                 'id' : id,
                 'Anzahl' : 0,
                 'Teilnehmer' : null,
-                'Herausforderungen' : null
+                'Forderungen' : 0
             };
 
 
@@ -534,7 +534,7 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
                     'id': belegungsId,
                     'Anzahl' : Belegung.anzahl,
                     'Teilnehmer' : Belegung.teilnehmer,
-                    'Herausforderungen' : null
+                    'Forderungen' : 0
                 };
 
                 console.log(belegungObj);

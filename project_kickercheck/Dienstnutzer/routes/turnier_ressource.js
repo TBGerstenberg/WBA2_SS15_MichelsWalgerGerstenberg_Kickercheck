@@ -230,7 +230,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                     for(var j=0;j<anzahlTeams;j++){
 
                                         //Name des jeweiligen Teams
-                                        var teamName="Team"+(j+1);
+                                        var teamName="Team"+j
 
                                         //Objekt das unter dem Key <teamName> die Tielnehmer enthält
                                         var teamObj={};
@@ -262,7 +262,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                     for(var j=0;j<anzahlTeams;j++){
 
                                         //Name des jeweiligen Teams
-                                        var teamName="Team"+(j+1);
+                                        var teamName="Team"+j;
 
                                         //Objekt das unter dem Key <teamName> die Tielnehmer enthält
                                         var teamObj={}
@@ -278,7 +278,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                         teams.push(teamObj);
                                                  
 
-                                        i+=2;                                        
+                                        i++;                                        
                                     }
 
                                     }, function(err) {

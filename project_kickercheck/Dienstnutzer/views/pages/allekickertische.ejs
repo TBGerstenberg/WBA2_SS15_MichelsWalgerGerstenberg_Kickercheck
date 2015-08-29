@@ -19,8 +19,54 @@
                         <br />
 
                         <div class="list-group">
+                            
+                            <script>
+                            $(document).ready(function() {
+                                
+                $('#forderungForm').submit(function(e) {
+                    e.preventDefault();
+                    
 
-                            <% kickertische.forEach(function(kickertisch) {  %>
+                    var kickertisch = $('#zustand').val();
+
+
+                    if(!(zustand)) {
+                        alert('Bitte Daten spezifizieren.');
+                        return false;
+                    }
+
+                    var formData = {Zustand: zustand
+                                   };
+
+
+                    $.ajax({
+                        type: 'PUT',
+                        url:  '/Kickertisch/<%= kickertisch.id %>/Forderung',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+
+                            $('#changeData').each(function() {
+                                this.reset();
+                            });
+
+                            alert('Zustand erfolgreich geändert.');
+
+                            $("#zus").text('Zustand: '+data.Zustand);
+
+
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
+                    });
+                });
+                                
+                            });
+                            </script>
+                            
+                              <% kickertische.forEach(function(kickertisch) {  %>
 
                             <a href="Kickertisch/<%= kickertisch.id %>/" class="list-group-item"> <h4 class="list-group-item-heading"><%= kickertisch.Typ %></h4>
                                 <p class="list-group-item-text">Hersteller: <%= kickertisch.Hersteller %></p>
@@ -31,8 +77,13 @@
                                 <% if(belegung.id == kickertisch.id) { %>
                                 <% if(belegung.Anzahl > 0) { %>
                                 <p class="list-group-item-text">Teilnehmer: <%= belegung.Teilnehmer %></p>
-
-                                <% }  } } }); %>
+                                <% } %>
+                                 <p class="list-group-item-text">Forderungen: <%= belegung.Forderungen %></p>
+                                <%  } } }); %>
+                                 <form role="form" action="" method="PUT" name="forderungForm" id="forderungForm">
+                            <input type="submit" id="forderung" class="btn btn-success" name="forderung" value="Diesen Tisch fordern" />
+                        </form>
+                
                             </a>
 
                             <%  }); %>
