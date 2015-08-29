@@ -257,7 +257,21 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
         //Lokalitaet kennt einen Tisch mit dieser TischId
         if (IdExists) {
 
+              var options1 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Benutzer",
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+    }
+              
+              var y = http.request(options1, function(externalResponse){
 
+            externalResponse.on("data", function(chunk){
+
+                var benutzerAll = JSON.parse(chunk);
 
             client.mget('Austragungsort '+austragungsortId,function(err,resp){
 
@@ -266,7 +280,7 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
                 client.mget('Belegung '+tischId,function(err,bel){
 
                     var belegung = JSON.parse(bel);
-
+                    
                     client.mget('Kickertisch ' + tischId, function(err,kickertischdata){
 
                         var tisch = JSON.parse(kickertischdata);
@@ -286,7 +300,7 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
                                 break;
 
                             default:
-                                res.render('pages/einkickertisch', { tisch: tisch, ort:austr, belegung: belegung });
+                                res.render('pages/einkickertisch', { tisch: tisch, ort:austr, belegung: belegung, benutzerAll:benutzerAll });
                                 //Antwort beenden        
                                 res.end();
                                 break;
@@ -297,7 +311,10 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
                 });
             });
 
-        }       
+        });
+              });
+            y.end();
+        }
 
     });
 });
@@ -346,7 +363,7 @@ app.post('/:AustragungsortId/Kickertisch/',function(req, res){
                 'id' : id,
                 'Anzahl' : 0,
                 'Teilnehmer' : null,
-                'Forderungen' : 0
+                'Forderungen' : []
             };
 
 
@@ -534,7 +551,7 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
                     'id': belegungsId,
                     'Anzahl' : Belegung.anzahl,
                     'Teilnehmer' : Belegung.teilnehmer,
-                    'Forderungen' : 0
+                    'Forderungen' : []
                 };
 
                 console.log(belegungObj);
@@ -546,6 +563,124 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
 
 
 
+            }
+        });
+
+    }
+
+});
+
+app.get('/:AustragungsortId/Kickertisch/:TischId/Forderung/:ForderungId', function(req, res) {
+
+
+    //Extrahiere TischId
+    var tischId = req.params.TischId;
+    var forderungId = req.params.ForderungId;
+
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    client.exists('Kickertisch ' + tischId, function(err, IdExists) {
+
+        //Lokalitaet kennt einen Tisch mit dieser TischId
+        if (IdExists) {
+
+            client.exists('Forderung ' + forderungId, function(err, IdExists) {
+
+                if(IdExists) {
+
+                    client.mget('Forderung '+forderungId,function(err,forderungdaten){
+
+                        var forderung = JSON.parse(forderungdaten);
+
+                        res.set("Content-Type", 'application/json').status(200).json(forderung).end();                  	        
+
+                    });
+
+                }
+                else {
+                    res.status(404).end();    
+                }
+
+            });
+        }    
+
+    });
+
+});
+
+
+/*Mit put kann das Bild eines Kickertischs und/oder seine Zustandsbeschreibung geändert werden*/
+app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res) {
+
+    
+    var contentType = req.get('Content-Type');
+
+    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+    if (contentType != "application/json" && contentType != "application/json; charset=UTF-8") {
+        //Teile dem Client einen unterstuetzten Type mit 
+        res.set("Accepts", "application/json");
+        //Zeige über den Statuscode und eine Nachricht 
+        res.status(406).send("Content Type is not supported");
+        //Antwort beenden
+        res.end();
+    }
+
+    else {
+
+        var tischId = req.params.TischId;
+
+        //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+        client.exists('Kickertisch ' + tischId, function(err, IdExists) {
+
+            //client.exists hat false geliefert 
+            if (!IdExists) {
+                res.status(404).send("Die Ressource wurde nicht gefunden.");
+                res.end();
+            }
+
+            //Ressource existiert     
+            else {
+                
+                 client.mget('Belegung '+tischId,function(err,belegungdaten){
+
+                        var belegung = JSON.parse(belegungdaten);
+                     
+                     if(belegung.Anzahl == 0) {
+                         res.status(400).send("Es darf nicht gefordert werden an einem leeren Tisch.").end();
+                         return;
+                     }
+
+                client.incr('ForderungId', function(err, id) {
+
+                    var Forderung = req.body;
+
+                    console.log(Forderung);
+
+
+                    var timestamp = moment().format();
+
+                    console.log(timestamp);
+
+                    var forderungObj={
+                        //Set von Benutzern required
+                        'id': id,
+                        'Benutzer':Forderung.Benutzer,
+                        'Timestamp': timestamp
+                    };
+
+                    console.log(forderungObj);
+
+                    client.set('Forderung ' + id, JSON.stringify(forderungObj));
+
+                        belegung.Forderungen.push({Benutzer : Forderung.Benutzer, Timestamp: timestamp});
+
+                        client.set('Belegung ' + tischId, JSON.stringify(belegung));
+
+                        //Setze Contenttype der Antwort auf application/atom+xml
+                        res.set("Content-Type", 'application/json').status(200).json(forderungObj).end();
+
+                    });
+
+                });
             }
         });
 

@@ -8,6 +8,7 @@ global.util = require('util');
 // global.fs = require('fs');
 // global.ejs = require("ejs");
 global.async = require('async');
+global.moment = require('moment');
 
 var app = express();
 var server = http.createServer(app);

@@ -66,6 +66,38 @@
 
                     });
                 });
+                
+                 $('#tischFordern').submit(function(e) {
+                    e.preventDefault();
+
+                    var benutzer = $('#benutzer').val();
+
+
+                    if(!(benutzer)) {
+                        alert('Bitte Benutzer spezifizieren.');
+                        return false;
+                    }
+
+                    var formData = {Benutzer: benutzer
+                                   };
+
+
+                    $.ajax({
+                        type: 'PUT',
+                        url: '/Austragungsort/<%= ort.id %>/Kickertisch/<%= tisch.id %>/Forderung',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data) {
+
+                            window.location.reload(true);
+                        
+                        },
+                        fail: function() {
+                            alert('Fehler');
+                        }
+
+                    });
+                });
             });
         </script>
     </head>
@@ -89,17 +121,47 @@
                             <li id="zus">Zustand: <%= tisch.Zustand %></li>
 
                         </ul> 
-                        <br />
-                        <p> Belegung:  </p>
-                        <ul><li> <%= belegung.Anzahl %> Spieler</li>
-                            <% if(belegung.Anzahl > 0) { %>
-                            <li>Namen der Spieler: <%= belegung.Teilnehmer %> </li>
-                            <li> Forderungen: <%= belegung.Forderungen %> </li>
-                            <% } %>
-                        </ul>
-
                         <hr />
+                        <p> Belegung: <%= belegung.Anzahl %> Spieler</p>
+                            <% if(belegung.Anzahl > 0) { %>
+                        <p>Namen der Spieler:</p>
+                        
+                        <%= belegung.Teilnehmer %>
+                      
+                             <% } %>
+                     <hr />
+                        <p>Forderungen: <%= belegung.Forderungen.length %></p>
+                        
+                  <p>Spieler die gefordert haben:</p>
+                    <ul>
+                                <% for(var i=0; i < belegung.Forderungen.length; i++) { %>
+                         <% benutzerAll.forEach(function(benutzer) { %>
+                               <% if("/Benutzer/"+benutzer.id == belegung.Forderungen[i].Benutzer) { %>
+                        <li id="forderer"><a href="<%= belegung.Forderungen[i].Benutzer %>"><%= benutzer.Name %></a></li>
+                               <% }; }); }; %>
+                        </ul>
+<hr />
+                        <p>Diesen Tisch fordern: </p>
+                          <div class="row">
+                              <div class="col-md-6">
 
+                           <form role="form" action="" method="POST" name="tischFordern" id="tischFordern">
+                               <div class="form-group">
+                                   <label for="benutzer">Benutzer der fordert:</label><br>
+
+                                <select id="benutzer" class="form-control">
+                                    <option value="0">Bitte wählen</option>
+                                    <% benutzerAll.forEach(function(benutzer) { %>
+                                    <option value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
+                                    <% });  %>
+                                </select>
+                                </div>
+                                <input type="submit" class="btn btn-primary" name="send" value="Fordern" />
+                                  </form>
+                              </div>
+                        </div>
+                        <hr />
+                        
                         <p> Kickertisch ändern: </p>
                         <div class="row">
                             <div class="col-md-6">
