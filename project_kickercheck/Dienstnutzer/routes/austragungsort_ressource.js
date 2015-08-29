@@ -668,10 +668,12 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res)
                     };
 
                     for(var i=0;i<belegung.Forderungen.length;i++) {
-                   if(Forderung.Benutzer == belegung.Forderungen[i].Benutzer);
+                   if(Forderung.Benutzer == belegung.Forderungen[i].Benutzer) {
                        res.end();
                         return;
+                   }
                     }
+                    
                     client.set('Forderung ' + id, JSON.stringify(forderungObj));
 
                         belegung.Forderungen.push({Benutzer : Forderung.Benutzer, Timestamp: timestamp});
