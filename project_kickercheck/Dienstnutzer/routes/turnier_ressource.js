@@ -642,12 +642,13 @@ app.post('/:TurnierId/Ligatabelle',function(req,res){
     client.lrange(listenKey, 0, -1, function(err,items) {
 
         var ligaTabelle=[];
-
-        for(var i=0;i<items.length;i++) {
-
-            var tabellenListenKey="einTurnier "+ turnierId +" Tabelle";
-
-            var team=JSON.parse(items[i]);
+        
+         var tabellenListenKey="einTurnier "+ turnierId +" Tabelle";
+              
+            
+        
+          async.each(items, function(listItem, next) {
+             var team=JSON.parse(listItem);
             
             //Push to Tabelle 
             var teamUndPunkte={
@@ -655,14 +656,23 @@ app.post('/:TurnierId/Ligatabelle',function(req,res){
                 "Punktestand":0
             }
             
-             console.log(util.inspect(teamUndPunkte, false, null));
-        
-            client.LPUSH(tabellenListenKey,JSON.stringify(teamUndPunkte));
-            
-            ligaTabelle.push(teamUndPunkte);
-        }
+             console.log(util.inspect(JSON.stringify(teamUndPunkte), false, null));
+              
+             client.LPUSH(tabellenListenKey,JSON.stringify(teamUndPunkte));
+              ligaTabelle.push(teamUndPunkte);
+                   
+                next();
 
+                                    }, function(err) {
+ 
+              
         res.status(200).json(ligaTabelle).end(); 
+
+                                    });
+
+   
+        
+          
     });
 });
 
