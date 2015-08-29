@@ -382,7 +382,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
                 //Teilnehmerzahl erreicht
                 else{
-                    res.status(409).send("Teilnehmerzahl bereits erreicht").end();
+                    res.status(409).end();
                 }
             }); 
         });

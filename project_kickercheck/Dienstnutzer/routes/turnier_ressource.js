@@ -278,8 +278,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                                         teams.push(teamObj);
                                                  
 
-                                        i+=2;
-                                        
+                                        i+=2;                                        
                                     }
 
                                     }, function(err) {
@@ -649,8 +648,7 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
         externalResponse.on('data', function (chunk) {
             var completeTurnierplan = JSON.parse(chunk);
             console.log(util.inspect(completeTurnierplan, false, null));
-            res.json(completeTurnierplan);
-            res.end();
+            res.json(completeTurnierplan).end();
         });
     });
     externalRequest.write(JSON.stringify(Teilnehmer));
