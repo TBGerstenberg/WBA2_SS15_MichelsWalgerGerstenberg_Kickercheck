@@ -3,32 +3,47 @@ var app = express.Router();
 //Liefert eine Collection aller Matches 
 app.get('/',function(req,res){
 
-    //Speichert die Matchollection
-    var response=[];    
+    //Frage Accepted Types vom Client ab 
+    var acceptedTypes = req.get('Accept');
 
-    //returned ein Array aller Keys die das Pattern Match* matchen 
-    client.keys('Match *', function (err, key) {
+    switch (acceptedTypes) {
 
-       //Abruf erfolgreich , zeige mit leerem Array im Body sowie Statuscode 200-OK das die Operation funktioniert hat 
-        if(key.length == 0) {
-            res.status(200).json(response);
-            return;
-        }
+        //Client kann application/json verarbeiten 
+        case "application/json":
 
-        var sorted =  key.sort();
+            //Speichert die Matchollection
+            var response=[];    
 
-        //Rufe daten aller Matches ab 
-        client.mget(sorted, function (err, match) {
+            //returned ein Array aller Keys die das Pattern Match* matchen 
+            client.keys('Match *', function (err, key) {
 
-            //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-            match.forEach(function (val) {
+                //Abruf erfolgreich , zeige mit leerem Array im Body sowie Statuscode 200-OK das die Operation funktioniert hat 
+                if(key.length == 0) {
+                    res.status(200).json(response);
+                    return;
+                }
 
-                response.push(JSON.parse(val));
+                var sorted =  key.sort();
+
+                //Rufe daten aller Matches ab 
+                client.mget(sorted, function (err, match) {
+
+                    //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+                    match.forEach(function (val) {
+
+                        response.push(JSON.parse(val));
+                    });
+
+                    res.status(200).set("Content-Type","application/json").json(response).end();
+                });
             });
+            break;
 
-            res.status(200).set("Content-Type","application/json").json(response).end();
-        });
-    });
+        //Der Client kann keine vom Service angebotenen Content types verarbeiten 
+        default:
+            res.status(406).end();
+            break;
+    }
 });
 
 //Liefert eine Repräsentation eines Matches 
@@ -41,7 +56,7 @@ app.get('/:MatchId', function(req, res) {
 
         //Das Match existiert nicht im System 
         if (!IdExists) {
-            res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+            res.status(404).end();
         }
 
         //Das Match existiert 
@@ -52,7 +67,7 @@ app.get('/:MatchId', function(req, res) {
 
             switch (acceptedTypes) {
 
-                //Client empfängt JSON 
+                    //Client empfängt JSON 
                 case "application/json":
 
                     //Rufe Matchdaten aus DB ab
@@ -73,14 +88,16 @@ app.get('/:MatchId', function(req, res) {
     });
 });
 
+//Fügt der MatchCollection ein neues Element hinzu 
 app.post('/',function(req, res) {
 
     //Anlegen eines Matches, Anfrage muss den Content Type application/atom+xml haben 
     var contentType = req.get('Content-Type');
 
-    //Content type ist nicht application/atom+xml , zeige im Accept Header gültige content types 
+    //Content type ist nicht application/json , zeige im Accept Header gültige content types 
     if (contentType != "application/json") {
-        res.set("Accepts", "application/json").status(406).send("Content Type is not supported").end();  
+        //Teile dem Client einen unterstuetzten Type mit 
+        res.set("Accepts", "application/json").status(415).end(); 
     } 
 
     //Content Type OK 
@@ -90,9 +107,8 @@ app.post('/',function(req, res) {
         client.incr('MatchId', function(err, id) {
 
             var match=req.body;
-            //Pflege Daten aus Anfrage in die DB ein
 
-
+            //Daten des matches
             var matchObj={
                 //Set von Benutzern required
                 'id':id,
@@ -104,20 +120,18 @@ app.post('/',function(req, res) {
                 'Status':match.Status
             };
 
-            console.log(matchObj);
-
+            //Füge JSON-String des Matches in DB ein
             client.set('Match ' + id, JSON.stringify(matchObj));
 
-            console.log(matchObj);
-
-            //Setze Contenttype der Antwort auf application/atom+xml
+            //Setze Contenttype der Antwort auf application/json , Location der neuen Ressource in den Header sowie 201-Created mit einer Respräsentation des
+            //neuen Matches im Body
             res.set("Content-Type", 'application/json').set("Location", "/Match/" + id).status(201).json(matchObj).end();
         });
     }
 });
 
+//Ändert die Informationen eines Matches
 app.put('/:MatchId',function(req, res) {
-
 
     var contentType = req.get('Content-Type');
 
@@ -125,7 +139,7 @@ app.put('/:MatchId',function(req, res) {
     if (contentType != "application/json") {
 
         //Teile dem Client einen unterstuetzten Type mit 
-        res.set("Accepts", "application/json").status(406).send("Content Type is not supported").end();
+        res.set("Accepts", "application/json").status(415).end(); 
     } 
 
     else {
@@ -140,6 +154,7 @@ app.put('/:MatchId',function(req, res) {
                 res.status(404).end();
             } 
 
+            //Match existiert 
             else {
 
                 //Lese aktuellen Zustand des Turniers aus DB
@@ -157,15 +172,15 @@ app.put('/:MatchId',function(req, res) {
                     //Schreibe Turnierdaten zurück 
                     client.set('Match ' + matchId,JSON.stringify(Matchdaten));
 
-                    console.log(Matchdaten);
                     //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(201).json(Matchdaten).end();
+                    res.set("Content-Type", 'application/json').status(200).json(Matchdaten).end();
                 });       
             }
         });
     }
 });
 
+//Löscht eine Match 
 app.delete('/:MatchId', function(req, res) {
 
     var matchId = req.params.MatchId;
@@ -179,13 +194,12 @@ app.delete('/:MatchId', function(req, res) {
             client.del('Match ' + matchId);
 
             //Alles ok , sende 200 
-            res.status(204).send("Das hat funktioniert! Match gelöscht").end();
+            res.status(204).end();
         }
 
         // Match existierte nicht 
         else {
-            res.status(404).send("Die Ressource wurde nicht gefunden.");
-            res.end();
+            res.status(404).end();
         }
     });
 });
