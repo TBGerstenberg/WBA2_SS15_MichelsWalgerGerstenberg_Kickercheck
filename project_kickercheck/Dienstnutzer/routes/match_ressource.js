@@ -125,17 +125,10 @@ app.get('/:MatchId', function(req, res) {
 
             if(match.Austragungsort) {
 
-console.log(match.Austragungsort);
-                
-            var ortURI = match.Austragungsort.split("/");
-            var ort = "/"+ortURI[1]+"/"+ortURI[2];
-
-            //      console.log(ort);
-
             var options2 = {
                 host: "localhost",
                 port: 3001,
-                path: ort+"/allekickertische/",
+                path: match.Austragungsort+"/allekickertische/",
                 method:"GET",
                 headers:{
                     accept:"application/json"
@@ -145,7 +138,7 @@ console.log(match.Austragungsort);
             var options3 = {
                 host: "localhost",
                 port: 3000,
-                path: ort,
+                path: match.Austragungsort,
                 method:"GET",
                 headers:{
                     accept:"application/json"
