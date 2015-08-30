@@ -103,7 +103,6 @@ app.post('/',function(req, res) {
                 'Teilnehmer' : match.Teilnehmer,
                 'Regelwerk':match.Regelwerk,
                 'Austragungsort': match.Austragungsort,
-                'Kickertisch' : null,
                 'Status':match.Status
             };
 
@@ -155,7 +154,6 @@ app.put('/:MatchId',function(req, res) {
                     Matchdaten.Uhrzeit = req.body.Uhrzeit;
                     Matchdaten.Austragungsort = req.body.Austragungsort;
                     Matchdaten.Regelwerk = req.body.Regelwerk;
-                    Matchdaten.Kickertisch = req.body.Kickertisch;
                     Matchdaten.Status = req.body.Status;
 
                     //Schreibe Turnierdaten zurück 
