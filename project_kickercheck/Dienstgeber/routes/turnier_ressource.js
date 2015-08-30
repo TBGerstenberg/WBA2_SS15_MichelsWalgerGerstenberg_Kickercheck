@@ -3,22 +3,24 @@ var app = express.Router();
 // TURNIER // 
 // TURNIER //
 
-//Liste aller Turniere
+//Liefert eine Collection aller Turniere
 app.get('/',function(req,res){
 
     //Speichert die alle Benutzer
     var response=[];    
 
-    //returned ein Array aller Keys die das Pattern Benutzer* matchen 
+    //returned ein Array aller Keys die das Pattern Turnier* matchen 
     client.keys('Turnier *', function (err, key) {
 
+        //Es gibt noch keine Turniere, dennoch war der Abruf erfolgreich . Sende leere Collection im Body und Status 200-OK
         if(key.length == 0) {
-            res.json(response);
+            res.status(200).json(response);
             return;
         }
-        
+
         var sorted =  key.sort();
 
+        //Lese Turnieredaten aus DB
         client.mget(sorted, function (err, turnier) {
 
             //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
@@ -39,31 +41,36 @@ app.get('/:TurnierId', function(req, res) {
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     client.exists('Turnier ' + turnierId, function(err, IdExists) {
 
-        //client.exists hat false geliefert 
+        //client.exists hat false geliefert , die Ressource existiert nicht  
         if (!IdExists) {
-            res.status(404).send("Die Ressource wurde nicht gefunden.");
-            res.end();
+            res.status(404).end();
         } 
+
+        //das Turnier existiert 
         else {
+
+            //Frage Accepted Types vom Client ab 
             var acceptedTypes = req.get('Accept');
+
             switch (acceptedTypes) {
 
+                    //Client kann application/json verarbeiten 
                 case "application/json":
-                    client.mget('Turnier ' + turnierId, function(err,turnierDaten){
-                        //Setze Contenttype der Antwort auf application/json
 
+                    //Lese Turnierdaten aus DB
+                    client.mget('Turnier ' + turnierId, function(err,turnierDaten){
+
+                        //Parse Redis Antwort 
                         var send = JSON.parse(turnierDaten);
 
-                        //console.log(util.inspect(turnierDaten, false, null));
-
+                        //Setze content Type der Antwort, sende 200-OK und eine Repräsentation der abgerufenen Ressource im Body
                         res.set("Content-Type", 'application/json').status(200).json(send).end();
                     });
                     break;
 
+                    //Der Client kann keine vom Service angebotenen Content types verarbeiten 
                 default:
-                    //We cannot send a representation that is accepted by the client 
-                    res.status(406).send("Content Type wird nicht unterstuetzt");
-                    res.end();
+                    res.status(406).end();
                     break;
             }
         }
@@ -76,24 +83,28 @@ app.post('/',function(req, res) {
     //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
     var contentType = req.get('Content-Type');
 
-    //Check ob der Content Type der Anfrage xml ist 
+    //Check ob der Content Type der Anfrage application/json ist 
     if (contentType != "application/json") {
-        res.set("Accepts", "application/json");
-        res.status(406).send("Content Type is not supported");
-        res.end();
+        res.set("Accepts", "application/json").status(415).end();
     } 
 
+    //Content type OK 
     else {
 
+        //Generiere den Spielplan des turnieres 
         generiereLigaTurnierSpielplan(req.body.Teilnehmeranzahl,req.body.Teamgroesse,function(spielplan,erfolg){
 
+            //Kein Fehler beim generieren des Spielplans 
             if(erfolg){
+
+                //Erhöhre TurnierIds in Redis ,atomare Aktion
                 client.incr('TurnierId', function(err, id) {
 
-                    var turnierLink ='http://kickercheck.de/Turnier/'+id+'/Matches';
+                    //Links die dem Client weitere Interaktionsschritte aufzeigen 
                     var turnierTeilnehmerHinzufügenLink = '/Turnier/'+id+'/Teilnehmer';
                     var turnierMatchHinzufügenLink = '/Turnier/'+id+'/Match';
 
+                    //Repräsentation des Turnieres
                     var turnierObj={
                         'id' : id,
                         'Teilnehmeranzahl': req.body.Teilnehmeranzahl,
@@ -110,17 +121,14 @@ app.post('/',function(req, res) {
                     //Lege Turnier in der DB an 
                     client.set('Turnier ' + id,JSON.stringify(turnierObj));
 
-                    //Lege Liste der Teilnehmer für die Subressource an 
-                    //client.LPUSH('Turnier '+id+' Teilnehmer',id);
-
-                    //Lege Liste der Matches für die Subressource an 
-                    //client.LPUSH('Turnier '+id+' Matches',id);
-
+                    //Erfolg - Location der neuen Ressource im Header, Repräsentation im Body sowie 201-Created 
                     res.set("Content-Type", 'application/json').set("Location", "/Turnier/" + id).status(201).json(turnierObj).end();
                 });
             }
+
+            //Fehler beim Anlegen des Turnierplans 
             else{
-                res.status(409).send("Dienstgeber konnte keinen TUrnierplan erstellen").end();
+                res.status(500).end();
             }   
         });
     } 
@@ -131,13 +139,14 @@ app.put('/:TurnierId',function(req, res) {
 
     var contentType = req.get('Content-Type');
 
-    //Wenn kein json geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+    //Wenn kein json geliefert wird antwortet der Server mit 415 - unsupported Media Typeund zeigt über accepts-Header gütlige ContentTypes 
     if (contentType != "application/json") {
 
         //Teile dem Client einen unterstuetzten Type mit 
-        res.set("Accepts", "application/json").status(406).send("Content Type is not supported").end();
+        res.set("Accepts", "application/json").status(415).end();
     } 
 
+    //Content type OK 
     else {
 
         var turnierId = req.params.TurnierId;
@@ -145,11 +154,13 @@ app.put('/:TurnierId',function(req, res) {
         //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
         client.exists('Turnier ' + turnierId, function(err, IdExists) {
 
-            //client.exists hat false geliefert 
+            //client.exists hat false geliefert
+            //das Turnier das geändert werden soll existiert nicht 
             if (!IdExists) {
                 res.status(404).end();
             } 
 
+            //Zu änderndes Turnier existiert 
             else {
 
                 //Lese aktuellen Zustand des Turniers aus DB
@@ -167,7 +178,7 @@ app.put('/:TurnierId',function(req, res) {
                     //Schreibe Turnierdaten zurück 
                     client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
 
-                    //Setze Contenttype der Antwort auf application/json..
+                    //Sende geänderte Repräsentation des Turneires im Body, sowie 200-OK für erfolgreiche Änderung 
                     res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
                 });
             }
@@ -175,25 +186,32 @@ app.put('/:TurnierId',function(req, res) {
     }
 });
 
-//Löscht das Turnier mit <TurnierId> , entfernt alle assoziierten Matches sowie 
-//die Teinehmerliste
+//Löscht das Turnier mit <TurnierId> 
+//entfernt alle assoziierten Matches sowie 
+//die Teinehmerliste (Subressourcen des Turnieres)
 app.delete('/:TurnierId', function(req, res) {
 
     var turnierId = req.params.TurnierId;
 
+    //Existiert das angebene Turnier?
     client.exists('Turnier ' + turnierId, function(err, IdExists) {
 
         //client.exists hat false geliefert 
         if (!IdExists) {
-            res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+            res.status(404).end();
         }
 
+        //Turnier existiert 
         else {
+            //Lösche Turnierdaten 
             client.del('Turnier '+ turnierId);
+
+            //Lösche Teilnehmerliste 
             client.del('einTurnier ' + turnierId + ' Teilnehmer');
 
-
+            //Lösche assoziierte Matches 
             var listenKey="einTurnier "+turnierId+"Matches"; 
+
             //Hole alle Assoziierten Matches 
             client.lrange(listenKey, 0, -1, function(err,items) {
 
@@ -211,40 +229,56 @@ app.delete('/:TurnierId', function(req, res) {
             client.del('einTurnier ' + turnierId + ' Matches');
 
             //Zeige mit Status 204-No Content Erfolg des Löschvorgangs
-            res.status(204).send("Das hat funktioniert! Turnier gelöscht.").end();
+            res.status(204).end();
         }
     });
 });
 
-//Liefert eine Liste aller mit dem Turnier assoziierten Matches 
+//Liefert eine Collection aller mit dem Turnier assoziierten Matches 
 app.get('/:TurnierId/Match',function(req,res){
 
-    var turnierId=req.params.TurnierId;
 
-    client.exists('Turnier ' + turnierId, function(err, IdExists) {
+    //Frage Accepted Types vom Client ab 
+    var acceptedTypes = req.get('Accept');
 
-        //client.exists hat false geliefert 
-        if (!IdExists) {
-            res.status(404).send("Die Ressource wurde nicht gefunden.").end();
-        }
+    switch (acceptedTypes) {
 
-        else{
+            //Client kann application/json verarbeiten 
+        case "application/json":
 
-            var matches=[];
-            var listenKey="einTurnier "+turnierId+" Matches";
+            var turnierId=req.params.TurnierId;
 
-            //Hole alle Assoziierten Matches 
-            client.lrange(listenKey, 0, -1, function(err,items) {
+            client.exists('Turnier ' + turnierId, function(err, IdExists) {
 
-                items.forEach(function(entry){
-                    matches.push("Match/"+entry);
-                });
+                //client.exists hat false geliefert 
+                if (!IdExists) {
+                    res.status(404).end();
+                }
 
-                //Liefere die Matchliste
-                res.status(200).json(matches).end();
-            });  
-        }
-    });
+                else{
+
+                    var matches=[];
+                    var listenKey="einTurnier "+turnierId+" Matches";
+
+                    //Hole alle Assoziierten Matches 
+                    client.lrange(listenKey, 0, -1, function(err,items) {
+
+                        items.forEach(function(entry){
+                            matches.push("Match/"+entry);
+                        });
+
+                        //Liefere die Matchliste
+                        res.status(200).json(matches).end();
+                    });  
+                }
+            });
+            break;
+
+            //Der Client kann keine vom Service angebotenen Content types verarbeiten 
+        default:
+            res.status(406).end();
+            break;
+    }
 });
 
 //Fügt einem Turnier ein Match hinzu , benötigt eine Matchrepräsentation im Body 
@@ -252,6 +286,14 @@ app.get('/:TurnierId/Match',function(req,res){
 //und neuen Links im Turnierbody, daher ist diese Operation nicht idempotent. POST ist daher 
 //das geeignete Verb
 app.post('/:TurnierId/Match',function(req,res){
+
+    var contentType = req.get('Content-Type');
+
+    //Wenn kein json geliefert wird antwortet der Server mit 415 - unsupported Media Typeund zeigt über accepts-Header gütlige ContentTypes 
+    if (contentType != "application/json") {
+        //Teile dem Client einen unterstuetzten Type mit 
+        res.set("Accepts", "application/json").status(415).end();
+    } 
 
     console.log("Turnier_Match hinzufügen auf Dienstgeber gecalled");
 
@@ -289,9 +331,6 @@ app.post('/:TurnierId/Match',function(req,res){
                     //Pushe das angelegte Match in die Liste der Matches
                     client.LPUSH("einTurnier "+turnierId+" Matches",id)
 
-                    //Schreibe Turnierdaten zurück 
-                    //client.set('Turnier ' + turnierId,JSON.stringify(turnier));
-
                     //Sende Statuscode 201-Created , da hier ein neues Match angelegt wurde 
                     res.status(201).set('Location',"Turnier/"+turnierId+/Match/+id).json(matchObj).end();
                 });
@@ -299,23 +338,37 @@ app.post('/:TurnierId/Match',function(req,res){
         }
 
         else{
-            res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+            res.status(404).end();
         }
     });
 });
 
-//Ruft die Teilnehmerliste eines Turnieres ab , liefert leeres Array wenn 
+//Ruft eine Collection aller Teilnehmer  eines Turnieres ab , liefert leeres Array wenn 
 //Kein Teilnemer vorhanden ist 
 app.get('/:TurnierId/Teilnehmer',function(req,res){
 
-    var listenKey="einTurnier "+req.params.TurnierId+" Teilnehmer";
+    //Frage Accepted Types vom Client ab 
+    var acceptedTypes = req.get('Accept');
 
-    //Hole alle Assoziierten Teilnehmer
-    client.lrange(listenKey, 0, -1, function(err,items) {
+    switch (acceptedTypes) {
 
-        //Antworte mit der aktualisierten Teilnehmerliste
-        res.set("Content-Type", 'application/json').status(200).json(items).end();
-    }); 
+            //Client kann application/json verarbeiten 
+        case "application/json":
+            var listenKey="einTurnier "+req.params.TurnierId+" Teilnehmer";
+
+            //Hole alle Assoziierten Teilnehmer
+            client.lrange(listenKey, 0, -1, function(err,items) {
+
+                //Antworte mit der Teilnehmerliste
+                res.set("Content-Type", 'application/json').status(200).json(items).end();
+            }); 
+            break;
+
+            //Der Client kann keine vom Service angebotenen Content types verarbeiten 
+        default:
+            res.status(406).end();
+            break;
+    }
 });
 
 
@@ -325,6 +378,15 @@ app.get('/:TurnierId/Teilnehmer',function(req,res){
 //Und führt bei Wiederholung immer zum gleichen Ergebnis => der Teilnehmer ist hinzugefügt
 app.put('/:TurnierId/Teilnehmer',function(req,res){
 
+    var contentType = req.get('Content-Type');
+
+    //Wenn kein json geliefert wird antwortet der Server mit 415 - unsupported Media Typeund zeigt über accepts-Header gütlige ContentTypes 
+    if (contentType != "application/json") {
+
+        //Teile dem Client einen unterstuetzten Type mit 
+        res.set("Accepts", "application/json").status(415).end();
+    } 
+
     //Extrahiere TurnierId
     var turnierId=req.params.TurnierId
 
@@ -333,7 +395,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
         //client.exists hat false geliefert 
         if (!IdExists) {
-            res.status(404).send("Die Ressource wurde nicht gefunden.").end();
+            res.status(404).end();
             return;
         } 
 
@@ -447,12 +509,6 @@ function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
         }
         i++;
     }
-
-    /*
-    for(var k=0;k<spielPlan.length;k++){
-        var paarung=spielPlan[k];
-        console.log("Runde"+paarung.Runde+"  "+paarung.Team1 + " vs   " + paarung.Team2);
-    }*/
 
     callback(spielPlan,erfolg);
 }
