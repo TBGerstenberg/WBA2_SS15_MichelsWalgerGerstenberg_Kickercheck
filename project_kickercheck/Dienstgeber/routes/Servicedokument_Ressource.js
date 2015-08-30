@@ -1,3 +1,4 @@
+var app = express.Router();
 //Liefert das Servicedokument,  dass die möglichen Interaktionsmöglichkeiten mit dem Service zeigt 
 app.get('/',function(req,res){
     
@@ -17,3 +18,5 @@ app.get('/',function(req,res){
 
 
 });
+
+module.exports = app;

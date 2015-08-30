@@ -18,7 +18,8 @@ app.get('/alleAustragungsorte', function(req, res) {
     var externalRequest = http.request(options, function(externalResponse){
 
         externalResponse.on("data", function(chunk){
-
+            
+            
             var austragungsorte = JSON.parse(chunk);
             res.render('pages/alleaustragungsorte',{austragungsorte:austragungsorte});
         });
@@ -145,22 +146,27 @@ app.delete('/:AustragungsortId', function(req, res) {
 
     var austragungsortId = req.params.AustragungsortId;
 
+    // HTTP Header setzen
+    var headers = {
+        'Accept': 'application/json'
+    };
+
     // Mit Server verbinden
     var options = {
         host: 'localhost',
         port: 3000,
         path: '/Austragungsort/'+austragungsortId,
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: headers
     };
 
     var externalRequest = http.request(options, function(externalResponse) {
 
 
-        externalResponse.on('data', function (chunk) {
-            
-        client.del("Ort " +austragungsortId+ " Tische");
+        externalResponse.on('end', function() {
             
             var listenKey="Ort " +austragungsortId+ " Tische";
+            console.log(listenKey);
             
              client.lrange(listenKey, 0, -1, function(err,items) {
 
@@ -169,20 +175,24 @@ app.delete('/:AustragungsortId', function(req, res) {
                     //Lösche alle
                     items.foreach(function(entry){
                         //Lösche Eintrag aus der DB
-                        client.del('Kickertisch ' + item);
+                        console.log('welchereintrag'+entry);
+                        client.del('Kickertisch ' +entry);
                     });
+                    client.del("Ort " +austragungsortId+ " Tische");
+                    res.status(200).end();
                 }
+                 else {
+                     res.status(200).end();
+                 }
+            
             });
-
-            res.status(200).end();
-
-
+           
         });
 
     });
 
     externalRequest.end();
-
+   
 });
 
 // KICKERTISCH
