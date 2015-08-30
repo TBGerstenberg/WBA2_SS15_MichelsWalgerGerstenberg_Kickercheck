@@ -124,11 +124,19 @@ app.get('/:MatchId', function(req, res) {
             var match = JSON.parse(chunk);
 
             if(match.Austragungsort) {
+                
+            console.log(match.Austragungsort);		
+               		
+            var ortURI = match.Austragungsort.split("/");		
+            var ort = "/"+ortURI[1]+"/"+ortURI[2];		
+		
+            //      console.log(ort);		
+
 
             var options2 = {
                 host: "localhost",
                 port: 3001,
-                path: match.Austragungsort+"/allekickertische/",
+                path: ort+"/allekickertische/",
                 method:"GET",
                 headers:{
                     accept:"application/json"
@@ -138,7 +146,7 @@ app.get('/:MatchId', function(req, res) {
             var options3 = {
                 host: "localhost",
                 port: 3000,
-                path: match.Austragungsort,
+                path: ort,
                 method:"GET",
                 headers:{
                     accept:"application/json"
@@ -464,6 +472,11 @@ app.put('/:MatchId', function(req, res) {
 
             console.log(util.inspect(changeMatch, false, null));
 
+            
+            var matchTischZuordnung = MatchDaten.Kickertisch;
+            
+            console.log('zuordnung');
+            console.log(matchTischZuordnung);
 
             res.json(changeMatch);
             res.end();
