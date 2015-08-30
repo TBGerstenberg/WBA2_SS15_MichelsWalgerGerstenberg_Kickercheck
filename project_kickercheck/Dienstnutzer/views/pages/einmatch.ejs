@@ -78,16 +78,6 @@
                 var d = new Date();
                 var time = d.setDate(d.getDate()-1);
 
-                <% if(match.Austragungsort)  { %>
-                var ortURI = "<%= match.Austragungsort %>".split("/");
-                var ort = "/"+ortURI[1]+"/"+ortURI[2];
-                $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');
-
-                                 if(!ortURI[3]) {
-                    $('#stdTisch').html('Bitte einen Kickertisch wählen.');
-                    $('#aort').html('');
-                }
-                <% } %>
                 var stdStatus = 'vor_beginn';
 
 
@@ -97,6 +87,7 @@
                 $('#addTisch').submit(function(e) {
                     e.preventDefault();
 
+                    var aort = $('#aort').attr('href');
                     var tisch = $('#kit').val();
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
@@ -109,7 +100,8 @@
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
-                                    Austragungsort: tisch,
+                                    Austragungsort: aort,
+                                    Kickertisch: tisch,
                                     Status:  stdStatus
                                    };
 
@@ -134,18 +126,20 @@
                 $('#startMatch').submit(function(e) {
                     e.preventDefault();
 
-                    var tisch = $('#aort').attr('href');
+                    var aort = $('#aort').attr('href');
+                    var tisch = $('#tisch').text();
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
 
-                    if(!ortURI[3]) {
+                    if(tisch == '') {
                         alert('Bitte einen Kickertisch auswählen.');
                         return false;
                     }
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
-                                    Austragungsort: tisch,
+                                    Austragungsort: aort,
+                                    Kickertisch: tisch,
                                     Status:  'aktiv'};
 
                     var teilnehmer1 = $('#user0').text();
@@ -187,7 +181,7 @@
 
                         $.ajax({
                             type: 'PUT',
-                            url: '<%= match.Austragungsort %>Belegung/',
+                            url: '<%= match.Kickertisch %>Belegung/',
                             contentType: 'application/json',
                             data: JSON.stringify(teilnehmerData)
                         })
@@ -205,14 +199,16 @@
                 $('#endMatch').submit(function(e) {
                     e.preventDefault();
 
-                    var tisch = $('#aort').attr('href');
+                    var aort = $('#aort').attr('href');
+                    var tisch = $('#tisch').text();
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
 
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
-                                    Austragungsort: tisch,
+                                    Austragungsort : aort,
+                                    Kickertisch: tisch,
                                     Status:  'beendet'};
 
                     var teilnehmer1 = $('#user0').text();
@@ -251,7 +247,7 @@
 
                         $.ajax({
                             type: 'PUT',
-                            url: '<%= match.Austragungsort %>Belegung/',
+                            url: '<%= match.Kickertisch %>Belegung/',
                             contentType: 'application/json',
                             data: JSON.stringify(teilnehmerData)
                         })
@@ -269,14 +265,16 @@
                 $('#cancelMatch').submit(function(e) {
                     e.preventDefault();
 
-                    var tisch = $('#aort').attr('href');
+                    var aort = $('#aort').attr('href');
+                    var tisch = $('#tisch').text();
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
 
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
-                                    Austragungsort: tisch,
+                                    Austragungsort: aort,
+                                    Kickertisch: tisch,
                                     Status:  'abgebrochen'};
 
                     var teilnehmer1 = $('#user0').text();
@@ -315,7 +313,7 @@
 
                         $.ajax({
                             type: 'PUT',
-                            url: '<%= match.Austragungsort %>Belegung/',
+                            url: '<%= match.Kickertisch %>Belegung/',
                             contentType: 'application/json',
                             data: JSON.stringify(teilnehmerData)
                         })
@@ -335,7 +333,8 @@
 
                     var datum = $('#datum').val();
                     var uhrzeit = $('#uhrzeit').val();
-                    var tisch = $('#aort').attr('href');
+                    var aort = $('#aort').attr('href');
+                    var tisch = $('#tisch').text();
 
 
                     if(!(datum && uhrzeit)) {
@@ -345,7 +344,8 @@
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
-                                    Austragungsort: tisch,
+                                    Austragungsort: aort,
+                                    Kickertisch: tisch,
                                     Status:  stdStatus
                                    };
 
@@ -510,8 +510,8 @@
                         <ul>
                             <li>Datum: <span id="dat"><%= match.Datum %></span></li>
                             <li> Startzeitpunkt: <span id="uhr"><%= match.Uhrzeit %></span> Uhr</li>
-                            <li> Austragungsort:  <span id="tis"></span></li>
-                            <li>Kickertisch: <span id="stdTisch"></span><a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></li>
+                            <li> Austragungsort:  <a id="aort" href="<%= match.Austragungsort %>"><%= austragungsort.Name %></a></span></li>
+                            <li>Kickertisch: <span id="tisch"><%= match.Kickertisch %></span></li>
                             <li id="stat"> Status: <%= match.Status %></li>
                         </ul> 
 
@@ -614,6 +614,7 @@
                         </div>
                         <hr />
                         <% } else if (match.Status == 'aktiv') { %>
+                         <hr />
                         <div class="row">
                             <div class="col-md-4">
                                 <form role="form" action="" method="POST" name="modusPOST" id="modusPOST">

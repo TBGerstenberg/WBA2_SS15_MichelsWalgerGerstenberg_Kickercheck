@@ -44,7 +44,7 @@ app.get('/:AustragungsortId', function(req, res) {
     var x = http.request(options, function(externalres){
 
         externalres.on('data', function(chunk){
-
+            
             var austragungsort = JSON.parse(chunk);
 
 
@@ -158,7 +158,7 @@ app.delete('/:AustragungsortId', function(req, res) {
 
         externalResponse.on('data', function (chunk) {
             
-            client.del("Ort " +austragungsortId+ " Tische");
+        client.del("Ort " +austragungsortId+ " Tische");
             
             var listenKey="Ort " +austragungsortId+ " Tische";
             
