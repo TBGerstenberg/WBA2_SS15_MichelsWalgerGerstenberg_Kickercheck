@@ -1,11 +1,11 @@
 var app = express.Router();
 
+
+//Liefert eine Repräsentation eines Benutzers mit <BenutzerId>
 app.get('/:BenutzerId', function(req, res) {
 
     //BenutzerId aus der URI extrahieren
     var benutzerId = req.params.BenutzerId;    
-
-
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
@@ -14,41 +14,48 @@ app.get('/:BenutzerId', function(req, res) {
 
             var benutzerObj=JSON.parse(benutzerData);
 
+            //Es soll zukünftig möglich sein Benutzerseiten für den Zugriff von außen zu Sperren , daher das Flag "isActive" 
+            //in diesem Fall existiert der Benutzer und ist nicht gesperrt 
             if(IdExists==1 && benutzerObj.isActive == 1) {
-                //Setze das isActive Attribut des Benutzers in der Datenbank auf 0 , so bleiben seine Daten für statistische Zwecke erhalten , nach 				   
-                //außen ist die Ressource aber nicht mehr erreichbar 
-
-
-                //Das Match existiert 
-
 
                 //Headerfeld Accept abfragen
                 var acceptedTypes = req.get('Accept');
 
-                //Es wird zunaechst nur text/html 
+                //Service kann bislang nur mit json-repräsentationen antworten 
                 switch (acceptedTypes) {
 
-                        //client kann application/json verarbeiten     
+                    //client kann application/json verarbeiten     
                     case "application/json":
 
+                        //Lese Benutzerdaten aus DB
                         client.mget('Benutzer ' + benutzerId, function(err,benutzerdata){
 
+                            //Parse redis Antwort 
                             var Benutzerdaten = JSON.parse(benutzerdata);
 
-                            //Setze Contenttype der Antwort auf application/json
+                            //Setze Contenttype der Antwort auf application/json, zeige mit 200-OK erfolg 
                             res.set("Content-Type", 'application/json').status(200).json(Benutzerdaten).end();
                         });
                         break;
 
                     default:
-                        //Der gesendete Accept header enthaelt kein unterstuetztes Format 
-                        res.status(406).send("Content Type wird nicht unterstuetzt").end();
+                        //Der gesendete Accept header enthaelt kein unterstuetztes Format , 406 - Notacceptable 
+                        //Includiere Servicedokument oder Benutzercollection Link um dem Client einen Hinweis zu geben wie das Problem 
+                        //zu beheben ist.  
+                        var benutzerRel={
+                            "href":"/Benutzer",
+                        };
+                        res.status(406).json(benutzerRel).end();
                         break;
                 }
             }
+            
+            //Ressource für den Zugriff von außen gesperrt ,aber vorhanden 
             else if(IdExists == 1 && benutzerObj.isActive == 0) {
                 res.status(404).send("Die Ressource wurde für den Zugriff von außen gesperrt.").end();
             }
+            
+            //Ressource nicht gefunden 
             else {
                 res.status(404).send("Die Ressource wurde nicht gefunden.").end();
             }
@@ -214,7 +221,7 @@ app.get('/',function(req,res){
             res.json(response);
             return;
         }
-        
+
         var sorted =  key.sort();
 
         client.mget(sorted, function (err, benutzer) {
@@ -236,6 +243,5 @@ app.get('/',function(req,res){
 
     });
 });
-
 
 module.exports = app;
