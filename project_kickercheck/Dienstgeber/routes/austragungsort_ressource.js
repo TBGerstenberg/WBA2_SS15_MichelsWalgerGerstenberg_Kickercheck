@@ -41,7 +41,7 @@ app.get('/:AustragungsortId', function(req, res) {
         
         //Die Lokalitaet existiert im System und ist nicht für den Zugriff von außen gesperrt
         if (!IdExists) {
-            res.status(404).send("Die Ressource wurde nicht gefunden.");
+            res.status(404);
             res.end();
         }
 
@@ -70,7 +70,7 @@ app.get('/:AustragungsortId', function(req, res) {
 
                 default:
                     //Der gesendete Accept header enthaelt kein unterstuetztes Format 
-                    res.status(406).send("Content Type wird nicht unterstuetzt");
+                    res.status(406);
                     //Antwort beenden        
                     res.end();
                     break;
@@ -88,7 +88,7 @@ app.post('/',function(req, res) {
     //Check ob der Content Type der Anfrage xml ist 
     if (contentType != "application/json") {
         res.set("Accepts", "application/json");
-        res.status(406).send("Content Type is not supported");
+        res.status(406);
         res.end();
     }
 
@@ -125,7 +125,7 @@ app.put('/:AustragungsortId', function(req, res) {
         //Teile dem Client einen unterstuetzten Type mit 
         res.set("Accepts", "application/json");
         //Zeige über den Statuscode und eine Nachricht 
-        res.status(406).send("Content Type is not supported"); 
+        res.status(406); 
         //Antwort beenden
         res.end();   
     } 
@@ -140,7 +140,7 @@ app.put('/:AustragungsortId', function(req, res) {
 
             //client.exists hat false geliefert 
             if (!IdExists) {
-                res.status(404).send("Die Ressource wurde nicht gefunden.");
+                res.status(404);
                 res.end();
             }
 
@@ -190,9 +190,11 @@ app.delete('/:AustragungsortId', function(req, res) {
     client.keys('Match *', function (err, key) {
 
         if(key.length == 0) {
+            client.del('Austragungsort ' + austragungsortId);
             res.json(response);
             return;
         }
+        
 
         client.mget(key, function (err, match) {
 
@@ -209,23 +211,23 @@ app.delete('/:AustragungsortId', function(req, res) {
                     
                     client.set('Match '+dieseMatch.id,JSON.stringify(dieseMatch));
                
+                                  //Entferne EIntrag aus der Datenbank 
+                    client.del('Austragungsort ' + austragungsortId);
+                    
                 }
-
-                         //Entferne EIntrag aus der Datenbank 
-            client.del('Austragungsort ' + austragungsortId);
-                          
+ });        
+              });
 
             //Alles ok , sende 200 
-            res.status(200).send("Das hat funktioniert! Austragungsort gelöscht");
-   });
+            res.status(200);
             //Antwort beenden
             res.end();
-        });
+       
     });
         }
 
         else {
-            res.status(404).send("Die Ressource wurde nicht gefunden.");
+            res.status(404);
             res.end();
         }
     
