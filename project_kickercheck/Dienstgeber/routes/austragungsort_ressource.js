@@ -1,5 +1,6 @@
 var app = express.Router();
 
+//Liefert eine Collection aller Austragungsorte im System 
 app.get('/',function(req,res){
 
     //Speichert die alle Benutzer
@@ -8,8 +9,9 @@ app.get('/',function(req,res){
     //returned ein Array aller Keys die das Pattern Benutzer* matchen 
     client.keys('Austragungsort *', function (err, key) {
 
+        //Collection ist leer, 
         if(key.length == 0) {
-            res.json(response);
+            res.status(200).json(response);
             return;
         }
 
@@ -81,7 +83,6 @@ app.get('/:AustragungsortId', function(req, res) {
 
 app.post('/',function(req, res) {
 
-
     //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
     var contentType = req.get('Content-Type');
 
@@ -110,7 +111,6 @@ app.post('/',function(req, res) {
 
             //Setze Contenttype der Antwort auf application/atom+xml
             res.set("Content-Type", 'application/json').set("Location", "/Austragungsort/" + id).status(201).json(austragungsortObj).end();
-
         });
     }
 });
