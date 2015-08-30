@@ -87,7 +87,6 @@ app.post('/', function(req, res) {
         externalResponse.on('data', function (chunk) {
 
             var benutzer = JSON.parse(chunk);
-            res.setHeader('Location',externalResponse.headers.location);
             res.json(benutzer);
             res.end();
         });

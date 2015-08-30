@@ -1,5 +1,4 @@
 var app = express.Router();
-var clientFaye = new faye.Client("http://localhost:8000/faye");
 
 app.get('/addMatch', function(req, res) {
 
@@ -550,30 +549,7 @@ app.get('/:MatchId/Liveticker', function(req, res) {
             else {
                 
 	     var MatchSpielstand = req.body;
-                
-                
-                //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                    'SpielstandT1': MatchSpielstand.spielstandT1,
-                    'SpielstandT2': MatchSpielstand.spielstandT2,
-                });
-                
-    publication.then(
-                
-    function(){
-  
-    }
-                
-    ,
-                
-    function(){
-    }
-                
-                
-    )         
+                      
             //Schreibe Turnierdaten zurück 
             client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
 

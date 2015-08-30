@@ -69,17 +69,17 @@
                     }
 
                     if(teilnehmerArray.length == 1) {
-                        var teilnehmerTeamArray = [{ Team2: { Teilnehmer1: null, Teilnehmer2: null },
-                                                    Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } } ]
+                        var teilnehmerTeamArray = [{ Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                    Team2: { Teilnehmer1: null, Teilnehmer2: null } } ]
                         } else if (teilnehmerArray.length == 2) {
-                            var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: null },
-                                                         Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } } ]
+                            var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                         Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: null } } ]
                             } else if(teilnehmerArray.length == 3) {
-                                var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: teilnehmer3 } ,
-                                                             Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } } ]
+                                var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null } ,
+                                                             Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: teilnehmer3 } } ]
                                 } else if (teilnehmerArray.length == 4) {
-                                    var teilnehmerTeamArray = [ { Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: teilnehmer4 } ,
-                                                                 Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } } ]
+                                    var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                                 Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: teilnehmer4 } } ]
                                     }
 
 

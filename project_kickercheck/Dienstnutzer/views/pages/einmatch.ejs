@@ -2,8 +2,11 @@
 <html>
     <head>
         <% include ../partials/head %>
+        <script type="text/javascript" src="http://localhost:8000/faye/client.js"></script>
         <script>
             $(document).ready(function() {
+
+                var client = new Faye.Client('http://localhost:8000/faye');
 
                 var teilnehmer1 = $('#user0').text();
                 var teilnehmer2 = $('#user1').text();
@@ -50,6 +53,7 @@
                     var value2 = parseInt(spielstand2, 10);
 
                     var modus = $('#spielmodus').val();
+                    
 
 
                     var formData = {spielstandT1: value1,
@@ -62,8 +66,50 @@
                         contentType: 'application/json',
                         data: JSON.stringify(formData),
                         success: function(data) {
+                            
+                              //Path of the Topic
+                    var path = "/liveticker/"+<%= match.id %>;
 
-                            window.location.reload(true);		
+      
+                    if(modus == 'Klassisch') {
+                                     var publication = client.publish(path,{
+                    'ModusChange': 'Modus geändert auf Klassisch. 6 Punkte bis zum Sieg'
+                });
+                
+    publication.then(
+                
+    function(){
+   window.location.reload(true);	
+    }
+                
+    ,
+                
+    function(){
+    }
+                
+                
+    ) 
+                    }
+                    else if(modus == 'Variation') {
+                            var publication = client.publish(path,{
+                    'ModusChange': 'Modus geändert auf Variation. 10 Punkte bis zum Sieg'
+                });
+                
+    publication.then(
+                
+    function(){
+   window.location.reload(true);	
+    }
+                
+    ,
+                
+    function(){
+    }
+                
+                
+    ) 
+                    }
+	
 
                         },
                         fail: function() {
@@ -77,12 +123,12 @@
 
                 var d = new Date();
                 var time = d.setDate(d.getDate()-1);
-                
-                 <% if(match.Austragungsort)  { %>		
+
+                <% if(match.Austragungsort)  { %>		
                 var ortURI = "<%= match.Austragungsort %>".split("/");		
                 var ort = "/"+ortURI[1]+"/"+ortURI[2];		
                 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');		
-		
+
                                  if(!ortURI[3]) {		
                     $('#stdTisch').html('Bitte einen Kickertisch wählen.');		
                     $('#aort').html('');		
@@ -139,6 +185,7 @@
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
 
+
                     if(!ortURI[3]) {
                         alert('Bitte einen Kickertisch auswählen.');
                         return false;
@@ -194,7 +241,29 @@
                         })
                     ).then(function() {
 
-                        window.location.reload(true);
+                         //Path of the Topic
+                    var path = "/liveticker/"+<%= match.id %>;
+
+                    //Publish to the specific topic path  
+                    var publication = client.publish(path,{
+                        'Start': 'Das Match wurde gestartet.'
+                    });
+
+                    publication.then(
+
+                        function(){
+     window.location.reload(true);
+                        }
+
+                        ,
+
+                        function(){
+                        }
+
+
+                    )   
+
+                   
 
 
 
@@ -258,7 +327,28 @@
                         })
                     ).then(function() {
 
-                        window.location.reload(true);
+                               //Path of the Topic
+                    var path = "/liveticker/"+<%= match.id %>;
+
+                    //Publish to the specific topic path  
+                    var publication = client.publish(path,{
+                        'End': 'Das Match wurde beendet.'
+                    });
+
+                    publication.then(
+
+                        function(){
+                            window.location.reload(true);
+                        }
+
+                        ,
+
+                        function(){
+                        }
+
+
+                    )   
+                        
 
 
 
@@ -274,6 +364,28 @@
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
 
+
+                    //Path of the Topic
+                    var path = "/liveticker/"+<%= match.id %>;
+
+                    //Publish to the specific topic path  
+                    var publication = client.publish(path,{
+                        'Cancel': 'Das Match wurde abgebrochen.'
+                    });
+
+                    publication.then(
+
+                        function(){
+
+                        }
+
+                        ,
+
+                        function(){
+                        }
+
+
+                    )   
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
@@ -383,9 +495,34 @@
                     var value1 = parseInt(spielstand1, 10) + 1;
                     var value2 = parseInt(spielstand2, 10);
 
+
+                    //Path of the Topic
+                    var path = "/liveticker/"+<%= match.id %>;
+
+                    //Publish to the specific topic path  
+                    var publication = client.publish(path,{
+                        'SpielstandT1': value1
+                    });
+
+                    publication.then(
+
+                        function(){
+
+                        }
+
+                        ,
+
+                        function(){
+                        }
+
+
+                    )   
+
+
                     if(stdModus == 'Variation') {							
 
                         if(value1 == 10) {
+
                             $('#cancMatch').prop('disabled', true);
                         }
 
@@ -397,6 +534,24 @@
 
                     } else {
                         if(value1 == 6) {
+                              //Publish to the specific topic path  
+                var publication = client.publish(path,{
+                    'Winner': 'Team1'
+                });
+                
+    publication.then(
+                
+    function(){
+  
+    }
+                
+    ,
+                
+    function(){
+    }
+                
+                
+    )   
                             $('#cancMatch').prop('disabled', true);
                         }
 
@@ -442,9 +597,49 @@
                     var value1 = parseInt(spielstand1, 10);
                     var value2 = parseInt(spielstand2, 10) + 1;
 
+                    //Path of the Topic
+                    var path = "/liveticker/"+<%= match.id %>;
+
+                    //Publish to the specific topic path  
+                    var publication = client.publish(path,{
+                        'SpielstandT2': value2
+                    });
+
+                    publication.then(
+
+                        function(){
+
+                        }
+
+                        ,
+
+                        function(){
+                        }
+
+
+                    )   
+
                     if(stdModus == 'Variation') {							
 
                         if(value2 == 10) {
+                              //Publish to the specific topic path  
+                var publication = client.publish(path,{
+                    'Winner': 'Team2'
+                });
+                
+    publication.then(
+                
+    function(){
+  
+    }
+                
+    ,
+                
+    function(){
+    }
+                
+                
+    )   
                             $('#cancMatch').prop('disabled', true);
                         }
 
@@ -456,6 +651,24 @@
 
                     } else {
                         if(value2 == 6) {
+                              //Publish to the specific topic path  
+                var publication = client.publish(path,{
+                    'Winner': 'Team2'
+                });
+                
+    publication.then(
+                
+    function(){
+  
+    }
+                
+    ,
+                
+    function(){
+    }
+                
+                
+    )   
                             $('#cancMatch').prop('disabled', true);
                         }
 
@@ -509,8 +722,8 @@
                         <br />
 
                         <ul>
-                            
-                            
+
+
                             <li>Datum: <span id="dat"><%= match.Datum %></span></li>
                             <li> Startzeitpunkt: <span id="uhr"><%= match.Uhrzeit %></span> Uhr</li>
                             <li> Austragungsort:  <span id="tis"></span></li>
@@ -538,14 +751,14 @@
                         <% if (benutzerAll.length == 1) { %>
                         <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a></p>
                         <% } else if (benutzerAll.length == 2) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler2team1"></span></a></p>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler2team1"></span></a></p>
                         <% } else if (benutzerAll.length == 3) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team2"></span></a></p>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team2"></span></a></p>
                         <% } else if(benutzerAll.length == 4) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team2"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team2"></span></a></p>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team2"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team2"></span></a></p>
                         <% } } %>
                         <% if (match.Status == 'vor_beginn') { %>
                         <hr />
@@ -617,7 +830,7 @@
                         </div>
                         <hr />
                         <% } else if (match.Status == 'aktiv') { %>
-                         <hr />
+                        <hr />
                         <div class="row">
                             <div class="col-md-4">
                                 <form role="form" action="" method="POST" name="modusPOST" id="modusPOST">

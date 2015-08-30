@@ -16,8 +16,24 @@
     var subscription = client.subscribe('/liveticker/'+pathurl, function(message) {
 
         var div = $('#messages');
-        div.prepend("<p> Spielstand Team1: " + message.SpielstandT1 + "<br> Spielstand Team2: " + message.SpielstandT2 + "</p>");
-        
+        if(message.SpielstandT1) {
+        div.prepend("<p> TOR für Team1: " + message.SpielstandT1 + "</p>");
+        }
+        if(message.SpielstandT2) {
+         div.prepend("<p> TOR für Team2: " + message.SpielstandT2 + "</p>");
+        }
+         if(message.Cancel) {
+         div.prepend("<p> " + message.Cancel + "</p>");
+        }
+         if(message.End) {
+         div.prepend("<p> " + message.End + "</p>");
+        }
+        if(message.Start) {
+         div.prepend("<p> " + message.Start + "</p>");
+        }
+        if(message.ModusChange) {
+         div.prepend("<p> " + message.ModusChange + "</p>");
+        }
     });
 </script>
     
