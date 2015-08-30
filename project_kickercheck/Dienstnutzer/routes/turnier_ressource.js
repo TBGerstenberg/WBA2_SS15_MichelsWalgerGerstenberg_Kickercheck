@@ -74,8 +74,8 @@ app.post('/', function(req, res) {
 
     // HTTP Header für Anfragen vorbereiten 
     var headers = {
-        'Content-Type': 'application/json',
-        'Accepts':'application/json'
+        'Accept' : 'application/json',
+        'Content-Type': 'application/json'
     };
 
     // Mit Server verbinden
@@ -120,7 +120,7 @@ app.post('/', function(req, res) {
 //Per Definition ist Put Idempotent , liefert also bei wiederholter Ausführung immer das selbse 
 //Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann 
 app.put('/:TurnierId/Spielplan',function(req,res){
-    console.log('put?');
+    //console.log('put?');
     //Vorgehen: 
     //Stelle Turnieranfrage, extrahiere URI um Matches zu Posten 
     //Stelle Teilnehmerliste Anfrage für das Turnier für das Teilnehmer>Teams mapping 
@@ -203,7 +203,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     //Wenn die Antwort der letzten Anfrage ankommt
                     teilnehmerRequestResponse.on("end",function(){
 
-                        console.log("KOMMST DU HIER HER JA?");
+                      //  console.log("KOMMST DU HIER HER JA?");
 
                         var Teilnehmer = teilnehmerRequestJson;
 
@@ -542,10 +542,7 @@ app.delete('/:TurnierId', function(req, res) {
         host: 'localhost',
         port: 3000,
         path: '/Turnier/'+req.params.TurnierId,
-        method: 'DELETE',
-        headers: {
-            accept: 'application/json'
-        }
+        method: 'DELETE'
     };
 
     var y = http.request(options1, function(externalrep){
@@ -569,6 +566,7 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
     // HTTP Header setzen
     var headers = {
+         'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 
@@ -589,7 +587,7 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
         externalResponse.on('data', function (chunk) {
             var completeTurnierplan = JSON.parse(chunk);
-            console.log(util.inspect(completeTurnierplan, false, null));
+         //   console.log(util.inspect(completeTurnierplan, false, null));
             res.json(completeTurnierplan).end();
         });
     });
@@ -656,7 +654,7 @@ app.post('/:TurnierId/Ligatabelle',function(req,res){
                 "Punktestand":0
             }
             
-             console.log(util.inspect(JSON.stringify(teamUndPunkte), false, null));
+       //      console.log(util.inspect(JSON.stringify(teamUndPunkte), false, null));
               
              client.LPUSH(tabellenListenKey,JSON.stringify(teamUndPunkte));
               ligaTabelle.push(teamUndPunkte);
@@ -709,6 +707,7 @@ app.put('/:TurnierId', function(req, res) {
 
     // HTTP Header setzen
     var headers = {
+        'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 

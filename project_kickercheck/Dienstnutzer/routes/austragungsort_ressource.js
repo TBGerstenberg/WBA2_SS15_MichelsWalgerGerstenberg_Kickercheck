@@ -19,7 +19,6 @@ app.get('/alleAustragungsorte', function(req, res) {
 
         externalResponse.on("data", function(chunk){
             
-            
             var austragungsorte = JSON.parse(chunk);
             res.render('pages/alleaustragungsorte',{austragungsorte:austragungsorte});
         });
@@ -48,7 +47,6 @@ app.get('/:AustragungsortId', function(req, res) {
             
             var austragungsort = JSON.parse(chunk);
 
-
             res.render('pages/einaustragungsort', { austragungsort: austragungsort });
         });
     });                     
@@ -63,6 +61,7 @@ app.post('/', function(req, res) {
 
     // HTTP Header setzen
     var headers = {
+        'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 
@@ -84,9 +83,7 @@ app.post('/', function(req, res) {
         externalResponse.on('data', function (chunk) {
 
             var austragungsort = JSON.parse(chunk);
-
-            console.log(util.inspect(austragungsort, false, null));
-
+            
             res.json(austragungsort);
             res.end();
 
@@ -94,7 +91,6 @@ app.post('/', function(req, res) {
         });
 
     });
-
 
     externalRequest.write(JSON.stringify(AustragungsortAnfrage));
     externalRequest.end();
@@ -105,11 +101,9 @@ app.put('/:AustragungsortId', function(req, res) {
     var AustragungsortDaten = req.body;
     var austragungsortId = req.params.AustragungsortId;
 
-
-    console.log(util.inspect(AustragungsortDaten, false, null));
-
     // HTTP Header setzen
     var headers = {
+        'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 
@@ -124,14 +118,12 @@ app.put('/:AustragungsortId', function(req, res) {
 
     var externalRequest = http.request(options, function(externalResponse) {
 
-
         externalResponse.on('data', function (chunk) {
 
             var changeAustragungsort = JSON.parse(chunk);
 
             res.json(changeAustragungsort);
             res.end();
-
 
         });
 
@@ -146,22 +138,15 @@ app.delete('/:AustragungsortId', function(req, res) {
 
     var austragungsortId = req.params.AustragungsortId;
 
-    // HTTP Header setzen
-    var headers = {
-        'Accept': 'application/json'
-    };
-
     // Mit Server verbinden
     var options = {
         host: 'localhost',
         port: 3000,
         path: '/Austragungsort/'+austragungsortId,
-        method: 'DELETE',
-        headers: headers
+        method: 'DELETE'
     };
 
     var externalRequest = http.request(options, function(externalResponse) {
-
 
         externalResponse.on('end', function() {
             
@@ -207,7 +192,6 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
 
     // Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
     var listenKey="Ort " +austragungsortId+ " Tische";
-
 
     client.mget('Austragungsort '+austragungsortId,function(err,ort){
 
@@ -432,8 +416,6 @@ app.post('/:AustragungsortId/Kickertisch/',function(req, res){
 /*Mit put kann das Bild eines Kickertischs und/oder seine Zustandsbeschreibung geändert werden*/
 app.put('/:AustragungsortId/Kickertisch/:TischId/', function(req, res) {
 
-
-
     var contentType = req.get('Content-Type');
 
     //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
@@ -535,10 +517,6 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
         //Lokalitaet kennt einen Tisch mit dieser TischId
         if (IdExists) {
 
-            client.exists('Belegung ' + belegungId, function(err, IdExists) {
-
-                if(IdExists) {
-
                     client.mget('Belegung '+belegungId,function(err,belegungdaten){
 
                         var belegung = JSON.parse(belegungdaten);
@@ -547,23 +525,20 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
 
                     });
 
-                }
+     
                 else {
                     res.status(404).end();    
                 }
+        }
 
             });
-        }    
-
-    });
-
 });
 
 
 /*Mit put kann das Bild eines Kickertischs und/oder seine Zustandsbeschreibung geändert werden*/
 app.put('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) {
 
-    console.log(req.body);
+    
     var contentType = req.get('Content-Type');
 
     //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
@@ -606,8 +581,6 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
                     'Teilnehmer' : BelegungNeu.teilnehmer,
                     'Forderungen' : belegung.Forderungen
                 };
-
-                console.log(belegungObj);
 
                 client.set('Belegung ' + belegungsId, JSON.stringify(belegungObj));
 
@@ -665,7 +638,6 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Forderung/:ForderungId', functi
 /*Mit put kann das Bild eines Kickertischs und/oder seine Zustandsbeschreibung geändert werden*/
 app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res) {
 
-    
     var contentType = req.get('Content-Type');
 
     //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
@@ -695,24 +667,14 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res)
             else {
                 
                  var Forderung = req.body;
-                   
-            
                 
                  client.mget('Belegung '+tischId,function(err,belegungdaten){
 
                         var belegung = JSON.parse(belegungdaten);
                      
-
                 client.incr('ForderungId', function(err, id) {
 
-                   
-
-                    console.log(Forderung);
-
-
                     var timestamp = moment().format();
-
-                    console.log(timestamp);
 
                     var forderungObj={
                         //Set von Benutzern required
@@ -748,40 +710,3 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res)
 
 
 module.exports = app;
-
-/*
-	app.post('/:AustragungsortId/Kickertisch/:TischId/Belegung',function(req, res){
-
-
-	    var contentType = req.get('Content-Type');
-
-         //Check ob der Content Type der Anfrage xml ist 
-        if (contentType != "application/json" && contentType != "application/json; charset=UTF-8") {
-	       res.set("Accepts", "application/json");
-	       res.status(406).send("Content Type is not supported");
-	       res.end();
-	    }
-
-        else {
-
-	        var tischId = req.params.TischId;
-	         var austragungsortId = req.params.AustragungsortId;
-
-	         client.mget('Kickertisch '+tischId,function(err,tischdaten){
-
-				var tisch = JSON.parse(tischdaten);
-
-             var Belegung = req.body;
-
-            tisch.Belegung = Belegung;
-
-             client.set('Kickertisch ' + tischId, JSON.stringify(tisch));
-
-              //Setze Contenttype der Antwort auf application/atom+xml
-            res.set("Content-Type", 'application/json').set("Location", "/Austragungsort/"+austragungsortId+"/Kickertisch/" + tischId+ "/Belegung").status(201).json(Belegung).end();
-
-
-         });
-       }
-    });
-*/
