@@ -47,7 +47,7 @@ app.get('/:BenutzerId', function(req, res) {
 
             var benutzer = JSON.parse(chunk);
 
-            console.log(util.inspect(benutzer, false, null));
+         //   console.log(util.inspect(benutzer, false, null));
 
             res.render('pages/einbenutzer', { benutzer: benutzer });
         });
@@ -63,6 +63,7 @@ app.post('/', function(req, res) {
 
     // HTTP Header setzen
     var headers = {
+         'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 
@@ -103,10 +104,11 @@ app.put('/:BenutzerId', function(req, res) {
     var benutzerId = req.params.BenutzerId;
 
 
-    console.log(util.inspect(BenutzerDaten, false, null));
+   // console.log(util.inspect(BenutzerDaten, false, null));
 
     // HTTP Header setzen
     var headers = {
+         'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 
@@ -126,7 +128,7 @@ app.put('/:BenutzerId', function(req, res) {
 
             var changeBenutzer = JSON.parse(chunk);
 
-            console.log(util.inspect(changeBenutzer, false, null));
+         //   console.log(util.inspect(changeBenutzer, false, null));
 
             res.json(changeBenutzer);
             res.end();
@@ -146,18 +148,12 @@ app.delete('/:BenutzerId', function(req, res) {
 
     var benutzerId = req.params.BenutzerId;
 
-    // HTTP Header setzen
-    var headers = {
-        'Content-Type': 'application/json'
-    };
-
     // Mit Server verbinden
     var options = {
         host: 'localhost',
         port: 3000,
         path: '/Benutzer/'+benutzerId,
-        method: 'DELETE',
-        headers: headers
+        method: 'DELETE'
     };
 
     var externalRequest = http.request(options, function(externalResponse) {

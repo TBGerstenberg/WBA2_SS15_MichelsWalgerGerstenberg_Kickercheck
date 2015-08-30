@@ -125,7 +125,7 @@ app.get('/:MatchId', function(req, res) {
 
             if(match.Austragungsort) {
                 
-            console.log(match.Austragungsort);		
+          //  console.log(match.Austragungsort);		
                		
             var ortURI = match.Austragungsort.split("/");		
             var ort = "/"+ortURI[1]+"/"+ortURI[2];		
@@ -221,8 +221,7 @@ app.get('/:MatchId', function(req, res) {
                                             path: listItem,
                                             method:"GET",
                                             headers:{
-                                                accept : "application/json",
-                                                contentType : "application/json"
+                                                accept : "application/json"
                                             }
                                         }
 
@@ -267,7 +266,7 @@ app.get('/:MatchId', function(req, res) {
             }
             else {
                 
-                console.log('garkeinort');
+              // console.log('garkeinort');
             
                    var options4 = {
                 host: 'localhost',
@@ -317,8 +316,7 @@ app.get('/:MatchId', function(req, res) {
                                             path: listItem,
                                             method:"GET",
                                             headers:{
-                                                accept : "application/json",
-                                                contentType : "application/json"
+                                                accept : "application/json"
                                             }
                                         }
 
@@ -381,7 +379,8 @@ app.post('/', function(req, res) {
 
     // HTTP Header setzen
     var headers = {
-        'Content-Type': 'application/json'
+    'Accept' : 'application/json',
+    'Content-Type': 'application/json'
     };
 
     // Mit Server verbinden
@@ -403,7 +402,7 @@ app.post('/', function(req, res) {
 
             var match = JSON.parse(chunk);
 
-            console.log(util.inspect(match, false, null));
+          //  console.log(util.inspect(match, false, null));
 
             var loc = externalResponse.headers.location.split("/");
 
@@ -451,6 +450,7 @@ app.put('/:MatchId', function(req, res) {
 
     // HTTP Header setzen
     var headers = {
+        'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 
@@ -550,7 +550,6 @@ app.get('/:MatchId/Liveticker', function(req, res) {
             else {
                 
 	     var MatchSpielstand = req.body;
-                
                 
                 
                 //Path of the Topic
