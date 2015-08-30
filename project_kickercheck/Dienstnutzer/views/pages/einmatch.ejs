@@ -78,7 +78,7 @@
                 var d = new Date();
                 var time = d.setDate(d.getDate()-1);
 
-               <% if(match.Austragungsort)  { %>
+                <% if(match.Austragungsort)  { %>
                 var ortURI = "<%= match.Austragungsort %>".split("/");
                 var ort = "/"+ortURI[1]+"/"+ortURI[2];
                 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');
@@ -87,7 +87,7 @@
                     $('#stdTisch').html('Bitte einen Kickertisch wählen.');
                     $('#aort').html('');
                 }
-            <% } %>
+                <% } %>
                 var stdStatus = 'vor_beginn';
 
 
@@ -133,12 +133,12 @@
 
                 $('#startMatch').submit(function(e) {
                     e.preventDefault();
-                    
+
                     var tisch = $('#aort').attr('href');
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
 
-                     if(!ortURI[3]) {
+                    if(!ortURI[3]) {
                         alert('Bitte einen Kickertisch auswählen.');
                         return false;
                     }
@@ -175,8 +175,7 @@
                     var anzahl = teilnehmerArray.length;
 
 
-                    var teilnehmerData = {anzahl: anzahl, teilnehmer: teilnehmerArray,
-                                          'Forderungen': []
+                    var teilnehmerData = {anzahl: anzahl, teilnehmer: teilnehmerArray
                                          }
 
                     $.when(
@@ -240,8 +239,7 @@
                     var anzahl = teilnehmerArray.length;
 
 
-                    var teilnehmerData = {anzahl: 0, teilnehmer: null,
-                                          'Forderungen': []
+                    var teilnehmerData = {anzahl: 0, teilnehmer: null
                                          }
 
                     $.when(
@@ -305,8 +303,7 @@
                     var anzahl = teilnehmerArray.length;
 
 
-                    var teilnehmerData = {anzahl: 0, teilnehmer: null,
-                                          'Forderungen': []
+                    var teilnehmerData = {anzahl: 0, teilnehmer: null
                                          }
 
                     $.when(
@@ -548,32 +545,40 @@
                         <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team2"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team2"></span></a></p>
                         <% } } %>
                         <% if (match.Status == 'vor_beginn') { %>
-                         <hr />
-                         <% if(typeof kickertische != 'undefined') { %>
+                        <hr />
+                        <% if(typeof kickertische != 'undefined') { %>
                         <div class="row">
                             <div class="col-md-6">
-                                
+
                                 <form role="form" action="" method="POST" name="addTisch" id="addTisch">
                                     <div class="form-group">
-                                        
+
                                         <label for="kickertisch">Kickertisch:</label> <br>
                                         <select id="kit" class="form-control">
                                             <option value="0">Bitte wählen</option>
-                                           
+
                                             <% kickertische.forEach(function(tisch) { belegungen.forEach(function(belegung) {  %>
                                             <% if(belegung.id == tisch.id)  { %>
+                                            <% if(benutzerAll.length == 1 && belegung.Anzahl < 4) { %>
                                             <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
+                                            <% } else if (benutzerAll.length == 2 && belegung.Anzahl < 3) { %>
+                                            <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
+                                            <% } else if (benutzerAll.length == 3 && belegung.Anzahl < 2) { %>
+                                            <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
+                                            <% } else if (benutzerAll.length == 4 && belegung.Anzahl < 1) { %>
+                                            <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>/">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
+                                            <% } %>
                                             <% } }); });   %>
                                         </select>
-                                       
+
                                     </div>
                                     <input type="submit" class="btn btn-primary" name="change" value="Kickertisch übernehmen" />
                                 </form>
-                             
+
                             </div>
                         </div>
                         <hr />
-    <% } %>
+                        <% } %>
 
                         <div class="row">
                             <div class="col-md-6">

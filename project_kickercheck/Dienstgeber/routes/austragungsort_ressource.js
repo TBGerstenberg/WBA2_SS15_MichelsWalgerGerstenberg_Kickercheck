@@ -12,8 +12,10 @@ app.get('/',function(req,res){
             res.json(response);
             return;
         }
+        
+        var sorted =  key.sort();
 
-        client.mget(key, function (err, austragungsort) {
+        client.mget(sorted, function (err, austragungsort) {
 
             //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
             austragungsort.forEach(function (val) {

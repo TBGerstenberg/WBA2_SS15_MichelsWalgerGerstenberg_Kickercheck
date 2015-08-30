@@ -582,26 +582,29 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
 
             //Ressource existiert     
             else {
+                
+                client.mget('Belegung '+belegungsId,function(err,belegungdaten){
 
-                var Belegung = req.body;
+                var belegung = JSON.parse(belegungdaten);
 
-                console.log(Belegung);
+                var BelegungNeu = req.body;
 
                 var belegungObj={
                     //Set von Benutzern required
                     'id': belegungsId,
-                    'Anzahl' : Belegung.anzahl,
-                    'Teilnehmer' : Belegung.teilnehmer,
-                    'Forderungen' : []
+                    'Anzahl' : BelegungNeu.anzahl,
+                    'Teilnehmer' : BelegungNeu.teilnehmer,
+                    'Forderungen' : belegung.Forderungen
                 };
 
                 console.log(belegungObj);
 
                 client.set('Belegung ' + belegungsId, JSON.stringify(belegungObj));
 
+             
                 //Setze Contenttype der Antwort auf application/atom+xml
                 res.set("Content-Type", 'application/json').status(200).json(belegungObj).end();
-
+   });
 
 
             }

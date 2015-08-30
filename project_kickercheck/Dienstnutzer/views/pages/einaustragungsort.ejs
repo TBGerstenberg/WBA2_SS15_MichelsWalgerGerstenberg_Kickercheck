@@ -151,29 +151,14 @@
                             <li>Beschreibung: <span id="newDesc"><%= austragungsort.Beschreibung %></span></li>
                         </ul> 
                         <br />
-                        <hr />
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p>Daten des Austragungsortes ändern</p>
-                                <form role="form" action="" method="PUT" name="changeData" id="changeData">
-
-                                    <div class="form-group"><label for="austragungsortname">Name:</label><input type="text" id="austragungsortname" class="form-control" name="austragungsortname"></div>
-                                    <div class="form-group"><label for="austragungsortadresse">Adresse:</label><input type="text" id="austragungsortadresse" class="form-control"></div>
-                                    <div class="form-group"><label for="austragungsortbeschreibung">Beschreibung:</label><input type="text" id="austragungsortbeschreibung" class="form-control"></div>
-                                    <input type="submit" class="btn btn-primary" name="change" value="Ändern" />
-                                </form>
-                            </div>
-                        </div>
-
-                        <hr />
+                          <hr />
                         <div class="row">
                             <div class="col-md-6">
                                 <a href="" id="alltables" class="btn btn-default" role="button">Alle Tische dieses Ortes anzeigen</a>
                             </div>
                         </div>
                         <hr />
-
-                        <div class="row">
+                            <div class="row">
                             <div class="col-md-6">
                                 <p>Tisch hinzufügen</p>
                                 <form role="form" action="" method="POST" name="kickertischAnlegen" id="kickertischAnlegen">
@@ -198,16 +183,35 @@
                                 </form> 
                             </div>
                         </div>
-                        <br />
+                       <br />
                         <div class="row">
+                            <div class="col-md-6">
                             <p class="addid"></p>
+                            </div>
                         </div>
                         <hr />
                         <div class="row">
                             <div class="col-md-6">
-                                    <form role="form" action="" method="DELETE" name="deleteAustragungsort" id="deleteAustragungsort">
-                            <input type="submit" class="btn btn-danger" name="del" value="Austragungsort löschen" />
-                        </form> 
+                                <p>Daten des Austragungsortes ändern</p>
+                                <form role="form" action="" method="PUT" name="changeData" id="changeData">
+
+                                    <div class="form-group"><label for="austragungsortname">Name:</label><input type="text" id="austragungsortname" class="form-control" name="austragungsortname"></div>
+                                    <div class="form-group"><label for="austragungsortadresse">Adresse:</label><input type="text" id="austragungsortadresse" class="form-control"></div>
+                                    <div class="form-group"><label for="austragungsortbeschreibung">Beschreibung:</label><input type="text" id="austragungsortbeschreibung" class="form-control"></div>
+                                    <input type="submit" class="btn btn-primary" name="change" value="Ändern" />
+                                </form>
+                            </div>
+                        </div>
+
+                      
+                        <hr />
+
+                    
+                        <div class="row">
+                            <div class="col-md-6">
+                                <form role="form" action="" method="DELETE" name="deleteAustragungsort" id="deleteAustragungsort">
+                                    <input type="submit" class="btn btn-danger" name="del" value="Austragungsort löschen" />
+                                </form> 
                             </div>
                         </div>
                     </div>

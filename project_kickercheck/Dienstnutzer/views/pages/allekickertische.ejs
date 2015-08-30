@@ -30,7 +30,7 @@
                                 <p class="list-group-item-text">Belegung: <%= belegung.Anzahl %> Spieler</p>
                                 <% if(belegung.id == kickertisch.id) { %>
                                 <% if(belegung.Anzahl > 0) { %>
-                                <p class="list-group-item-text">Anzahl Spieler an diesem Tisch: <%= belegung.Teilnehmer %></p>
+                                <p class="list-group-item-text">Spieler an diesem Tisch: <%= belegung.Teilnehmer %></p>
                                 <% } %>
                                  <p class="list-group-item-text">Forderungen an diesem Tisch: <%= belegung.Forderungen.length %></p>
                                 <%  } } }); %>
