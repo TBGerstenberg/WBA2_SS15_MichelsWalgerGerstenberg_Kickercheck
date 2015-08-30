@@ -1,39 +1,37 @@
 var app = express.Router();
 
+//Liefert eine Collection aller Matches 
 app.get('/',function(req,res){
 
-    //Speichert die alle Benutzer
+    //Speichert die Matchollection
     var response=[];    
 
-    //returned ein Array aller Keys die das Pattern Benutzer* matchen 
+    //returned ein Array aller Keys die das Pattern Match* matchen 
     client.keys('Match *', function (err, key) {
 
+       //Abruf erfolgreich , zeige mit leerem Array im Body sowie Statuscode 200-OK das die Operation funktioniert hat 
         if(key.length == 0) {
-            res.json(response);
+            res.status(200).json(response);
             return;
         }
 
         var sorted =  key.sort();
 
-
+        //Rufe daten aller Matches ab 
         client.mget(sorted, function (err, match) {
-
 
             //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
             match.forEach(function (val) {
 
                 response.push(JSON.parse(val));
-
-
             });
-
 
             res.status(200).set("Content-Type","application/json").json(response).end();
         });
     });
 });
 
-//Match Methoden
+//Liefert eine Repräsentation eines Matches 
 app.get('/:MatchId', function(req, res) {
 
     var matchId = req.params.MatchId;
@@ -54,8 +52,10 @@ app.get('/:MatchId', function(req, res) {
 
             switch (acceptedTypes) {
 
+                //Client empfängt JSON 
                 case "application/json":
 
+                    //Rufe Matchdaten aus DB ab
                     client.mget('Match ' + matchId, function(err,matchdata){
 
                         var matchDaten = JSON.parse(matchdata);
@@ -66,9 +66,7 @@ app.get('/:MatchId', function(req, res) {
 
                 default:
                     //Der gesendete Accept header enthaelt kein unterstuetztes Format 
-                    res.status(406).send("Content Type wird nicht unterstuetzt");
-                    //Antwort beenden        
-                    res.end();
+                    res.status(406).end();
                     break;
             }
         }  
