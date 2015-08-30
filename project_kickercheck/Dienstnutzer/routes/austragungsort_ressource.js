@@ -524,12 +524,10 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
                         res.set("Content-Type", 'application/json').status(200).json(belegung).end();                  	        
 
                     });
-
-     
-                else {
+        }
+            else {
                     res.status(404).end();    
                 }
-        }
 
             });
 });
