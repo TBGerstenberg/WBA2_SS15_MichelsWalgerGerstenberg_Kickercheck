@@ -472,12 +472,6 @@ app.put('/:MatchId', function(req, res) {
 
             console.log(util.inspect(changeMatch, false, null));
 
-            
-            var matchTischZuordnung = MatchDaten.Kickertisch;
-            
-            console.log('zuordnung');
-            console.log(matchTischZuordnung);
-
             res.json(changeMatch);
             res.end();
 

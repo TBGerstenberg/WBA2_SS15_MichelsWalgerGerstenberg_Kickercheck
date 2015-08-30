@@ -3,6 +3,7 @@ var app = express.Router();
 //Liefert das Servicedokument,  dass die möglichen Interaktionsmöglichkeiten mit dem Service zeigt
 //Damit diese Ressource im Kontext von automatischer Service-Discovery und dem Ziel generischer Clients von Bedeutung ist 
 //hätte man hier auf ein standardisiertes Protokoll zurückgreifen müssen (z.B das AtomPub). 
+
 app.get('/',function(req,res){
     
     /*Interaktionsmöglichkeiten: 

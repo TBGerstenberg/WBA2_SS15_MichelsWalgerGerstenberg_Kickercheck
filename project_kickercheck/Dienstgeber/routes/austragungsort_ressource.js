@@ -12,7 +12,7 @@ app.get('/',function(req,res){
             res.json(response);
             return;
         }
-        
+
         var sorted =  key.sort();
 
         client.mget(sorted, function (err, austragungsort) {
@@ -38,7 +38,7 @@ app.get('/:AustragungsortId', function(req, res) {
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     client.exists('Austragungsort ' + austragungsortId, function(err, IdExists) {
-        
+
         //Die Lokalitaet existiert im System und ist nicht für den Zugriff von außen gesperrt
         if (!IdExists) {
             res.status(404);
@@ -182,55 +182,68 @@ app.delete('/:AustragungsortId', function(req, res) {
 
         //Lokalitaet existiert 
         if(IdExists) {
-           
-             //Speichert die alle Benutzer
-    var response=[];    
 
-    //returned ein Array aller Keys die das Pattern Benutzer* matchen 
-    client.keys('Match *', function (err, key) {
+            //Speichert die alle Benutzer
+            var response=[];    
 
-        if(key.length == 0) {
-            client.del('Austragungsort ' + austragungsortId);
-            res.json(response);
-            return;
-        }
-        
+            //returned ein Array aller Keys die das Pattern Benutzer* matchen 
+            client.keys('Match *', function (err, key) {
 
-        client.mget(key, function (err, match) {
-
-            //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-            match.forEach(function (val) {
-
-              var dieseMatch = JSON.parse(val);
-                
-                var ortURI = "/Austragungsort/"+austragungsortId;
-                
-                if(dieseMatch.Austragungsort == ortURI) {
-                    
-                  dieseMatch.Austragungsort = null;
-                    
-                    client.set('Match '+dieseMatch.id,JSON.stringify(dieseMatch));
-               
-                                  //Entferne EIntrag aus der Datenbank 
+                if(key.length == 0) {
                     client.del('Austragungsort ' + austragungsortId);
-                    
+                    res.status(200).json(response).end();
+                    return;
                 }
- });        
-              });
 
-            //Alles ok , sende 200 
-            res.status(200);
-            //Antwort beenden
-            res.end();
-       
-    });
+                client.mget(key, function (err, match) {
+
+                    //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+                    match.forEach(function (val) {
+
+                        var dieseMatch = JSON.parse(val);
+                        
+                            if(dieseMatch.Austragungsort) {
+
+                        var ortURI = "/Austragungsort/"+austragungsortId;
+
+                        var ortURI2 = dieseMatch.Austragungsort.split("/");
+
+                        var ortmitkickertisch = ortURI+'/'+ortURI2[3]+'/'+ortURI2[4];
+
+                        if(dieseMatch.Austragungsort == ortURI || dieseMatch.Austragungsort == ortmitkickertisch) {
+
+                            dieseMatch.Austragungsort = null;
+
+                            client.set('Match '+dieseMatch.id,JSON.stringify(dieseMatch));
+
+                            //Entferne EIntrag aus der Datenbank 
+                            client.del('Austragungsort ' + austragungsortId);
+
+                            //Alles ok , sende 200 
+                            res.status(200);
+                            //Antwort beenden
+                            res.end();
+                        }
+                            }
+                        else {
+                           client.del('Austragungsort ' + austragungsortId);
+
+                            //Alles ok , sende 200 
+                            res.status(200);
+                            //Antwort beenden
+                            res.end(); 
+                        }
+                    });        
+                });
+
+            });
         }
 
         else {
             res.status(404);
             res.end();
         }
-    
+
     });
 });
 
