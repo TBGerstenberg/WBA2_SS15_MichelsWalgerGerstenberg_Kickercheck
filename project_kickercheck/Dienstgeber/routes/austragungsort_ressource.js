@@ -3,36 +3,35 @@ var app = express.Router();
 //Liefert eine Collection aller Austragungsorte im System 
 app.get('/',function(req,res){
 
-    //Speichert die alle Benutzer
+    //Speichert alle Austragungsort
     var response=[];    
 
-    //returned ein Array aller Keys die das Pattern Benutzer* matchen 
+    //returned ein Array aller Keys die das Pattern Austragungsort* matchen 
     client.keys('Austragungsort *', function (err, key) {
 
-        //Collection ist leer, 
+        //Collection ist leer, zeige dies mit leerem Array im Body
+        //Abruf war dennoch erfolgreich , daher 200-OK
         if(key.length == 0) {
-            res.status(200).json(response);
+            res.status(200).json(response).end();
             return;
         }
 
         var sorted =  key.sort();
 
+        //Lese austragungsorte aus Redis
         client.mget(sorted, function (err, austragungsort) {
 
-            //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+            //Pushe alle Antworten in ein Array, bevor Sie zurück gegeben werden 
             austragungsort.forEach(function (val) {
-
                 response.push(JSON.parse(val));
             });
 
-
             res.status(200).set("Content-Type","application/json").json(response).end();
-
         });
     });
 });
 
-
+//Liefert eine Repräsentation eines Austragungsortes 
 app.get('/:AustragungsortId', function(req, res) {
 
     //Angefragte Id extrahieren 
@@ -52,6 +51,7 @@ app.get('/:AustragungsortId', function(req, res) {
 
             var acceptedTypes = req.get('Accept');
 
+            //Frage Content types die der client verarbeiten kann ab
             switch (acceptedTypes) {
 
                     //Client erwartet content type application/json
@@ -59,119 +59,147 @@ app.get('/:AustragungsortId', function(req, res) {
 
                     client.mget('Austragungsort ' + austragungsortId, function(err,austragungsortdata){
 
-
                         var Austragungsortdaten = JSON.parse(austragungsortdata);
-
 
                         //Setze Contenttype der Antwort auf application/json
                         res.set("Content-Type", 'application/json').status(200).json(Austragungsortdaten).end();
-
                     });
-
                     break;
 
+                    //Service kann keinen im Accept header angegebenen content Type unterstützen 
                 default:
                     //Der gesendete Accept header enthaelt kein unterstuetztes Format 
-                    res.status(406);
-                    //Antwort beenden        
-                    res.end();
+                    res.status(406).end();
                     break;
             }
         }
     });
 });
 
+//Fügt der Collection aller Austragungsorte einen neuen hinzu 
 app.post('/',function(req, res) {
 
     //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
     var contentType = req.get('Content-Type');
 
-    //Check ob der Content Type der Anfrage xml ist 
+    //Wenn kein json geliefert wird antwortet der Server mit 415 - unsupported Media Type und zeigt über accepts-Header gütlige ContentTypes 
     if (contentType != "application/json") {
-        res.set("Accepts", "application/json");
-        res.status(406);
-        res.end();
-    }
+        //Teile dem Client einen unterstuetzten Type mit 
+        res.set("Accepts", "application/json").status(415).end();
+    } 
 
     else{
 
-        var Austragungsort = req.body;
+        //Post liefert eine Repräsentation der angelegten Ressource zurück, daher muss der Client JSON verarbeiten können
+        var acceptedTypes = req.get('Accept');
 
-        // LokalitaetId in redis erhöhen, atomare Aktion 
-        client.incr('AustragungsortId', function(err, id) {
+        //Frage Content types die der client verarbeiten kann ab
+        switch (acceptedTypes) {
 
-            var austragungsortObj={
-                'id' : id,
-                'Name': Austragungsort.Name,
-                'Adresse': Austragungsort.Adresse,
-                'Beschreibung': Austragungsort.Beschreibung
-            };
+                //Client erwartet content type application/json
+            case "application/json":
 
-            client.set('Austragungsort ' + id, JSON.stringify(austragungsortObj));
+                var Austragungsort = req.body;
 
-            //Setze Contenttype der Antwort auf application/atom+xml
-            res.set("Content-Type", 'application/json').set("Location", "/Austragungsort/" + id).status(201).json(austragungsortObj).end();
-        });
+                // AustragungsortId in redis erhöhen, atomare Aktion 
+                client.incr('AustragungsortId', function(err, id) {
+
+                    //In redis abgelegtes Objekt 
+                    var austragungsortObj={
+                        'id' : id,
+                        'Name': Austragungsort.Name,
+                        'Adresse': Austragungsort.Adresse,
+                        'Beschreibung': Austragungsort.Beschreibung
+                    };
+
+                    //Pflege daten in DB 
+                    client.set('Austragungsort ' + id, JSON.stringify(austragungsortObj));
+
+                    //Setze Contenttype der Antwort auf application/json
+                    res.set("Content-Type", 'application/json').set("Location", "/Austragungsort/" + id).status(201).json(austragungsortObj).end();
+                });
+
+                break;
+
+                //Service kann keinen im Accept header angegebenen content Type unterstützen 
+            default:
+                //Der gesendete Accept header enthaelt kein unterstuetztes Format 
+                res.status(406).end();
+                break;
+        }
     }
 });
 
-
+//Ändert die Daten eines Austragungsortes 
 app.put('/:AustragungsortId', function(req, res) {
 
+    //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 
     var contentType = req.get('Content-Type');
 
-    //Wenn kein JSON geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
+    //Wenn kein json geliefert wird antwortet der Server mit 415 - unsupported Media Type und zeigt über accepts-Header gütlige ContentTypes 
     if (contentType != "application/json") {
         //Teile dem Client einen unterstuetzten Type mit 
-        res.set("Accepts", "application/json");
-        //Zeige über den Statuscode und eine Nachricht 
-        res.status(406); 
-        //Antwort beenden
-        res.end();   
+        res.set("Accepts", "application/json").status(415).end();
     } 
 
-    else {    
-        //Extrahiere Id aus der Anfrage 
-        var austragungsortId = req.params.AustragungsortId;
-        var Austragungsort = req.body;
+    else { 
 
-        //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-        client.exists('Austragungsort ' + austragungsortId, function(err, IdExists) {
+        //Post liefert eine Repräsentation der angelegten Ressource zurück, daher muss der Client JSON verarbeiten können
+        var acceptedTypes = req.get('Accept');
 
-            //client.exists hat false geliefert 
-            if (!IdExists) {
-                res.status(404);
-                res.end();
-            }
+        //Frage Content types die der client verarbeiten kann ab
+        switch (acceptedTypes) {
 
-            //Ressource existiert     
-            else {
+                //Client erwartet content type application/json
+            case "application/json":
 
-                //Lese aktuellen Zustand des Turniers aus DB
-                client.mget('Austragungsort '+austragungsortId,function(err,austragungsortdata){
+                //Extrahiere Id aus der Anfrage 
+                var austragungsortId = req.params.AustragungsortId;
+                var Austragungsort = req.body;
 
-                    var Austragungsortdaten = JSON.parse(austragungsortdata);
+                //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+                client.exists('Austragungsort ' + austragungsortId, function(err, IdExists) {
 
-                    //Aktualisiere änderbare Daten 
-                    Austragungsortdaten.Name = Austragungsort.Name;
-                    Austragungsortdaten.Adresse = Austragungsort.Adresse;
-                    Austragungsortdaten.Beschreibung = Austragungsort.Beschreibung;
+                    //client.exists hat false geliefert 
+                    if (!IdExists) {
+                        res.status(404).end();
+                    }
+
+                    //Ressource existiert     
+                    else {
+
+                        //Lese aktuellen Zustand des Turniers aus DB
+                        client.mget('Austragungsort '+austragungsortId,function(err,austragungsortdata){
+
+                            var Austragungsortdaten = JSON.parse(austragungsortdata);
+
+                            //Aktualisiere änderbare Daten 
+                            Austragungsortdaten.Name = Austragungsort.Name;
+                            Austragungsortdaten.Adresse = Austragungsort.Adresse;
+                            Austragungsortdaten.Beschreibung = Austragungsort.Beschreibung;
 
 
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Austragungsort ' + austragungsortId,JSON.stringify(Austragungsortdaten));
+                            //Schreibe Turnierdaten zurück 
+                            client.set('Austragungsort ' + austragungsortId,JSON.stringify(Austragungsortdaten));
 
 
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(201).json(Austragungsortdaten).end();
-
-
+                            //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                            res.set("Content-Type", 'application/json').status(201).json(Austragungsortdaten).end();
+                        });
+                    }
                 });
-            }
-        });
+                break;
+
+                //Service kann keinen im Accept header angegebenen content Type unterstützen 
+            default:
+                //Der gesendete Accept header enthaelt kein unterstuetztes Format 
+                res.status(406).end();
+                break;
+        }
     }
 });
 
+//Löscht einen Austragungsort aus dem System 
 app.delete('/:AustragungsortId', function(req, res) {
 
     //Extrahiere Id aus der Anfrage 
@@ -201,32 +229,32 @@ app.delete('/:AustragungsortId', function(req, res) {
                     match.forEach(function (val) {
 
                         var dieseMatch = JSON.parse(val);
-                        
-                            if(dieseMatch.Austragungsort) {
 
-                        var ortURI = "/Austragungsort/"+austragungsortId;
+                        if(dieseMatch.Austragungsort) {
 
-                        var ortURI2 = dieseMatch.Austragungsort.split("/");
+                            var ortURI = "/Austragungsort/"+austragungsortId;
 
-                        var ortmitkickertisch = ortURI+'/'+ortURI2[3]+'/'+ortURI2[4];
+                            var ortURI2 = dieseMatch.Austragungsort.split("/");
 
-                        if(dieseMatch.Austragungsort == ortURI || dieseMatch.Austragungsort == ortmitkickertisch) {
+                            var ortmitkickertisch = ortURI+'/'+ortURI2[3]+'/'+ortURI2[4];
 
-                            dieseMatch.Austragungsort = null;
+                            if(dieseMatch.Austragungsort == ortURI || dieseMatch.Austragungsort == ortmitkickertisch) {
 
-                            client.set('Match '+dieseMatch.id,JSON.stringify(dieseMatch));
+                                dieseMatch.Austragungsort = null;
 
-                            //Entferne EIntrag aus der Datenbank 
-                            client.del('Austragungsort ' + austragungsortId);
+                                client.set('Match '+dieseMatch.id,JSON.stringify(dieseMatch));
 
-                            //Alles ok , sende 200 
-                            res.status(200);
-                            //Antwort beenden
-                            res.end();
-                        }
+                                //Entferne EIntrag aus der Datenbank 
+                                client.del('Austragungsort ' + austragungsortId);
+
+                                //Alles ok , sende 200 
+                                res.status(200);
+                                //Antwort beenden
+                                res.end();
                             }
+                        }
                         else {
-                           client.del('Austragungsort ' + austragungsortId);
+                            client.del('Austragungsort ' + austragungsortId);
 
                             //Alles ok , sende 200 
                             res.status(200);
