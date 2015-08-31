@@ -322,7 +322,8 @@ app.post('/:TurnierId/Match',function(req,res){
                         'Teilnehmer' : match.Teilnehmer,
                         'Regelwerk':match.Regelwerk,
                         'Austragungsort': match.Austragungsort,
-                        'Status':match.Status
+                        'Status':match.Status,
+                        'Turnier':"/Turnier/"+turnierId
                     };
 
                     //Pflege Match in DB ein 

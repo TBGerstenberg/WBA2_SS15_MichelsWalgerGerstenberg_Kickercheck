@@ -123,238 +123,238 @@ app.get('/:MatchId', function(req, res) {
             var match = JSON.parse(chunk);
 
             if(match.Austragungsort) {
-                
-          //  console.log(match.Austragungsort);		
-               		
-            var ortURI = match.Austragungsort.split("/");		
-            var ort = "/"+ortURI[1]+"/"+ortURI[2];		
-		
-            //      console.log(ort);		
+
+                //  console.log(match.Austragungsort);		
+
+                var ortURI = match.Austragungsort.split("/");		
+                var ort = "/"+ortURI[1]+"/"+ortURI[2];		
+
+                //      console.log(ort);		
 
 
-            var options2 = {
-                host: "localhost",
-                port: 3001,
-                path: ort+"/allekickertische/",
-                method:"GET",
-                headers:{
-                    accept:"application/json"
+                var options2 = {
+                    host: "localhost",
+                    port: 3001,
+                    path: ort+"/allekickertische/",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
                 }
-            }
 
-            var options3 = {
-                host: "localhost",
-                port: 3000,
-                path: ort,
-                method:"GET",
-                headers:{
-                    accept:"application/json"
+                var options3 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: ort,
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
                 }
-            }
 
-            var options4 = {
-                host: 'localhost',
-                port: 3001,
-                path: '/Match/'+req.params.MatchId+"/Spielstand",
-                method: 'GET',
-                headers: {
-                    accept: 'application/json'
-                }
-            };
-
+                var options4 = {
+                    host: 'localhost',
+                    port: 3001,
+                    path: '/Match/'+req.params.MatchId+"/Spielstand",
+                    method: 'GET',
+                    headers: {
+                        accept: 'application/json'
+                    }
+                };
 
 
-            var y = http.request(options2, function(externalrep){
 
-                externalrep.on("data", function(chunks){
+                var y = http.request(options2, function(externalrep){
 
-                    var kickertische = JSON.parse(chunks);
+                    externalrep.on("data", function(chunks){
 
-                    var z = http.request(options3, function(externalrepz){
+                        var kickertische = JSON.parse(chunks);
 
-                        externalrepz.on("data", function(chunkz){
+                        var z = http.request(options3, function(externalrepz){
 
-                            var austragungsort = JSON.parse(chunkz);
+                            externalrepz.on("data", function(chunkz){
 
-                            var w = http.request(options4, function(externalrepw){
+                                var austragungsort = JSON.parse(chunkz);
 
-                                externalrepw.on("data", function(chunkw){
+                                var w = http.request(options4, function(externalrepw){
 
-                                    var spielstand = JSON.parse(chunkw);
+                                    externalrepw.on("data", function(chunkw){
 
-                                    
-                                     var teilnehmerAusMatchAnfrage = [];
-                                    
-                               
-                                    
-                                    if(match.Teilnehmer[0].Team2.Teilnehmer1) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer1);
-                                    }
-                                     if(match.Teilnehmer[0].Team2.Teilnehmer2) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer2);
-                                    }
-                                     if(match.Teilnehmer[0].Team1.Teilnehmer1) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer1);
-                                    }
-                                     if(match.Teilnehmer[0].Team1.Teilnehmer2) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer2);
-                                    }
-                               
-                                    console.log(teilnehmerAusMatchAnfrage);
-                                    
-                                
-
-                                    var benutzerAll = [];
-
-                          
-
-                                    var myAgent = new http.Agent({maxSockets: 1});
-
-                                    async.each(teilnehmerAusMatchAnfrage, function(listItem, next) {
+                                        var spielstand = JSON.parse(chunkw);
 
 
-                                        var options = {
-                                            host: "localhost",
-                                            port: 3000,
-                                            agent: myAgent,
-                                            path: listItem,
-                                            method:"GET",
-                                            headers:{
-                                                accept : "application/json"
-                                            }
+                                        var teilnehmerAusMatchAnfrage = [];
+
+
+
+                                        if(match.Teilnehmer[0].Team2.Teilnehmer1) {
+                                            teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer1);
+                                        }
+                                        if(match.Teilnehmer[0].Team2.Teilnehmer2) {
+                                            teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer2);
+                                        }
+                                        if(match.Teilnehmer[0].Team1.Teilnehmer1) {
+                                            teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer1);
+                                        }
+                                        if(match.Teilnehmer[0].Team1.Teilnehmer2) {
+                                            teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer2);
                                         }
 
+                                        console.log(teilnehmerAusMatchAnfrage);
 
-                                        var exreq = http.request(options, function(externalrep){
 
-                                            externalrep.on("data", function(chunks){
 
-                                                var user = JSON.parse(chunks);
-                                                benutzerAll.push(user);
-                                                next();
+                                        var benutzerAll = [];
+
+
+
+                                        var myAgent = new http.Agent({maxSockets: 1});
+
+                                        async.each(teilnehmerAusMatchAnfrage, function(listItem, next) {
+
+
+                                            var options = {
+                                                host: "localhost",
+                                                port: 3000,
+                                                agent: myAgent,
+                                                path: listItem,
+                                                method:"GET",
+                                                headers:{
+                                                    accept : "application/json"
+                                                }
+                                            }
+
+
+                                            var exreq = http.request(options, function(externalrep){
+
+                                                externalrep.on("data", function(chunks){
+
+                                                    var user = JSON.parse(chunks);
+                                                    benutzerAll.push(user);
+                                                    next();
+                                                });
+
+
                                             });
 
+                                            exreq.end();
+
+
+                                        }, function(err) {
+
+                                            console.log(match.Teilnehmer);
+
+                                            res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand, belegungen: belegungen });	
 
                                         });
 
-                                        exreq.end();
-
-
-                                    }, function(err) {
-                                            
-                                        console.log(match.Teilnehmer);
-
-                                        res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, kickertische: kickertische, austragungsort: austragungsort, spielstand:spielstand, belegungen: belegungen });	
 
                                     });
 
-
                                 });
+                                w.end();
 
                             });
-                            w.end();
-
                         });
+                        z.end();
+
                     });
-                    z.end();
 
                 });
-
-            });
-            y.end();
+                y.end();
             }
             else {
-                
-              // console.log('garkeinort');
-            
-                   var options4 = {
-                host: 'localhost',
-                port: 3001,
-                path: '/Match/'+req.params.MatchId+"/Spielstand",
-                method: 'GET',
-                headers: {
-                    accept: 'application/json'
-                }
-            };
 
-                  var w = http.request(options4, function(externalrepw){
+                // console.log('garkeinort');
 
-                                externalrepw.on("data", function(chunkw){
+                var options4 = {
+                    host: 'localhost',
+                    port: 3001,
+                    path: '/Match/'+req.params.MatchId+"/Spielstand",
+                    method: 'GET',
+                    headers: {
+                        accept: 'application/json'
+                    }
+                };
 
-                                    var spielstand = JSON.parse(chunkw);
+                var w = http.request(options4, function(externalrepw){
 
-                                    var benutzerAll = [];
-                                     var teilnehmerAusMatchAnfrage = [];
-                                    
-                               
-                                    
-                                    if(match.Teilnehmer[0].Team2.Teilnehmer1) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer1);
-                                    }
-                                     if(match.Teilnehmer[0].Team2.Teilnehmer2) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer2);
-                                    }
-                                     if(match.Teilnehmer[0].Team1.Teilnehmer1) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer1);
-                                    }
-                                     if(match.Teilnehmer[0].Team1.Teilnehmer2) {
-                                    teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer2);
-                                    }
-                               
-                                    console.log(teilnehmerAusMatchAnfrage);
+                    externalrepw.on("data", function(chunkw){
+
+                        var spielstand = JSON.parse(chunkw);
+
+                        var benutzerAll = [];
+                        var teilnehmerAusMatchAnfrage = [];
 
 
-                                    var myAgent = new http.Agent({maxSockets: 1});
-                                 
-                                    async.each(teilnehmerAusMatchAnfrage, function(listItem, next) {
 
-                                        var options = {
-                                            host: "localhost",
-                                            port: 3000,
-                                            agent: myAgent,
-                                            path: listItem,
-                                            method:"GET",
-                                            headers:{
-                                                accept : "application/json"
-                                            }
-                                        }
+                        if(match.Teilnehmer[0].Team2.Teilnehmer1) {
+                            teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer1);
+                        }
+                        if(match.Teilnehmer[0].Team2.Teilnehmer2) {
+                            teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer2);
+                        }
+                        if(match.Teilnehmer[0].Team1.Teilnehmer1) {
+                            teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer1);
+                        }
+                        if(match.Teilnehmer[0].Team1.Teilnehmer2) {
+                            teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team1.Teilnehmer2);
+                        }
 
-
-                                        var exreq = http.request(options, function(externalrep){
-
-                                            externalrep.on("data", function(chunks){
-
-                                                var user = JSON.parse(chunks);
-                                                benutzerAll.push(user);
-                                                next();
-                                            });
+                        console.log(teilnehmerAusMatchAnfrage);
 
 
-                                        });
+                        var myAgent = new http.Agent({maxSockets: 1});
 
-                                        exreq.end();
+                        async.each(teilnehmerAusMatchAnfrage, function(listItem, next) {
+
+                            var options = {
+                                host: "localhost",
+                                port: 3000,
+                                agent: myAgent,
+                                path: listItem,
+                                method:"GET",
+                                headers:{
+                                    accept : "application/json"
+                                }
+                            }
 
 
-                                    }, function(err) {
+                            var exreq = http.request(options, function(externalrep){
 
+                                externalrep.on("data", function(chunks){
 
-                                        res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, spielstand:spielstand });	
-
-                                    });
-
-
+                                    var user = JSON.parse(chunks);
+                                    benutzerAll.push(user);
+                                    next();
                                 });
 
+
                             });
-                            w.end();
-                
+
+                            exreq.end();
+
+
+                        }, function(err) {
+
+
+                            res.render('pages/einmatch', { benutzerAll : benutzerAll, match: match, spielstand:spielstand });	
+
+                        });
+
+
+                    });
+
+                });
+                w.end();
+
             }
         });
-        
+
     });
-    
+
     x.end();
-    
+
 
 });
 
@@ -378,8 +378,8 @@ app.post('/', function(req, res) {
 
     // HTTP Header setzen
     var headers = {
-    'Accept' : 'application/json',
-    'Content-Type': 'application/json'
+        'Accept' : 'application/json',
+        'Content-Type': 'application/json'
     };
 
     // Mit Server verbinden
@@ -401,7 +401,7 @@ app.post('/', function(req, res) {
 
             var match = JSON.parse(chunk);
 
-          //  console.log(util.inspect(match, false, null));
+            //  console.log(util.inspect(match, false, null));
 
             var loc = externalResponse.headers.location.split("/");
 
@@ -529,27 +529,27 @@ app.get('/:MatchId/Spielstand', function(req, res) {
 
 app.get('/:MatchId/Liveticker', function(req, res) {
     res.render('pages/einliveticker');
-    });
+});
 
-	   	app.put('/:MatchId/Spielstand', function(req, res) {
-	   	
-	  var matchId = req.params.MatchId;
-	  var spielstandId = req.params.MatchId;
+app.put('/:MatchId/Spielstand', function(req, res) {
 
-   //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-        client.exists('Match ' + matchId, function(err, IdExists) {
+    var matchId = req.params.MatchId;
+    var spielstandId = req.params.MatchId;
 
-            //client.exists hat false geliefert 
-            if (!IdExists) {
-                res.status(404).send("Die Ressource wurde nicht gefunden.");
-                res.end();
-            }
+    //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
+    client.exists('Match ' + matchId, function(err, IdExists) {
 
-            //Ressource existiert     
-            else {
-                
-	     var MatchSpielstand = req.body;
-                      
+        //client.exists hat false geliefert 
+        if (!IdExists) {
+            res.status(404).send("Die Ressource wurde nicht gefunden.");
+            res.end();
+        }
+
+        //Ressource existiert     
+        else {
+
+            var MatchSpielstand = req.body;
+
             //Schreibe Turnierdaten zurück 
             client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
 

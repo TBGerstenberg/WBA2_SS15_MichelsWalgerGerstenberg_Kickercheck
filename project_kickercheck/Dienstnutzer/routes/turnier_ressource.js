@@ -203,7 +203,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                     //Wenn die Antwort der letzten Anfrage ankommt
                     teilnehmerRequestResponse.on("end",function(){
 
-                      //  console.log("KOMMST DU HIER HER JA?");
+                        //  console.log("KOMMST DU HIER HER JA?");
 
                         var Teilnehmer = teilnehmerRequestJson;
 
@@ -566,7 +566,7 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
     // HTTP Header setzen
     var headers = {
-         'Accept' : 'application/json',
+        'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 
@@ -587,7 +587,7 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
         externalResponse.on('data', function (chunk) {
             var completeTurnierplan = JSON.parse(chunk);
-         //   console.log(util.inspect(completeTurnierplan, false, null));
+            //   console.log(util.inspect(completeTurnierplan, false, null));
             res.json(completeTurnierplan).end();
         });
     });
@@ -640,41 +640,28 @@ app.post('/:TurnierId/Ligatabelle',function(req,res){
     client.lrange(listenKey, 0, -1, function(err,items) {
 
         var ligaTabelle=[];
-        
-         var tabellenListenKey="einTurnier "+ turnierId +" Tabelle";
-              
-            
-        
-          async.each(items, function(listItem, next) {
-             var team=JSON.parse(listItem);
-            
+
+        var tabellenListenKey="einTurnier "+ turnierId +" Tabelle";
+
+        async.each(items, function(listItem, next) {
+            var team=JSON.parse(listItem);
+
             //Push to Tabelle 
             var teamUndPunkte={
                 "Team":team,
                 "Punktestand":0
             }
-            
-       //      console.log(util.inspect(JSON.stringify(teamUndPunkte), false, null));
-              
-             client.LPUSH(tabellenListenKey,JSON.stringify(teamUndPunkte));
-              ligaTabelle.push(teamUndPunkte);
-                   
-                next();
 
-                                    }, function(err) {
- 
-              
-        res.status(200).json(ligaTabelle).end(); 
+            //      console.log(util.inspect(JSON.stringify(teamUndPunkte), false, null));
 
-                                    });
-
-   
-        
-          
+            client.LPUSH(tabellenListenKey,JSON.stringify(teamUndPunkte));
+            ligaTabelle.push(teamUndPunkte);
+            next();
+        }, function(err) {
+            res.status(200).json(ligaTabelle).end(); 
+        });
     });
 });
-
-
 
 app.get('/:TurnierId/Ligatabelle',function(req,res){
 

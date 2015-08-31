@@ -53,7 +53,7 @@
                     var value2 = parseInt(spielstand2, 10);
 
                     var modus = $('#spielmodus').val();
-                    
+
 
 
                     var formData = {spielstandT1: value1,
@@ -66,50 +66,50 @@
                         contentType: 'application/json',
                         data: JSON.stringify(formData),
                         success: function(data) {
-                            
-                              //Path of the Topic
-                    var path = "/liveticker/"+<%= match.id %>;
 
-      
-                    if(modus == 'Klassisch') {
-                                     var publication = client.publish(path,{
-                    'ModusChange': 'Modus geändert auf Klassisch. 6 Punkte bis zum Sieg'
-                });
-                
-    publication.then(
-                
-    function(){
-   window.location.reload(true);	
-    }
-                
-    ,
-                
-    function(){
-    }
-                
-                
-    ) 
-                    }
-                    else if(modus == 'Variation') {
-                            var publication = client.publish(path,{
-                    'ModusChange': 'Modus geändert auf Variation. 10 Punkte bis zum Sieg'
-                });
-                
-    publication.then(
-                
-    function(){
-   window.location.reload(true);	
-    }
-                
-    ,
-                
-    function(){
-    }
-                
-                
-    ) 
-                    }
-	
+                            //Path of the Topic
+                            var path = "/liveticker/"+<%= match.id %>;
+
+
+                            if(modus == 'Klassisch') {
+                                var publication = client.publish(path,{
+                                    'ModusChange': 'Modus geändert auf Klassisch. 6 Punkte bis zum Sieg'
+                                });
+
+                                publication.then(
+
+                                    function(){
+                                        window.location.reload(true);	
+                                    }
+
+                                    ,
+
+                                    function(){
+                                    }
+
+
+                                ) 
+                            }
+                            else if(modus == 'Variation') {
+                                var publication = client.publish(path,{
+                                    'ModusChange': 'Modus geändert auf Variation. 10 Punkte bis zum Sieg'
+                                });
+
+                                publication.then(
+
+                                    function(){
+                                        window.location.reload(true);	
+                                    }
+
+                                    ,
+
+                                    function(){
+                                    }
+
+
+                                ) 
+                            }
+
 
                         },
                         fail: function() {
@@ -125,17 +125,17 @@
                 var time = d.setDate(d.getDate()-1);
 
                 <% if(match.Austragungsort)  { %>		
-                var ortURI = "<%= match.Austragungsort %>".split("/");		
+                    var ortURI = "<%= match.Austragungsort %>".split("/");		
                 var ort = "/"+ortURI[1]+"/"+ortURI[2];		
                 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');		
 
-                                 if(!ortURI[3]) {		
+                if(!ortURI[3]) {		
                     $('#stdTisch').html('Bitte einen Kickertisch wählen.');		
                     $('#aort').html('');		
                 }		
                 <% } %>
 
-                var stdStatus = 'vor_beginn';
+                    var stdStatus = 'vor_beginn';
 
 
                 $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
@@ -225,6 +225,8 @@
 
                     var teilnehmerData = {anzahl: anzahl, teilnehmer: teilnehmerArray
                                          }
+                    
+                  
 
                     $.when(
                         $.ajax({
@@ -241,35 +243,27 @@
                         })
                     ).then(function() {
 
-                         //Path of the Topic
-                    var path = "/liveticker/"+<%= match.id %>;
+                        //Path of the Topic
+                        var path = "/liveticker/"+<%= match.id %>;
 
-                    //Publish to the specific topic path  
-                    var publication = client.publish(path,{
-                        'Start': 'Das Match wurde gestartet.'
+                        //Publish to the specific topic path  
+                        var publication = client.publish(path,{
+                            'Start': 'Das Match wurde gestartet.'
+                        });
+
+                        publication.then(
+
+                            function(){
+                                window.location.reload(true);
+                            }
+
+                            ,
+
+                            function(){
+                            }
+
+                        )   
                     });
-
-                    publication.then(
-
-                        function(){
-     window.location.reload(true);
-                        }
-
-                        ,
-
-                        function(){
-                        }
-
-
-                    )   
-
-                   
-
-
-
-                    });
-
-
                 });
 
                 $('#endMatch').submit(function(e) {
@@ -311,6 +305,22 @@
 
                     var teilnehmerData = {anzahl: 0, teilnehmer: null
                                          }
+                    
+                    var value1 = parseInt(spielstand1, 10);
+                    var value2 = parseInt(spielstand2, 10);
+
+                    
+                    
+                    
+                      //Vergleiche value1 mit value2 
+                    if(value1 > value2){
+                        gewinnerTeam.
+                        
+                    
+                    }
+                    
+                    
+                    
 
                     $.when(
                         $.ajax({
@@ -324,31 +334,42 @@
                             url: '<%= match.Austragungsort %>/Belegung',
                             contentType: 'application/json',
                             data: JSON.stringify(teilnehmerData)
+                        }),
+
+                        $.ajax({
+                            type: 'PUT',
+                            url: '<%= match.Turnier %>/Ligatabelle',
+                            contentType: 'application/json',
+                            data: JSON.stringify(teilnehmerData)
                         })
+
+
+
+
                     ).then(function() {
 
-                               //Path of the Topic
-                    var path = "/liveticker/"+<%= match.id %>;
+                        //Path of the Topic
+                        var path = "/liveticker/"+<%= match.id %>;
 
-                    //Publish to the specific topic path  
-                    var publication = client.publish(path,{
-                        'End': 'Das Match wurde beendet.'
-                    });
+                        //Publish to the specific topic path  
+                        var publication = client.publish(path,{
+                            'End': 'Das Match wurde beendet.'
+                        });
 
-                    publication.then(
+                        publication.then(
 
-                        function(){
-                            window.location.reload(true);
-                        }
+                            function(){
+                                window.location.reload(true);
+                            }
 
-                        ,
+                            ,
 
-                        function(){
-                        }
+                            function(){
+                            }
 
 
-                    )   
-                        
+                        )   
+
 
 
 
@@ -534,24 +555,24 @@
 
                     } else {
                         if(value1 == 6) {
-                              //Publish to the specific topic path  
-                var publication = client.publish(path,{
-                    'Winner': 'Team1'
-                });
-                
-    publication.then(
-                
-    function(){
-  
-    }
-                
-    ,
-                
-    function(){
-    }
-                
-                
-    )   
+                            //Publish to the specific topic path  
+                            var publication = client.publish(path,{
+                                'Winner': 'Team1'
+                            });
+
+                            publication.then(
+
+                                function(){
+
+                                }
+
+                                ,
+
+                                function(){
+                                }
+
+
+                            )   
                             $('#cancMatch').prop('disabled', true);
                         }
 
@@ -622,24 +643,24 @@
                     if(stdModus == 'Variation') {							
 
                         if(value2 == 10) {
-                              //Publish to the specific topic path  
-                var publication = client.publish(path,{
-                    'Winner': 'Team2'
-                });
-                
-    publication.then(
-                
-    function(){
-  
-    }
-                
-    ,
-                
-    function(){
-    }
-                
-                
-    )   
+                            //Publish to the specific topic path  
+                            var publication = client.publish(path,{
+                                'Winner': 'Team2'
+                            });
+
+                            publication.then(
+
+                                function(){
+
+                                }
+
+                                ,
+
+                                function(){
+                                }
+
+
+                            )   
                             $('#cancMatch').prop('disabled', true);
                         }
 
@@ -651,24 +672,24 @@
 
                     } else {
                         if(value2 == 6) {
-                              //Publish to the specific topic path  
-                var publication = client.publish(path,{
-                    'Winner': 'Team2'
-                });
-                
-    publication.then(
-                
-    function(){
-  
-    }
-                
-    ,
-                
-    function(){
-    }
-                
-                
-    )   
+                            //Publish to the specific topic path  
+                            var publication = client.publish(path,{
+                                'Winner': 'Team2'
+                            });
+
+                            publication.then(
+
+                                function(){
+
+                                }
+
+                                ,
+
+                                function(){
+                                }
+
+
+                            )   
                             $('#cancMatch').prop('disabled', true);
                         }
 

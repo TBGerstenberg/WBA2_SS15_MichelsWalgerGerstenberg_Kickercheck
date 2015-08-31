@@ -117,7 +117,8 @@ app.post('/',function(req, res) {
                 'Teilnehmer' : match.Teilnehmer,
                 'Regelwerk':match.Regelwerk,
                 'Austragungsort': match.Austragungsort,
-                'Status':match.Status
+                'Status':match.Status,
+                'Turnier':null
             };
 
             //Füge JSON-String des Matches in DB ein
@@ -168,6 +169,7 @@ app.put('/:MatchId',function(req, res) {
                     Matchdaten.Austragungsort = req.body.Austragungsort;
                     Matchdaten.Regelwerk = req.body.Regelwerk;
                     Matchdaten.Status = req.body.Status;
+                    Matchdaten.Turnier= req.body.Turnier;
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Match ' + matchId,JSON.stringify(Matchdaten));
