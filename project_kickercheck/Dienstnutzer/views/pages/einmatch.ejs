@@ -21,12 +21,6 @@
                 var spielstand1 = $('.sp1pkt').text();
                 var spielstand2 = $('.sp2pkt').text();
 
-                var team1 = $('#team1').text();
-                var team2 = $('#team2').text();
-
-                $('#team1end').text(team1);
-                $('#team2end').text(team2);
-
                 var value1 = parseInt(spielstand1, 10);
                 var value2 = parseInt(spielstand2, 10);
 
@@ -53,8 +47,6 @@
                     var value2 = parseInt(spielstand2, 10);
 
                     var modus = $('#spielmodus').val();
-
-
 
                     var formData = {spielstandT1: value1,
                                     spielstandT2: value2,
@@ -125,17 +117,17 @@
                 var time = d.setDate(d.getDate()-1);
 
                 <% if(match.Austragungsort)  { %>		
-                    var ortURI = "<%= match.Austragungsort %>".split("/");		
+                var ortURI = "<%= match.Austragungsort %>".split("/");		
                 var ort = "/"+ortURI[1]+"/"+ortURI[2];		
                 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');		
 
-                if(!ortURI[3]) {		
+                                 if(!ortURI[3]) {		
                     $('#stdTisch').html('Bitte einen Kickertisch wählen.');		
                     $('#aort').html('');		
                 }		
                 <% } %>
 
-                    var stdStatus = 'vor_beginn';
+                var stdStatus = 'vor_beginn';
 
 
                 $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
@@ -201,9 +193,6 @@
                     var teilnehmer3 = $('#user2').text();
                     var teilnehmer4 = $('#user3').text();
 
-
-
-
                     var teilnehmerArray = [];
 
 
@@ -225,8 +214,7 @@
 
                     var teilnehmerData = {anzahl: anzahl, teilnehmer: teilnehmerArray
                                          }
-                    
-                  
+
 
                     $.when(
                         $.ajax({
@@ -305,22 +293,7 @@
 
                     var teilnehmerData = {anzahl: 0, teilnehmer: null
                                          }
-                    
-                    var value1 = parseInt(spielstand1, 10);
-                    var value2 = parseInt(spielstand2, 10);
 
-                    
-                    
-                    
-                      //Vergleiche value1 mit value2 
-                    if(value1 > value2){
-                        gewinnerTeam.
-                        
-                    
-                    }
-                    
-                    
-                    
 
                     $.when(
                         $.ajax({
@@ -334,17 +307,7 @@
                             url: '<%= match.Austragungsort %>/Belegung',
                             contentType: 'application/json',
                             data: JSON.stringify(teilnehmerData)
-                        }),
-
-                        $.ajax({
-                            type: 'PUT',
-                            url: '<%= match.Turnier %>/Ligatabelle',
-                            contentType: 'application/json',
-                            data: JSON.stringify(teilnehmerData)
                         })
-
-
-
 
                     ).then(function() {
 
@@ -539,6 +502,17 @@
 
                     )   
 
+                    //                        if(value1 >= 11 || spielstand2 == 10) {
+                    //                            alert('Regelwidriges Verhalten.');
+                    //                            return false;
+                    //                        }
+
+                    //
+                    //                        if(value1 >= 7 || spielstand2 == 6) {
+                    //                            alert('Regelwidriges Verhalten.');
+                    //                            return false;
+                    //                        }
+
 
                     if(stdModus == 'Variation') {							
 
@@ -547,39 +521,10 @@
                             $('#cancMatch').prop('disabled', true);
                         }
 
-
-                        if(value1 >= 11 || spielstand2 == 10) {
-                            alert('Regelwidriges Verhalten.');
-                            return false;
-                        }
-
                     } else {
                         if(value1 == 6) {
-                            //Publish to the specific topic path  
-                            var publication = client.publish(path,{
-                                'Winner': 'Team1'
-                            });
 
-                            publication.then(
-
-                                function(){
-
-                                }
-
-                                ,
-
-                                function(){
-                                }
-
-
-                            )   
                             $('#cancMatch').prop('disabled', true);
-                        }
-
-
-                        if(value1 >= 7 || spielstand2 == 6) {
-                            alert('Regelwidriges Verhalten.');
-                            return false;
                         }
                     }
 
@@ -640,63 +585,28 @@
 
                     )   
 
+                    //                        if(value2 >= 11 || spielstand1 == 10) {
+                    //                            alert('Regelwidriges Verhalten.');
+                    //                            return false;
+                    //                        }
+
+                    //                        if(value2 >= 7 || spielstand1 == 6) {
+                    //                            alert('Regelwidriges Verhalten.');
+                    //                            return false;
+                    //                        }
+
                     if(stdModus == 'Variation') {							
 
                         if(value2 == 10) {
-                            //Publish to the specific topic path  
-                            var publication = client.publish(path,{
-                                'Winner': 'Team2'
-                            });
 
-                            publication.then(
-
-                                function(){
-
-                                }
-
-                                ,
-
-                                function(){
-                                }
-
-
-                            )   
                             $('#cancMatch').prop('disabled', true);
                         }
 
-
-                        if(value2 >= 11 || spielstand1 == 10) {
-                            alert('Regelwidriges Verhalten.');
-                            return false;
-                        }
 
                     } else {
                         if(value2 == 6) {
-                            //Publish to the specific topic path  
-                            var publication = client.publish(path,{
-                                'Winner': 'Team2'
-                            });
 
-                            publication.then(
-
-                                function(){
-
-                                }
-
-                                ,
-
-                                function(){
-                                }
-
-
-                            )   
                             $('#cancMatch').prop('disabled', true);
-                        }
-
-
-                        if(value2 >= 7 || spielstand1 == 6) {
-                            alert('Regelwidriges Verhalten.');
-                            return false;
                         }
                     }
 
@@ -775,11 +685,11 @@
                         <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a></p>
                         <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler2team1"></span></a></p>
                         <% } else if (benutzerAll.length == 3) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
                         <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team2"></span></a></p>
                         <% } else if(benutzerAll.length == 4) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team2"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team2"></span></a></p>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team2"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team2"></span></a></p>
                         <% } } %>
                         <% if (match.Status == 'vor_beginn') { %>
                         <hr />
@@ -950,12 +860,9 @@
                             </div>
                             <br />
                             <div class="row">
-                                <p id="spielst"><% if (spielstand.spielstandT1 > spielstand.spielstandT2) { %>
-                                    Gewinner: <br /><span id="team1end"></span>
-                                    <% } else if(spielstand.spielstandT2 > spielstand.spielstandT1) { %>
-                                    Gewinner: <br /><span id="team2end"></span>
-                                    <% } else { %>
-                                    Unentschieden
+                                <p id="spielst">
+                                    <br /><% if(spielstand.Gewinner) { %>
+                                    Gewinner: <%= spielstand.Gewinner %> 
                                     <% } %>
                                 </p>
                             </div> 
