@@ -8,16 +8,6 @@
 
                 var client = new Faye.Client('http://localhost:8000/faye');
 
-                var teilnehmer1 = $('#user0').text();
-                var teilnehmer2 = $('#user1').text();
-                var teilnehmer3 = $('#user2').text();
-                var teilnehmer4 = $('#user3').text();
-
-                $('#spieler1team1').text(teilnehmer1);
-                $('#spieler2team1').text(teilnehmer2);
-                $('#spieler1team2').text(teilnehmer3);
-                $('#spieler2team2').text(teilnehmer4);
-
                 var spielstand1 = $('.sp1pkt').text();
                 var spielstand2 = $('.sp2pkt').text();
 
@@ -663,37 +653,45 @@
                         </ul> 
 
                         <hr />
-                        <div id="teiln">
-                            <p>Liste der Teilnehmer: </p>
-
-                            <ul>
-
-                                <% for(var i=0; i < benutzerAll.length; i++) { %>
-                                <li id="user<%= i %>"><%= benutzerAll[i].Name %></li>
-                                <% }; %>
-                            </ul>
-                        </div>
-                        <hr />
+                 
 
                         <p>Teams </p>
+                        
+                        <% for(var i=0;i<match.Teilnehmer[0].Team1.length;i++) { 
+                        benutzerAll.forEach(function(benutzer) {
+                        var usersplit1 = match.Teilnehmer[0].Team1.Teilnehmer1.split("/"); var user1 = usersplit1[2];    
+                           if(user1 == benutzer.id) {
+                               
+                              }
+                              });
+                           %>
+    <% } %>
 
 
                         <% if (match.Teilnehmer) { %>
                         <% if (benutzerAll.length == 1) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a></p>
+                         <% for(var i=0;i<match.Teilnehmer[0].Team1.length;i++) { 
+                        benutzerAll.forEach(function(benutzer) {
+                        var usersplit1 = match.Teilnehmer[0].Team1.Teilnehmer1.split("/"); var user1 = usersplit1[2];    
+                           %>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
+                         <% 
+                              }); } %>
                         <% } else if (benutzerAll.length == 2) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler2team1"></span></a></p>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>">Spieler 1</a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>">Spieler 2</a></p>
                         <% } else if (benutzerAll.length == 3) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team2"></span></a></p>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>">Spieler 1</a>, <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>">Spieler 2</a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>">Spieler 3</a></p>
                         <% } else if(benutzerAll.length == 4) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><span id="spieler1team1"></span></a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><span id="spieler2team1"></span></a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><span id="spieler1team2"></span></a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><span id="spieler2team2"></span></a></p>
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>">Spieler 1</a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>">Spieler 2</a></p>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>">Spieler 3</a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>">Spieler 4</a></p>
                         <% } } %>
+                      
                         <% if (match.Status == 'vor_beginn') { %>
-                        <hr />
+                     
                         <% if(typeof kickertische != 'undefined') { %>
+                          <hr />
                         <div class="row">
                             <div class="col-md-6">
 
@@ -725,8 +723,9 @@
                             </div>
                         </div>
                         <hr />
-                        <% } %>
-
+                        <% } else { %>
+                        <hr />
+<% } %>
                         <div class="row">
                             <div class="col-md-6">
                                 <p> Match ändern: </p>
@@ -862,8 +861,11 @@
                             <div class="row">
                                 <p id="spielst">
                                     <br /><% if(spielstand.Gewinner) { %>
-                                    Gewinner: <%= spielstand.Gewinner %> 
-                                    <% } %>
+                                    <% if(spielstand.Gewinner.length == 1) { %>
+                                    Gewinner: <a href="<%= spielstand.Gewinner[0] %>"><%= spielstand.Gewinner[0] %></a>
+                                    <% } else if(spielstand.Gewinner.length == 2) { %>
+                                    Gewinner: <a href="<%= spielstand.Gewinner[0] %>"><%= spielstand.Gewinner[0] %></a>, <a href="<%= spielstand.Gewinner[1] %>"><%= spielstand.Gewinner[1] %></a>
+                                    <% }; }; %>
                                 </p>
                             </div> 
                         </div>		 

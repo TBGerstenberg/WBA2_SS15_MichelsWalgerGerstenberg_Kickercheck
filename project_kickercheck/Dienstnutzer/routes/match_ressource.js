@@ -563,13 +563,20 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                     //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
                     res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+                
                 }
-                else if(MatchSpielstand.Modus == 'Klassisch' && MatchSpielstand.spielstandT1 == 6 &&  MatchSpielstand.spielstandT2 < 6) {
-                    console.log('hierbinich');
-                    console.log(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1);
-                    console.log(dieseMatch.Teilnehmer[0].Team1.Teilnehmer2);
+                else if(MatchSpielstand.Modus == 'Klassisch' && MatchSpielstand.spielstandT1 == 6 && MatchSpielstand.spielstandT2 < 6) {
+              
 
-                    MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
+                     if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
+                          MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
+                         
+                                    
+                    }
+                    else {
+                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
+   
+                    }
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
@@ -582,7 +589,15 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 }
                 else if(MatchSpielstand.Modus == 'Klassisch' && MatchSpielstand.spielstandT2 == 6 && MatchSpielstand.spielstandT1 < 6 ) {
                     
-                      MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
+                    console.log('jetzthier');
+                    
+                       if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
+                          MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
+
+                    }
+                    else {
+                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
+                    }
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
@@ -611,16 +626,18 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                     
                      if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
                           MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
+                         
 
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
+                        
                     }
-
-                   
-
+                    
+                                                      
                     //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+
 
 
 
@@ -632,19 +649,17 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                     
                     if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
                           MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
-
+                                      
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
+
                     }
                     
-                      
-
-                    //Schreibe Turnierdaten zurück 
+                                    //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
 
-
-
+    
                     //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
                     res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
                     
