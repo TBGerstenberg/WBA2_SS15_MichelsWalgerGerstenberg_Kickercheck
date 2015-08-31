@@ -94,6 +94,11 @@
 
 
                         },
+                         statusCode: {
+                            403: function(){
+                                alert('Der Modus kann nicht mehr geändert werden.');
+                            }
+                        },
                         fail: function() {
                             alert('Fehler');
                         }
@@ -139,7 +144,8 @@
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
                                     Austragungsort: tisch,
-                                    Status:  stdStatus
+                                    Status:  stdStatus,
+                                  Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
                                    };
 
 
@@ -176,7 +182,9 @@
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
                                     Austragungsort: tisch,
-                                    Status:  'aktiv'};
+                                    Status:  'aktiv',
+                                 Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
+                                   };
 
                     var teilnehmerArray = [];
 
@@ -250,7 +258,9 @@
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
                                     Austragungsort : tisch,
-                                    Status:  'beendet'};
+                                    Status:  'beendet',
+                                   Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
+                                   };
 
                     var teilnehmerData = {anzahl: 0, teilnehmer: null
                                          }
@@ -335,7 +345,9 @@
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
                                     Austragungsort: tisch,
-                                    Status:  'abgebrochen'};
+                                    Status:  'abgebrochen',
+                                   Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
+                                   };
 
                     var teilnehmerData = {anzahl: 0, teilnehmer: null
                                          }
@@ -380,7 +392,8 @@
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
                                     Austragungsort: tisch,
-                                    Status:  stdStatus
+                                    Status:  stdStatus,
+                                 Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
                                    };
 
 
@@ -438,27 +451,29 @@
 
                     )   
 
-                    if(value1 >= 11 || spielstand2 == 10) {
+
+                    if(stdModus == 'Variation') {	
+                        
+                          if(value1 >= 11 || spielstand2 == 10) {
                         alert('Regelwidriges Verhalten.');
                         return false;
                     }
-
-
-                    if(value1 >= 7 || spielstand2 == 6) {
-                        alert('Regelwidriges Verhalten.');
-                        return false;
-                    }
-
-
-                    if(stdModus == 'Variation') {							
 
                         if(value1 == 10) {
+                            
 
                             $('#cancMatch').prop('disabled', true);
                         }
 
                     } else {
+                        
+                              if(value1 >= 7 || spielstand2 == 6) {
+                        alert('Regelwidriges Verhalten.');
+                        return false;
+                    }
+                        
                         if(value1 == 6) {
+                            
 
                             $('#cancMatch').prop('disabled', true);
                         }
@@ -521,27 +536,27 @@
 
                     )   
 
-                    if(value2 >= 11 || spielstand1 == 10) {
+                      if(stdModus == 'Variation') {	
+                        
+                          if(value2 >= 11 || spielstand1 == 10) {
                         alert('Regelwidriges Verhalten.');
                         return false;
                     }
-
-                    if(value2 >= 7 || spielstand1 == 6) {
-                        alert('Regelwidriges Verhalten.');
-                        return false;
-                    }
-
-                    if(stdModus == 'Variation') {							
 
                         if(value2 == 10) {
+                            
 
                             $('#cancMatch').prop('disabled', true);
                         }
 
-
                     } else {
-                        if(value2 == 6) {
+                      if(value2 >= 7 || spielstand1 == 6) {
+                        alert('Regelwidriges Verhalten.');
+                        return false;
+                    }
 
+                        if(value2 == 6) {
+                            
                             $('#cancMatch').prop('disabled', true);
                         }
                     }
@@ -598,19 +613,7 @@
                             <li id="stat"> Status: <%= match.Status %></li>
                         </ul> 
                         <hr />
-                        <div id="teiln">
-                            <p>Liste der Teilnehmer: </p>
-
-                            <ul>
-
-                                <% for(var i=0; i < benutzerAll.length; i++) { %>
-                                <li id="user<%= i %>"><%= benutzerAll[i].Name %></li>
-                                <% }; %>
-                            </ul>
-                        </div>
-                        <hr />
-
-
+                       
                         <p>Teams </p>
 
                         <% if (match.Teilnehmer) { 
@@ -790,10 +793,6 @@ else if(benutzerAll.length == 4) {
                                     </div>
                                 </div>
 
-
-
-
-
                             </div>
                         </form>
 
@@ -803,6 +802,7 @@ else if(benutzerAll.length == 4) {
                             <div>
                                 <form role="form" action="" method="PUT" name="endMatch" id="endMatch">
                                     <input type="submit" class="btn btn-success" name="start" value="Match beenden" />
+                                    <p><br />Wird ein Match vor Erreichen der Zielpunktzahl beendet, wird es nicht gewertet.</p>
                                 </form>
                             </div><br />
                             <div>

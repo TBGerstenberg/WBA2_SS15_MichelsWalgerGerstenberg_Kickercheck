@@ -14,8 +14,13 @@
                     var typ = $('#typ').val();
                     var austragungsort=$('#austragungsort').val();
 
-                    if(!(teilnehmer && teamgroesse && typ)) {
+                    if(!(teilnehmer && teamgroesse)) {
                         alert('Bitte Felder ausfüllen');
+                        return false;
+                    }
+                    
+                    if(typ =='0') {
+                         alert('Bitte Turniertyp wählen');
                         return false;
                     }
                     
@@ -109,7 +114,10 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="typ">Art des Turniers:</label> <br>
-                                        <input type="text" id="typ"  class="form-control" placeholder="Art des Turniers" maxlength="100" />
+                                         <select id="typ" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <option class="liga" value="Liga">Liga</option>
+                                        </select>
                                     </div>
                                     <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
 

@@ -10,13 +10,6 @@
                 $('#generiereSpielplan').click(function(e){
                     e.preventDefault();
 
-                    var teilnehmer = $('#teilnehmer').val();
-
-                    if(teilnehmer && teilnehmer != '0') {
-                        alert('Bitte Teilnehmer wählen');
-                        return false;
-                    }
-
                     $.ajax({
                         type: 'PUT',
                         url: '/Turnier/<%= turnier.id %>/Spielplan',
@@ -39,7 +32,7 @@
                 $('#generiereTabelle').click(function(e){
                    $.ajax({
                         type: 'GET',
-                        url: "/Turnier/<%=turnier.id%>/Ligatabelle",
+                        url: "/Turnier/<%= turnier.id %>/Ligatabelle",
                         contentType:"application/json",
                         success: function(data) {
                             $('#ligatabelle').html(data);
