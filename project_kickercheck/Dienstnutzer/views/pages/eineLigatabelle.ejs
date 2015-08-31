@@ -1,0 +1,21 @@
+<div class="row">
+    <!--Anzeige für die Ligatabelle-->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Team</th>
+                <th>Punkte</th>
+            </tr>
+        </thead>
+        <tbody id="ligatabelle">
+            <% if(ligatabelle) { %>
+            <% for(var i=0; i < ligatabelle.Teams.length ; i++) { %>
+            <tr>
+                <td><%= ligatabelle.Teams[i].teamName %></td>  
+                <td><%= ligatabelle.Teams[i].Punkte %></td>  
+            </tr>
+            <% }; %>
+            <% } %>
+        </tbody>
+    </table>
+</div>

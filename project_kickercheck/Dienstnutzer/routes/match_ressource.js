@@ -555,9 +555,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
             //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
             res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-
         }
-
     });
 
 });

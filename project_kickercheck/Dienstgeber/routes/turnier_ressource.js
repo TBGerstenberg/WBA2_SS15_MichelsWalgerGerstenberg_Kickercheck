@@ -330,7 +330,7 @@ app.post('/:TurnierId/Match',function(req,res){
                     client.set('Match ' + id, JSON.stringify(matchObj));
 
                     //Pushe das angelegte Match in die Liste der Matches
-                    client.LPUSH("einTurnier "+turnierId+" Matches",id)
+                    client.LPUSH("einTurnier "+turnierId+" Matches",id);
 
                     //Sende Statuscode 201-Created , da hier ein neues Match angelegt wurde 
                     res.status(201).set('Location',"Turnier/"+turnierId+/Match/+id).json(matchObj).end();
