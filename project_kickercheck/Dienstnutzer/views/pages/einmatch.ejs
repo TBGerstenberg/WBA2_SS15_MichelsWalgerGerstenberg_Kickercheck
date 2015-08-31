@@ -178,25 +178,20 @@
                                     Austragungsort: tisch,
                                     Status:  'aktiv'};
 
-                    var teilnehmer1 = $('#user0').text();
-                    var teilnehmer2 = $('#user1').text();
-                    var teilnehmer3 = $('#user2').text();
-                    var teilnehmer4 = $('#user3').text();
-
                     var teilnehmerArray = [];
 
 
-                    if(teilnehmer1) {
-                        teilnehmerArray.push(teilnehmer1);
+                    if("<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>" != '') {
+                        teilnehmerArray.push("<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>");
                     }
-                    if(teilnehmer2) {
-                        teilnehmerArray.push(teilnehmer2);
+                    if("<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>" != '') {
+                        teilnehmerArray.push("<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>");
                     }
-                    if(teilnehmer3) {
-                        teilnehmerArray.push(teilnehmer3);
+                    if("<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>" != '') {
+                        teilnehmerArray.push("<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>");
                     }
-                    if(teilnehmer4) {
-                        teilnehmerArray.push(teilnehmer4);
+                    if("<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>" != '') {
+                        teilnehmerArray.push("<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>");
                     }
 
                     var anzahl = teilnehmerArray.length;
@@ -256,30 +251,6 @@
                                     Uhrzeit: uhrzeit,
                                     Austragungsort : tisch,
                                     Status:  'beendet'};
-
-                    var teilnehmer1 = $('#user0').text();
-                    var teilnehmer2 = $('#user1').text();
-                    var teilnehmer3 = $('#user2').text();
-                    var teilnehmer4 = $('#user3').text();
-
-                    var teilnehmerArray = [];
-
-
-                    if(teilnehmer1) {
-                        teilnehmerArray.push(teilnehmer1);
-                    }
-                    if(teilnehmer2) {
-                        teilnehmerArray.push(teilnehmer2);
-                    }
-                    if(teilnehmer3) {
-                        teilnehmerArray.push(teilnehmer3);
-                    }
-                    if(teilnehmer4) {
-                        teilnehmerArray.push(teilnehmer4);
-                    }
-
-                    var anzahl = teilnehmerArray.length;
-
 
                     var teilnehmerData = {anzahl: 0, teilnehmer: null
                                          }
@@ -366,30 +337,6 @@
                                     Austragungsort: tisch,
                                     Status:  'abgebrochen'};
 
-                    var teilnehmer1 = $('#user0').text();
-                    var teilnehmer2 = $('#user1').text();
-                    var teilnehmer3 = $('#user2').text();
-                    var teilnehmer4 = $('#user3').text();
-
-                    var teilnehmerArray = [];
-
-
-                    if(teilnehmer1) {
-                        teilnehmerArray.push(teilnehmer1);
-                    }
-                    if(teilnehmer2) {
-                        teilnehmerArray.push(teilnehmer2);
-                    }
-                    if(teilnehmer3) {
-                        teilnehmerArray.push(teilnehmer3);
-                    }
-                    if(teilnehmer4) {
-                        teilnehmerArray.push(teilnehmer4);
-                    }
-
-                    var anzahl = teilnehmerArray.length;
-
-
                     var teilnehmerData = {anzahl: 0, teilnehmer: null
                                          }
 
@@ -455,8 +402,7 @@
                         },
                         fail: function() {
                             alert('Fehler');
-                        }
-
+                        },
                     });
                 });
 
@@ -492,16 +438,16 @@
 
                     )   
 
-                    //                        if(value1 >= 11 || spielstand2 == 10) {
-                    //                            alert('Regelwidriges Verhalten.');
-                    //                            return false;
-                    //                        }
+                    if(value1 >= 11 || spielstand2 == 10) {
+                        alert('Regelwidriges Verhalten.');
+                        return false;
+                    }
 
-                    //
-                    //                        if(value1 >= 7 || spielstand2 == 6) {
-                    //                            alert('Regelwidriges Verhalten.');
-                    //                            return false;
-                    //                        }
+
+                    if(value1 >= 7 || spielstand2 == 6) {
+                        alert('Regelwidriges Verhalten.');
+                        return false;
+                    }
 
 
                     if(stdModus == 'Variation') {							
@@ -575,15 +521,15 @@
 
                     )   
 
-                    //                        if(value2 >= 11 || spielstand1 == 10) {
-                    //                            alert('Regelwidriges Verhalten.');
-                    //                            return false;
-                    //                        }
+                    if(value2 >= 11 || spielstand1 == 10) {
+                        alert('Regelwidriges Verhalten.');
+                        return false;
+                    }
 
-                    //                        if(value2 >= 7 || spielstand1 == 6) {
-                    //                            alert('Regelwidriges Verhalten.');
-                    //                            return false;
-                    //                        }
+                    if(value2 >= 7 || spielstand1 == 6) {
+                        alert('Regelwidriges Verhalten.');
+                        return false;
+                    }
 
                     if(stdModus == 'Variation') {							
 
@@ -651,47 +597,78 @@
                             <li>Kickertisch: <span id="stdTisch"></span><a id="aort" href="<%= match.Austragungsort %>">Gewählter Kickertisch</a></li>
                             <li id="stat"> Status: <%= match.Status %></li>
                         </ul> 
-
                         <hr />
-                 
+                        <div id="teiln">
+                            <p>Liste der Teilnehmer: </p>
+
+                            <ul>
+
+                                <% for(var i=0; i < benutzerAll.length; i++) { %>
+                                <li id="user<%= i %>"><%= benutzerAll[i].Name %></li>
+                                <% }; %>
+                            </ul>
+                        </div>
+                        <hr />
+
 
                         <p>Teams </p>
-                        
-                        <% for(var i=0;i<match.Teilnehmer[0].Team1.length;i++) { 
-                        benutzerAll.forEach(function(benutzer) {
-                        var usersplit1 = match.Teilnehmer[0].Team1.Teilnehmer1.split("/"); var user1 = usersplit1[2];    
-                           if(user1 == benutzer.id) {
-                               
-                              }
-                              });
-                           %>
-    <% } %>
 
+                        <% if (match.Teilnehmer) { 
+    if(benutzerAll.length == 1) {
+        benutzerAll.forEach(function(benutzer) { 
+            if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer1) { %>
 
-                        <% if (match.Teilnehmer) { %>
-                        <% if (benutzerAll.length == 1) { %>
-                         <% for(var i=0;i<match.Teilnehmer[0].Team1.length;i++) { 
-                        benutzerAll.forEach(function(benutzer) {
-                        var usersplit1 = match.Teilnehmer[0].Team1.Teilnehmer1.split("/"); var user1 = usersplit1[2];    
-                           %>
                         <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
-                         <% 
-                              }); } %>
-                        <% } else if (benutzerAll.length == 2) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>">Spieler 1</a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>">Spieler 2</a></p>
-                        <% } else if (benutzerAll.length == 3) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>">Spieler 1</a>, <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>">Spieler 2</a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>">Spieler 3</a></p>
-                        <% } else if(benutzerAll.length == 4) { %>
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>">Spieler 1</a> , <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>">Spieler 2</a></p>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>">Spieler 3</a> , <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>">Spieler 4</a></p>
-                        <% } } %>
-                      
+
+                        <% } }); } 
+
+else if(benutzerAll.length == 2) { 
+    benutzerAll.forEach(function(benutzer) { 
+        if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer1) { %>
+
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
+                        <% }});  
+                        benutzerAll.forEach(function(benutzer) {  
+                            if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team2.Teilnehmer1) { %>
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
+                        <%  } }); } 
+
+else if(benutzerAll.length == 3) {  
+    benutzerAll.forEach(function(benutzer) { 
+        if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer1) { %> 
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a>
+                            <% } }); %>, 
+                            <% benutzerAll.forEach(function(benutzer) { 
+    if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer2) { %> 
+                            <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><%= benutzer.Name %></a></p>  
+                        <% } }); 
+                        benutzerAll.forEach(function(benutzer) { 
+                            if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team2.Teilnehmer1) { %> 
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><%= benutzer.Name %></a></p>                                        <% } }); } 
+
+else if(benutzerAll.length == 4) {  
+    benutzerAll.forEach(function(benutzer) { 
+        if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer1) { %> 
+
+                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a><% } }); %>, <% benutzerAll.forEach(function(benutzer) { 
+    if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer2) { %> 
+                            <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><%= benutzer.Name %></a></p>  
+                        <% } }); %>
+                        <% benutzerAll.forEach(function(benutzer) { 
+
+    if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team2.Teilnehmer1) { %> 
+
+                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><%= benutzer.Name %></a><% } }); %>, <% benutzerAll.forEach(function(benutzer) { 
+    if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team2.Teilnehmer2) { %> 
+                            <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><%= benutzer.Name %></a></p>  
+                        <% } }); %>
+                        <% } %>
+                        <% } %>
+<hr />
                         <% if (match.Status == 'vor_beginn') { %>
-                     
+
                         <% if(typeof kickertische != 'undefined') { %>
-                          <hr />
+                     
                         <div class="row">
                             <div class="col-md-6">
 
@@ -725,7 +702,7 @@
                         <hr />
                         <% } else { %>
                         <hr />
-<% } %>
+                        <% } %>
                         <div class="row">
                             <div class="col-md-6">
                                 <p> Match ändern: </p>
@@ -760,11 +737,11 @@
                         </div>
                         <hr />
                         <% } else if (match.Status == 'aktiv') { %>
-                        <hr />
+                       
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <form role="form" action="" method="POST" name="modusPOST" id="modusPOST">
-                                    <p>Spielmodus:</p>
+                                    <p>Spielmodus (Änderung nur möglich bis ein Team 6 Punkte erreicht hat):</p>
                                     <div class="form-group">
 
                                         <select id="spielmodus" class="form-control">
@@ -837,6 +814,7 @@
                         </div>
                         <hr />
                         <% } else if (match.Status == 'beendet') { %>
+                     
                         <div class="spielstand">
                             <div class="row">
                                 <p id="spielst">Endstand</p>
@@ -861,11 +839,21 @@
                             <div class="row">
                                 <p id="spielst">
                                     <br /><% if(spielstand.Gewinner) { %>
-                                    <% if(spielstand.Gewinner.length == 1) { %>
-                                    Gewinner: <a href="<%= spielstand.Gewinner[0] %>"><%= spielstand.Gewinner[0] %></a>
-                                    <% } else if(spielstand.Gewinner.length == 2) { %>
-                                    Gewinner: <a href="<%= spielstand.Gewinner[0] %>"><%= spielstand.Gewinner[0] %></a>, <a href="<%= spielstand.Gewinner[1] %>"><%= spielstand.Gewinner[1] %></a>
-                                    <% }; }; %>
+
+                                    <% if(spielstand.Gewinner.length == 1) { 
+    benutzerAll.forEach(function(benutzer) { 
+        if('/Benutzer/'+benutzer.id == spielstand.Gewinner[0]) { %>
+
+                                    Gewinner: <a href="<%= spielstand.Gewinner[0] %>"><%= benutzer.Name %></a>
+                                    <% } }); } 
+else if(spielstand.Gewinner.length == 2) { %>
+                                    Gewinner: <% benutzerAll.forEach(function(benutzer) { 
+    if('/Benutzer/'+benutzer.id == spielstand.Gewinner[0]) { %> <a href="<%= spielstand.Gewinner[0] %>"><%= benutzer.Name %></a>
+                                    <% } }); %>, 
+                                    <% benutzerAll.forEach(function(benutzer) { 
+    if('/Benutzer/'+benutzer.id == spielstand.Gewinner[1]) { %>
+                                    <a href="<%= spielstand.Gewinner[1] %>"><%= benutzer.Name %></a>
+                                    <% } }); } }; %>
                                 </p>
                             </div> 
                         </div>		 
