@@ -1,6 +1,9 @@
 var app = express.Router();
 var clientFaye = new faye.Client("http://localhost:8000/faye");
 
+//Präsentationslogik 
+
+//Unterseite zum hinzufügen eines Matches
 app.get('/addMatch', function(req, res) {
 
     var options1 = {
@@ -55,6 +58,7 @@ app.get('/addMatch', function(req, res) {
 
 });
 
+//Unterseite für alle Matches
 app.get('/alleMatches', function(req, res) {
 
     var options = {
@@ -80,13 +84,13 @@ app.get('/alleMatches', function(req, res) {
     externalRequest.end();
 });
 
-
+//Unterseite für ein einzelnes Match
 app.get('/:MatchId', function(req, res) {
 
 
     var belegungen=[];   
 
-
+    // Hole alle Belegungen der Kickertische eines Ortes aus der Datenbank
     client.keys('Belegung *', function (err, key) {
 
         if(key.length == 0) {
@@ -123,6 +127,7 @@ app.get('/:MatchId', function(req, res) {
 
             var match = JSON.parse(chunk);
 
+            // Wenn das Attribut Austragungsort des Matches nicht "NULL" ist
             if(match.Austragungsort) {
 
                 //  console.log(match.Austragungsort);		
@@ -133,16 +138,18 @@ app.get('/:MatchId', function(req, res) {
                 //      console.log(ort);		
 
 
+                // Frage alle Kickertische des Ortes ab
                 var options2 = {
                     host: "localhost",
                     port: 3001,
-                    path: ort+"/allekickertische/",
+                    path: ort+"/Kickertisch/",
                     method:"GET",
                     headers:{
                         accept:"application/json"
                     }
                 }
 
+                // Frage den Austragungsort selber ab
                 var options3 = {
                     host: "localhost",
                     port: 3000,
@@ -153,6 +160,7 @@ app.get('/:MatchId', function(req, res) {
                     }
                 }
 
+                // Frage den Spielstand eines Matches ab
                 var options4 = {
                     host: 'localhost',
                     port: 3001,
@@ -183,10 +191,7 @@ app.get('/:MatchId', function(req, res) {
 
                                         var spielstand = JSON.parse(chunkw);
 
-
                                         var teilnehmerAusMatchAnfrage = [];
-
-
 
                                         if(match.Teilnehmer[0].Team2.Teilnehmer1) {
                                             teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer1);
@@ -203,16 +208,13 @@ app.get('/:MatchId', function(req, res) {
 
                                         // console.log(teilnehmerAusMatchAnfrage);
 
-
-
                                         var benutzerAll = [];
-
-
 
                                         var myAgent = new http.Agent({maxSockets: 1});
 
+                                        // Sende für jeden Teilnehmer des Matches eine Anfrage an die Benutzer-Ressource
+                                        // um den Namen des Teilnehmers zu erhalten 
                                         async.each(teilnehmerAusMatchAnfrage, function(listItem, next) {
-
 
                                             var options = {
                                                 host: "localhost",
@@ -225,21 +227,18 @@ app.get('/:MatchId', function(req, res) {
                                                 }
                                             }
 
-
                                             var exreq = http.request(options, function(externalrep){
 
                                                 externalrep.on("data", function(chunks){
 
                                                     var user = JSON.parse(chunks);
+                                                    // Pushe jeden erhaltenen Benutzer in das Array benutzerAll
                                                     benutzerAll.push(user);
                                                     next();
                                                 });
-
-
                                             });
 
                                             exreq.end();
-
 
                                         }, function(err) {
 
@@ -266,7 +265,7 @@ app.get('/:MatchId', function(req, res) {
             }
             else {
 
-                // console.log('garkeinort');
+                // Wenn der Match Austragungsort "null" ist
 
                 var options4 = {
                     host: 'localhost',
@@ -288,7 +287,6 @@ app.get('/:MatchId', function(req, res) {
                         var teilnehmerAusMatchAnfrage = [];
 
 
-
                         if(match.Teilnehmer[0].Team2.Teilnehmer1) {
                             teilnehmerAusMatchAnfrage.push(match.Teilnehmer[0].Team2.Teilnehmer1);
                         }
@@ -307,6 +305,8 @@ app.get('/:MatchId', function(req, res) {
 
                         var myAgent = new http.Agent({maxSockets: 1});
 
+                        // Sende für jeden Teilnehmer des Matches eine Anfrage an die Benutzer-Ressource
+                        // um den Namen des Teilnehmers zu erhalten 
                         async.each(teilnehmerAusMatchAnfrage, function(listItem, next) {
 
                             var options = {
@@ -326,6 +326,7 @@ app.get('/:MatchId', function(req, res) {
                                 externalrep.on("data", function(chunks){
 
                                     var user = JSON.parse(chunks);
+                                    // Pushe jeden erhaltenen Benutzer in das Array benutzerAll
                                     benutzerAll.push(user);
                                     next();
                                 });
@@ -359,23 +360,11 @@ app.get('/:MatchId', function(req, res) {
 
 });
 
-
+//Leitet eine Match-POST anfrage an den Dienstgeber weiter
 app.post('/', function(req, res) {
 
     // Speichert req.body
     var MatchAnfrage = req.body;
-
-    /*
-
-	    BODY:
-
-	    {
-	"Teilnehmeranzahl":10,
-	"Teamgroesse":2,
-	"Typ":"Kickerturnier"
-	}   
-	    */
-
 
     // HTTP Header setzen
     var headers = {
@@ -404,6 +393,8 @@ app.post('/', function(req, res) {
 
             //  console.log(util.inspect(match, false, null));
 
+            // Extrahiere aus dem Antwort-Header die ID des Matches und erstelle auf dem Dienstnutzer einen Spielstand für
+            // dieses Match
             var loc = externalResponse.headers.location.split("/");
 
             var idm = loc[2];
@@ -419,14 +410,13 @@ app.post('/', function(req, res) {
             client.set('Spielstand ' + idm,JSON.stringify(MatchSpielstand));
 
 
-            res.json(match);
-            res.end();
-
+            res.json(match).end();
 
         });
 
     });
 
+    // Schreibe das Kicker-spezifische Regelwerk für das Match in die Repräsentation
     var Regelwerk=
         {
             "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
@@ -441,6 +431,7 @@ app.post('/', function(req, res) {
 
 });
 
+//Leitet eine Match-PUT anfrage an den Dienstgeber weiter
 app.put('/:MatchId', function(req, res) {
 
     var MatchDaten = req.body;
@@ -481,6 +472,7 @@ app.put('/:MatchId', function(req, res) {
 
     });
 
+    // Schreibe das Kicker-spezifische Regelwerk für das Match in die Repräsentation
     var Regelwerk=
         {
             "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
@@ -494,6 +486,7 @@ app.put('/:MatchId', function(req, res) {
     externalRequest.end();
 
 });
+
 
 app.get('/:MatchId/Spielstand', function(req, res) {
 
@@ -555,186 +548,186 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 var dieseMatch = JSON.parse(matchdaten);
 
                 var MatchSpielstand = req.body;
-                
+
                 if(MatchSpielstand.Modus == 'Klassisch') {
-                    
-              if(MatchSpielstand.spielstandT1 < 6 && MatchSpielstand.spielstandT2 < 6) {
-                  
-                     //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                    'SpielstandT1': MatchSpielstand.spielstandT1,
-                    'SpielstandT2': MatchSpielstand.spielstandT2,
-                });
-               
-                  
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+
+                    if(MatchSpielstand.spielstandT1 < 6 && MatchSpielstand.spielstandT2 < 6) {
+
+                        //Path of the Topic
+                        var path = "/liveticker/"+matchId;
+
+                        //Publish to the specific topic path  
+                        var publication = clientFaye.publish(path,{
+                            'SpielstandT1': MatchSpielstand.spielstandT1,
+                            'SpielstandT2': MatchSpielstand.spielstandT2,
+                        });
 
 
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+                        //Schreibe Turnierdaten zurück 
+                        client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
 
-                }
-                else if(MatchSpielstand.spielstandT1 == 6 && MatchSpielstand.spielstandT2 < 6) {
-              
-    
-                    if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
-                        
-                
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
-                        
+
+                        //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                        res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+
                     }
-                    else {
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
-                     
+                    else if(MatchSpielstand.spielstandT1 == 6 && MatchSpielstand.spielstandT2 < 6) {
+
+
+                        if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
+
+
+                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
+
+                        }
+                        else {
+                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
+
+                        }
+
+                        //Path of the Topic
+                        var path = "/liveticker/"+matchId;
+
+                        //Publish to the specific topic path  
+                        var publication = clientFaye.publish(path,{
+                            'SpielstandT1': MatchSpielstand.spielstandT1,
+                            'SpielstandT2': MatchSpielstand.spielstandT2,
+                            'Winner': 'Team1'
+                        });
+
+
+                        //Schreibe Turnierdaten zurück 
+                        client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+                        //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                        res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+
+
                     }
-                    
-                                                                   //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                    'SpielstandT1': MatchSpielstand.spielstandT1,
-                      'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': 'Team1'
-                });
-                       
+                    else if(MatchSpielstand.spielstandT2 == 6 && MatchSpielstand.spielstandT1 < 6 ) {
 
-                                      //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
-                         //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+                        if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
 
-                    
-                }
-                else if(MatchSpielstand.spielstandT2 == 6 && MatchSpielstand.spielstandT1 < 6 ) {
+                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
 
-                    if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
+                        }
+                        else {
+                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
 
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
-                        
+
+                        }
+
+                        //Path of the Topic
+                        var path = "/liveticker/"+matchId;
+
+                        //Publish to the specific topic path  
+                        var publication = clientFaye.publish(path,{
+                            'SpielstandT1': MatchSpielstand.spielstandT1,
+                            'SpielstandT2': MatchSpielstand.spielstandT2,
+                            'Winner': 'Team2'
+                        });
+
+
+                        //Schreibe Turnierdaten zurück 
+                        client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+                        //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                        res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+
                     }
-                    else {
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
-                 
-                        
-                    }
-                    
-                                                       //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                     'SpielstandT1': MatchSpielstand.spielstandT1,
-                    'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': 'Team2'
-                });
-                       
-                    
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-
-                }
                     else {
                         res.status(403).end();
                     }
-            
+
                 }
 
                 if(MatchSpielstand.Modus == 'Variation') {
-                    
-                     if(MatchSpielstand.spielstandT1 < 10 && MatchSpielstand.spielstandT2 < 10) {
-                         
-                                 //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                    'SpielstandT1': MatchSpielstand.spielstandT1,
-                    'SpielstandT2': MatchSpielstand.spielstandT2,
-                });
-               
 
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+                    if(MatchSpielstand.spielstandT1 < 10 && MatchSpielstand.spielstandT2 < 10) {
+
+                        //Path of the Topic
+                        var path = "/liveticker/"+matchId;
+
+                        //Publish to the specific topic path  
+                        var publication = clientFaye.publish(path,{
+                            'SpielstandT1': MatchSpielstand.spielstandT1,
+                            'SpielstandT2': MatchSpielstand.spielstandT2,
+                        });
 
 
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-                }
-
-                else if(MatchSpielstand.spielstandT1 == 10 && MatchSpielstand.spielstandT2 < 10) {
-
-                    if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
-                        
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
-
-                    }
-                    else {
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
-                    
-                    }
-                    
-                                 
-                               //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                    'SpielstandT1': MatchSpielstand.spielstandT1,
-                     'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': 'Team1'
-                });
-                    
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
-
-
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-
-                }
-                else if(MatchSpielstand.spielstandT2 == 10 && MatchSpielstand.spielstandT1 < 10 ) {
-
-                    if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
-
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
-
-                    }
-                    else {
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
-                        
-                    }
-                    
-                                 
-                               //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                    'SpielstandT1': MatchSpielstand.spielstandT1,
-                     'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': 'Team2'
-                });
- 
                         //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+                        client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
 
 
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-                    
-                }
-                     else {
+                        //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                        res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+                    }
+
+                    else if(MatchSpielstand.spielstandT1 == 10 && MatchSpielstand.spielstandT2 < 10) {
+
+                        if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
+
+                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
+
+                        }
+                        else {
+                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
+
+                        }
+
+
+                        //Path of the Topic
+                        var path = "/liveticker/"+matchId;
+
+                        //Publish to the specific topic path  
+                        var publication = clientFaye.publish(path,{
+                            'SpielstandT1': MatchSpielstand.spielstandT1,
+                            'SpielstandT2': MatchSpielstand.spielstandT2,
+                            'Winner': 'Team1'
+                        });
+
+                        //Schreibe Turnierdaten zurück 
+                        client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+
+
+                        //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                        res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+
+                    }
+                    else if(MatchSpielstand.spielstandT2 == 10 && MatchSpielstand.spielstandT1 < 10 ) {
+
+                        if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
+
+                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
+
+                        }
+                        else {
+                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
+
+                        }
+
+
+                        //Path of the Topic
+                        var path = "/liveticker/"+matchId;
+
+                        //Publish to the specific topic path  
+                        var publication = clientFaye.publish(path,{
+                            'SpielstandT1': MatchSpielstand.spielstandT1,
+                            'SpielstandT2': MatchSpielstand.spielstandT2,
+                            'Winner': 'Team2'
+                        });
+
+                        //Schreibe Turnierdaten zurück 
+                        client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+
+
+                        //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                        res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+
+                    }
+                    else {
                         res.status(403).end();
                     }
                 }
-         
+
 
 
             });
@@ -744,10 +737,6 @@ app.put('/:MatchId/Spielstand', function(req, res) {
     });
 
 });
-
-
-
-
 
 
 module.exports = app;

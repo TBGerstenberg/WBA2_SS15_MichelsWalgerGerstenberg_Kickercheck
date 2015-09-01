@@ -1,7 +1,7 @@
 var app = express.Router();
 
 
-//Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen  ,dass die 
+//Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen, dass die 
 //Spezifika eines Wettkampfes beschreibt. So ist erreicht ,dass der Dienst für unterschiedlichste Wettkampfarten nutzbar ist.
 var Regelwerk =
     {
@@ -13,7 +13,7 @@ var Regelwerk =
 
 //Unterseite zum hinzufügen eines Turnieres
 app.get('/addTurnier', function(req, res) {
-    
+
     //Die Seite benötigt ein für das Dropdown Menü die Liste aller Austragungsorte
     var options = {
         host: "localhost",
@@ -36,7 +36,7 @@ app.get('/addTurnier', function(req, res) {
 
 //Unterseite für alle Turniere
 app.get('/alleTurniere', function(req, res) {
-    
+
     //Die Seite zeigt daten aller Turniere
     var options = {
         host: "localhost",
@@ -99,7 +99,7 @@ app.get('/:TurnierId', function(req, res) {
                         accept:"application/json"
                     }
                 }
-                
+
                 var z = http.request(options3, function(externalrepo){
 
                     externalrepo.on("data", function(chunko){
@@ -174,7 +174,7 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
             client.mget('einTurnier '+turnierId + ' ligatabelle',function(err,ligatabelle){
 
                 var tabelle = JSON.parse(ligatabelle);
-                
+
                 res.render('pages/eineLigatabelle', {
                     ligatabelle:tabelle
                 });
@@ -575,7 +575,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
                                 matchListeResponse.on('data',function(matchListeData){
 
-                                   res.json(matchListeData);
+                                    res.json(matchListeData);
 
                                 });
                             });
