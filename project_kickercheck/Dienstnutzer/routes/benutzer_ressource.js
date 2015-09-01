@@ -23,12 +23,9 @@ app.get('/alleBenutzer', function(req, res) {
             res.render('pages/allebenutzer',{benutzerAll:benutzerAll});
             res.end();
         });
-
     });
-
     externalRequest.end();
 });
-
 
 app.get('/:BenutzerId', function(req, res) {
 
@@ -46,8 +43,6 @@ app.get('/:BenutzerId', function(req, res) {
         externalres.on('data', function(chunk){
 
             var benutzer = JSON.parse(chunk);
-
-         //   console.log(util.inspect(benutzer, false, null));
 
             res.render('pages/einbenutzer', { benutzer: benutzer });
         });

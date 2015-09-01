@@ -37,11 +37,10 @@ app.get('/', function(req, res) {
 
 app.use('/Benutzer', require('./routes/benutzer_ressource'));
 app.use('/Austragungsort', require('./routes/austragungsort_ressource'));
-app.use('/Liveticker', require('./routes/liveticker_ressource'));
 app.use('/Herausforderung', require('./routes/herausforderung_ressource'));
 app.use('/Turnier', require('./routes/turnier_ressource'));
 app.use('/Match', require('./routes/match_ressource'));
-app.use('/Regelwerk', require('./routes/regelwerk_ressource'));
+
 
 // Objekte erstellen und Demodaten in DB legen
 app.route('/startdemo').get(function(req, res) {
