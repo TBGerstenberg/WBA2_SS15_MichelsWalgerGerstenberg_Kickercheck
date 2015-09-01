@@ -554,8 +554,10 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 var dieseMatch = JSON.parse(matchdaten);
 
                 var MatchSpielstand = req.body;
-
-                if(MatchSpielstand.Modus == 'Klassisch' && MatchSpielstand.spielstandT1 < 6 && MatchSpielstand.spielstandT2 < 6) {
+                
+                if(MatchSpielstand.Modus == 'Klassisch') {
+                    
+              if(MatchSpielstand.spielstandT1 < 6 && MatchSpielstand.spielstandT2 < 6) {
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
@@ -565,31 +567,79 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                     res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
 
                 }
-                else if(MatchSpielstand.Modus == 'Klassisch' && MatchSpielstand.spielstandT1 == 6 && MatchSpielstand.spielstandT2 < 6) {
+                else if(MatchSpielstand.spielstandT1 == 6 && MatchSpielstand.spielstandT2 < 6) {
 
 
                     if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
+                        
+                    }
+                    else {
+                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
+                        
+                    }
 
+                                      //Schreibe Turnierdaten zurück 
+                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+                         //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+
+                    
+                }
+                else if(MatchSpielstand.spielstandT2 == 6 && MatchSpielstand.spielstandT1 < 6 ) {
+
+                    if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
+                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
+                        
+                    }
+                    else {
+                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
+                        
+                    }
+                    //Schreibe Turnierdaten zurück 
+                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+
+                }
+                    else {
+                        res.status(403).end();
+                    }
+            
+                }
+
+                if(MatchSpielstand.Modus == 'Variation') {
+                    
+                     if(MatchSpielstand.spielstandT1 < 10 && MatchSpielstand.spielstandT2 < 10) {
+
+                    //Schreibe Turnierdaten zurück 
+                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
+
+
+                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+                }
+
+                else if(MatchSpielstand.spielstandT1 == 10 && MatchSpielstand.spielstandT2 < 10) {
+
+                    if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
+                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
 
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
 
                     }
-
+                    
                     //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
-
 
 
                     //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
                     res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
 
                 }
-                else if(MatchSpielstand.Modus == 'Klassisch' && MatchSpielstand.spielstandT2 == 6 && MatchSpielstand.spielstandT1 < 6 ) {
-
-                    console.log('jetzthier');
+                else if(MatchSpielstand.spielstandT2 == 10 && MatchSpielstand.spielstandT1 < 10 ) {
 
                     if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
@@ -597,73 +647,22 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
+
                     }
-
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
-
-
-
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-
-                }
-                else {
-                    res.status(403).end();
-                }
-
-                if(MatchSpielstand.Modus == 'Variation' && MatchSpielstand.spielstandT1 < 11 && MatchSpielstand.spielstandT2 < 11) {
-
-                    //Schreibe Turnierdaten zurück 
+ 
+                        //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
 
 
                     //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
                     res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
+                    
                 }
-
-                else if(MatchSpielstand.Modus == 'Variation' && MatchSpielstand.spielstandT1 == 10 &&  MatchSpielstand.spielstandT2 < 10) {
-
-                    if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
-
-
+                     else {
+                        res.status(403).end();
                     }
-                    else {
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
-
-                    }
-
-
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
-
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-
                 }
-                else if(MatchSpielstand.Modus == 'Variation' && MatchSpielstand.spielstandT2 == 10 && MatchSpielstand.spielstandT1 < 10 ) {
-
-                    if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
-
-                    }
-                    else {
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
-
-                    }
-
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
-
-
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-
-                }
-                else {
-                    res.status(403).end();
-                }
+         
 
 
             });
