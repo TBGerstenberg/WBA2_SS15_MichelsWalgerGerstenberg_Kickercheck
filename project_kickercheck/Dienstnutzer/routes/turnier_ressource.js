@@ -29,7 +29,7 @@ app.get('/addTurnier', function(req, res) {
             var austragungsorte = JSON.parse(chunks);
             
             var ortTischMapping = [];
-            
+                 
              async.each(austragungsorte, function(listItem, next) {
                  
                    var listenKey="Ort " +listItem.id+ " Tische";
@@ -44,9 +44,7 @@ app.get('/addTurnier', function(req, res) {
                 }
                     next();
             });
-
-              
-                  
+    
                         }, function(err) {
                     
 
