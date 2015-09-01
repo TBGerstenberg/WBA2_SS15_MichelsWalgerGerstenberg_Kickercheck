@@ -589,8 +589,10 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
-                        
-                                               //Path of the Topic
+                     
+                    }
+                    
+                                                                   //Path of the Topic
               var path = "/liveticker/"+matchId;
   
                 //Publish to the specific topic path  
@@ -599,8 +601,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                       'SpielstandT2': MatchSpielstand.spielstandT2,
                     'Winner': 'Team1'
                 });
-                        
-                    }
+                       
 
                                       //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
