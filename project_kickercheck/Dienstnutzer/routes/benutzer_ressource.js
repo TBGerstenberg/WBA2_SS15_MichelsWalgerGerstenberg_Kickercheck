@@ -175,13 +175,13 @@ app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res)
     var HerausforderungId = req.params.HerausforderungId;
 
     //Prüfe ob Lokalitaet existiert 
-    client.exists(benutzerId+'Herausforderung ' + HerausforderungId, function(err, IdExists) {
+    client.exists('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err, IdExists) {
 
         //Lokalitaet existiert 
         if(IdExists) {
             console.log("ES IST DA");
             //Entferne EIntrag aus der Datenbank 
-            client.del(benutzerId+'Herausforderung ' + HerausforderungId);
+            client.del('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId);
 
             //Alles ok , sende 200 
             res.status(204).send("Das hat funktioniert! Herausforderung gelöscht");
@@ -206,7 +206,7 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
     var response=[];    
 
     //returned ein Array aller Keys die das Pattern Herausforderung* matchen 
-    client.keys(benutzerId+'Herausforderung *', function (err, key) {
+    client.keys('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, function (err, key) {
 
         if(key.length == 0) {
             res.json(response);
@@ -238,7 +238,7 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
     var benutzerId = req.params.BenutzerId;
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-    client.exists(benutzerId+ 'Herausforderung ' + herausforderungId, function(err, IdExists) {
+    client.exists('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err, IdExists) {
 
         //Lokalitaet kennt einen Tisch mit dieser TischId
         if (IdExists) {
@@ -252,7 +252,7 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
                 case "application/json":
                     
                    
-                        client.mget(benutzerId+ 'Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
+                        client.mget('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
 
                         var HerausforderungDaten= JSON.parse(HerausforderungDaten);
                             
@@ -311,18 +311,18 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
                 'Datum': Herausforderung.Datum,
                 'Kurztext' : Herausforderung.Kurztext
             };
-            console.log(benutzerId +'Herausforderung ' + id); 
-            client.set(benutzerId +'Herausforderung ' + id, JSON.stringify(HerausfoderungObj));
+            console.log('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId); 
+            client.set('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, JSON.stringify(HerausfoderungObj));
             //Pflege Daten über den Kickertisch in die DB ein 
 
             //Teile dem Client die URI der neu angelegten Ressource mit 
-            res.set("Location", "/Herausforderung/" + id);
+            res.set("Location", "/Benutzer/"+benutzerId+"/Herausforderung/" + id);
 
             //Setze content type der Antwort 
             res.set("Content-Type","application/json");
 
             //Zeige dem Client mit Statuscode 201 Erfolg beim anlegen an  
-            res.json(req.body);
+            res.json(HerausfoderungObj);
 
             //Antwort beenden 
             res.end();
