@@ -206,10 +206,10 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
     var response=[];    
 
     //returned ein Array aller Keys die das Pattern Herausforderung* matchen 
-    client.keys('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, function (err, key) {
+    client.keys('Benutzer '+benutzerId+' Herausforderung *', function (err, key) {
 
         if(key.length == 0) {
-            res.json(response);
+            res.render('pages/alleHerausforderungen',{response:response});
             return;
         }
 
