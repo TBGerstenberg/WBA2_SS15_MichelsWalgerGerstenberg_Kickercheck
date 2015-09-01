@@ -9,6 +9,11 @@
                 //Get Request auf Turnier/:TurnierId/Spielplan abgesetzt 
                 $('#generiereSpielplan').click(function(e){
                     e.preventDefault();
+                    
+                    if(<%= turnierTeilnehmer.length %> != <%=turnier.Teilnehmeranzahl%>) { 
+                    alert('Bitte alle Teilnehmer hinzufügen');
+                    return false;
+                     } 
 
                     $.ajax({
                         type: 'PUT',
@@ -65,7 +70,8 @@
                         contentType: 'application/json',
                         data: JSON.stringify(formData),
                         success: function(data) {
-                            window.location.reload(true);
+                    
+                          window.location.reload(true);
                         },
                         statusCode: {
                             409: function() {
@@ -142,7 +148,7 @@
                             <div class="col-md-6">
                                 <p>Liste der Teilnehmer: </p>
 
-                                <ul>
+                                <ul id="users">
                                     <% if (turnierTeilnehmer) { %>
                                     <% for(var i=0; i < turnierTeilnehmer.length; i++) { %>
                                     <% benutzerAll.forEach(function(benutzer) { %>
