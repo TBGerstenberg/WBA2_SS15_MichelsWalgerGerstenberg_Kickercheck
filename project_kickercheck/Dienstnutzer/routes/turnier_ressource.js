@@ -574,7 +574,9 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             //Frage Matches ab und liefere Sie als Antwort auf diesen Request
                             var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
                                 matchListeResponse.on('data',function(matchListeData){
+
                                    res.json(matchListeData);
+
                                 });
                             });
                             matchListeRequest.end();
