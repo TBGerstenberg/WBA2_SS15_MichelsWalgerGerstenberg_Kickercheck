@@ -583,15 +583,6 @@ app.put('/:MatchId/Spielstand', function(req, res) {
     
                     if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
                         
-                        
-                               //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                    'SpielstandT1': MatchSpielstand.spielstandT1,
-                    'Winner': [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2]
-                });
                 
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
                         
@@ -606,7 +597,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 var publication = clientFaye.publish(path,{
                     'SpielstandT1': MatchSpielstand.spielstandT1,
                       'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1]
+                    'Winner': 'Team1'
                 });
                         
                     }
@@ -621,35 +612,27 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 else if(MatchSpielstand.spielstandT2 == 6 && MatchSpielstand.spielstandT1 < 6 ) {
 
                     if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
-                        
-                                                         //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                     'SpielstandT1': MatchSpielstand.spielstandT1,
-                    'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1,dieseMatch.Teilnehmer[0].Team2.Teilnehmer2]
-                });
-                        
+
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
                         
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
+                 
                         
-                                         //Path of the Topic
+                    }
+                    
+                                                       //Path of the Topic
               var path = "/liveticker/"+matchId;
   
                 //Publish to the specific topic path  
                 var publication = clientFaye.publish(path,{
                      'SpielstandT1': MatchSpielstand.spielstandT1,
                     'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': [dieseMatch.Teilnehmer[0].Team2.Teilnehmer2]
+                    'Winner': 'Team2'
                 });
-                        
-                        
-                    }
+                       
+                    
                     //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
                     //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
@@ -688,7 +671,15 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                     if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
                         
-                        
+                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
+
+                    }
+                    else {
+                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
+                    
+                    }
+                    
+                                 
                                //Path of the Topic
               var path = "/liveticker/"+matchId;
   
@@ -696,27 +687,8 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 var publication = clientFaye.publish(path,{
                     'SpielstandT1': MatchSpielstand.spielstandT1,
                      'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2]
+                    'Winner': 'Team1'
                 });
-                        
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
-
-                    }
-                    else {
-                        MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
-                        
-                                                         //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                    'SpielstandT1': MatchSpielstand.spielstandT1,
-                     'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': [dieseMatch.Teilnehmer[0].Team1.Teilnehmer2]
-                });
-                        
-
-                    }
                     
                     //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
@@ -729,34 +701,25 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 else if(MatchSpielstand.spielstandT2 == 10 && MatchSpielstand.spielstandT1 < 10 ) {
 
                     if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
-                        
-                                                                     //Path of the Topic
-              var path = "/liveticker/"+matchId;
-  
-                //Publish to the specific topic path  
-                var publication = clientFaye.publish(path,{
-                     'SpielstandT1': MatchSpielstand.spielstandT1,
-                    'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1,dieseMatch.Teilnehmer[0].Team2.Teilnehmer2]
-                });
-                        
+
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
 
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
                         
-                                                                     //Path of the Topic
+                    }
+                    
+                                 
+                               //Path of the Topic
               var path = "/liveticker/"+matchId;
   
                 //Publish to the specific topic path  
                 var publication = clientFaye.publish(path,{
-                     'SpielstandT1': MatchSpielstand.spielstandT1,
-                    'SpielstandT2': MatchSpielstand.spielstandT2,
-                    'Winner': [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1]
+                    'SpielstandT1': MatchSpielstand.spielstandT1,
+                     'SpielstandT2': MatchSpielstand.spielstandT2,
+                    'Winner': 'Team2'
                 });
-
-                    }
  
                         //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));

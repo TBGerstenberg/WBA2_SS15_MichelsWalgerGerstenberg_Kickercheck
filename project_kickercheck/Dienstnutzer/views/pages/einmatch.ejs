@@ -531,13 +531,18 @@ else if(benutzerAll.length == 4) {
 
                                             <% kickertische.forEach(function(tisch) { belegungen.forEach(function(belegung) {  %>
                                             <% if(belegung.id == tisch.id)  { %>
-                                            <% if(benutzerAll.length == 1 && belegung.Anzahl < 4) { %>
+                                              <% if(belegung.Anzahl >= 1) { %>
+                                            <option disabled="disabled" class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
+                                            <% } %>
+                                            <% if(benutzerAll.length == 1 && belegung.Anzahl == 0) { %>
                                             <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
-                                            <% } else if (benutzerAll.length == 2 && belegung.Anzahl < 3) { %>
+                                            <% } else if (benutzerAll.length == 2 && belegung.Anzahl == 0) { %>
                                             <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
-                                            <% } else if (benutzerAll.length == 3 && belegung.Anzahl < 2) { %>
+                                            <% } else if(benutzerAll.length == 2 && belegung.Anzahl == 0){ %>
+                                             <option  disabled="disabled" class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
+                                            <% } else if (benutzerAll.length == 3 && belegung.Anzahl == 0) { %>
                                             <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
-                                            <% } else if (benutzerAll.length == 4 && belegung.Anzahl < 1) { %>
+                                            <% } else if (benutzerAll.length == 4 && belegung.Anzahl == 0) { %>
                                             <option class="kickertisch" value="/Austragungsort/<%= austragungsort.id %>/Kickertisch/<%= tisch.id %>">Hersteller: <%= tisch.Hersteller  %>, Typ: <%= tisch.Typ %>, Belegung: <%= belegung.Anzahl %> Spieler</option>
                                             <% } %>
                                             <% } }); });   %>
