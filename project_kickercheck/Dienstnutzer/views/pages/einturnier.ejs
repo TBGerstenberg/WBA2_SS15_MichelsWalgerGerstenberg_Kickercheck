@@ -4,7 +4,9 @@
         <% include ../partials/head %>
         <script>
             $(document).ready(function() {
-
+                
+                var client = new Faye.Client('http://localhost:8000/faye');
+    
                 //Klickt der Nutzer den generiereSpielplan button wird ein
                 //Get Request auf Turnier/:TurnierId/Spielplan abgesetzt 
                 $('#generiereSpielplan').click(function(e){
@@ -20,6 +22,14 @@
                         url: '/Turnier/<%= turnier.id %>/Spielplan',
                         contentType:"application/json",
                         success: function(data) {
+                    
+                            //Die Turnier seite subscribed auf alle liveticker seiner Matches
+                            for(var i=0;i<matches.length;i++){
+                            
+                            
+                            
+                            
+                            }
                             
                         window.location.reload(true);
                                 
@@ -40,8 +50,9 @@
                         url: "/Turnier/<%= turnier.id %>/Ligatabelle",
                         contentType:"application/json",
                         success: function(data) {
+                            
+                            //Ersetze HTML mit der Ligatabelle, so wird auch der Button ausgeblendet
                             $('#ligatabelle').html(data);
-                             //window.location.reload(true);
                         },
                         statusCode: {
 
@@ -229,7 +240,8 @@
                                     <% if(matches) { %>
                                     <% for(var i=0; i < matches.length; i++) { %>
                                     <tr>
-                                        <td> <a href="/<%= matches[i]%>">Match <%=i+1%></a> </td>                               
+                                        <td> <a href="/<%= matches[i]%>">Match <%=i+1%></a> </td>
+                                        <td id="Match<%i%>" data-match="<%i%>"> </td>
                                     </tr>
                                     <% }; %>
                                     <% } %>
