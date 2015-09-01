@@ -41,7 +41,6 @@ app.use('/Herausforderung', require('./routes/herausforderung_ressource'));
 app.use('/Turnier', require('./routes/turnier_ressource'));
 app.use('/Match', require('./routes/match_ressource'));
 
-
 // Objekte erstellen und Demodaten in DB legen
 app.route('/startdemo').get(function(req, res) {
     // User

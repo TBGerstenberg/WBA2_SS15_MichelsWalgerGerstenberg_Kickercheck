@@ -513,7 +513,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             //Stelle Match Post-Anfragen 
                             var matchRequest = http.request(optionsMatches, function(matchRequestResponse) {
 
-                                //Für jedes Match muss außerdem auf dem Dienstnutzer ein SPielstand angelegt werden
+                                //Für jedes Match muss außerdem auf dem Dienstnutzer ein Spielstand angelegt werden
                                 matchRequestResponse.on('data',function(match){
 
                                     var matchExpose = JSON.parse(match);
@@ -620,9 +620,9 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
         };
 
         externalResponse.on('data', function (chunk) {
-            var completeTurnierplan = JSON.parse(chunk);
+            var teilnehmer = JSON.parse(chunk);
             //   console.log(util.inspect(completeTurnierplan, false, null));
-            res.json(completeTurnierplan).end();
+            res.json(teilnehmer).end();
         });
     });
     externalRequest.write(JSON.stringify(Teilnehmer));

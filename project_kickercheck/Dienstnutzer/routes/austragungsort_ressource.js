@@ -665,13 +665,14 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res)
                                 return;
                             }
                         }
+                        if(belegung.Teilnehmer != null) {
                         for(var i=0;i<belegung.Teilnehmer.length;i++) {
                             if( Forderung.Benutzer == belegung.Teilnehmer[i]) {
                                 res.status(409).end();
                                 return;
                             }
                         }
-                       
+                        }
 
                         client.set('Forderung ' + id, JSON.stringify(forderungObj));
 

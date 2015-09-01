@@ -704,6 +704,7 @@ else if(benutzerAll.length == 4) {
                         <% } else { %>
                         <hr />
                         <% } %>
+                         <% if(match.Turnier == null) { %>
                         <div class="row">
                             <div class="col-md-6">
                                 <p> Match ändern: </p>
@@ -730,7 +731,7 @@ else if(benutzerAll.length == 4) {
                             </div>
                         </div>
                         <hr />
-
+                        <% } %>
                         <div id="divstart" class="margintop20">
                             <form role="form" action="" method="PUT" name="startMatch" id="startMatch">
                                 <input type="submit" class="btn btn-success" name="start" value="Match starten" />
@@ -738,7 +739,7 @@ else if(benutzerAll.length == 4) {
                         </div>
                         <hr />
                         <% } else if (match.Status == 'aktiv') { %>
-                       
+                       <% if(match.Turnier == null) { %>
                         <div class="row">
                             <div class="col-md-6">
                                 <form role="form" action="" method="POST" name="modusPOST" id="modusPOST">
@@ -758,6 +759,7 @@ else if(benutzerAll.length == 4) {
                             </div>
                         </div>
                         <hr />
+                        <% } %>
                         <form role="form" action="" method="PUT" name="changeSpielstand" id="changeSpielstand">
 
 
