@@ -5,8 +5,11 @@
         <script type="text/javascript">
             $(document).ready(function(){
 
+                // Lege einen Austragungsort an
                 $('#austragungsortAnlegen').submit(function(e) {
                     e.preventDefault();
+                    
+                // Wenn vor via AJAX ein Ort angelegt wurde, ersetze den Link durch den Link auf den neuen Ort
                     $('.addid').html('');
 
                     var name = $('#name').val();

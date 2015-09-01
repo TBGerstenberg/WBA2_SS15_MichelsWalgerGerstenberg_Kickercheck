@@ -5,6 +5,7 @@
         <script>
             $(document).ready(function() {
 
+                // Kickertisch löschen
                 $('#deleteTable').submit(function(e) {
                     e.preventDefault();
 
@@ -28,6 +29,7 @@
                     });
                 });
 
+                // Daten eines Kickertisches ändern
                 $('#changeData').submit(function(e) {
                     e.preventDefault();
 
@@ -45,7 +47,6 @@
 
                     $.ajax({
                         type: 'PUT',
-                        url: '',
                         contentType: 'application/json',
                         data: JSON.stringify(formData),
                         success: function(data) {
@@ -67,6 +68,7 @@
                     });
                 });
                 
+                // Einen Tisch fordern
                  $('#tischFordern').submit(function(e) {
                     e.preventDefault();
 

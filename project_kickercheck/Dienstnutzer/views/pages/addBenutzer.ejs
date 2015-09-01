@@ -5,8 +5,11 @@
         <script type="text/javascript">
             $(document).ready(function(){
 
+                // Lege einen Benutzer an
                 $('#benutzerAnlegen').submit(function(e) {
                     e.preventDefault();
+                
+                // Wenn vor via AJAX ein Benutzer angelegt wurde, ersetze den Link durch den Link auf den neuen Benutzer
                     $('.addid').html('');
 
                     var name = $('#name').val();

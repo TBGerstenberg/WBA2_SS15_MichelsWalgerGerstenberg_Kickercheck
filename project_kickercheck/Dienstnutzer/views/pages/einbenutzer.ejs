@@ -4,12 +4,15 @@
         <% include ../partials/head %>
         <script>
             $(document).ready(function() {
+                
+                // Benutzer löschen
                 $('#deleteUser').submit(function(e) {
                     e.preventDefault();
 
-                    if (confirm('Möchten Sie fortfahren?') == false) {
+                if (confirm('Möchten Sie fortfahren?') == false) {
                         return false;
-                    }
+                }
+                    
                     $.ajax({
                         type: 'DELETE',
                         contentType: 'application/json',
@@ -26,6 +29,7 @@
                     });
                 });
 
+                // Daten eines Benutzers ändern
                 $('#changeData').submit(function(e) {
                     e.preventDefault();
 
@@ -38,12 +42,9 @@
                         return false;
                     }
 
-
-
                     var formData = {Name: benutzername,
                                     Alter: alter
                                    };
-
 
                     $.ajax({
                         type: 'PUT',

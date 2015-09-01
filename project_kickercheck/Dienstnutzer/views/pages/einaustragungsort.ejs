@@ -5,10 +5,13 @@
         <script>
             $(document).ready(function() {
 
+                // Baue die URL auf alle Kickertische aus der aktuellen URL
                 var loc = window.location.pathname+"/Kickertisch";
 
+                // Setze den Button für alle Kickertische auf die obige URL
                 $('#alltables').attr('href',loc); 
 
+                // Austragungsort löschen
                 $('#deleteAustragungsort').submit(function(e) {
                     e.preventDefault();
 
@@ -22,7 +25,6 @@
                             alert('Austragungsort gelöscht. Weiterleitung zu allen Austragungsorten.');
                             location.href = "/Austragungsort/alleaustragungsorte"
 
-
                         },
                         fail: function() {
                             alert('Fehler');
@@ -31,8 +33,11 @@
                     });
                 });
 
+                // Anlegen eines Kickertisches
                 $('#kickertischAnlegen').submit(function(e) {
                     e.preventDefault();
+
+                    // Wenn vor via AJAX ein Kickertisch angelegt wurde, ersetze den Link durch den Link auf den neuen Kickertisch
                     $('.addid').html('');
 
                     var hersteller = $('#hersteller').val();
@@ -45,10 +50,10 @@
                         return false;
                     }
 
+                    // Wenn kein Zustand des Kickertisches angegeben, verwende "Neu"
                     if(!zustand) {
                         zustand = 'Neu';
                     }
-
 
                     var formData = {
                         Hersteller : hersteller,
@@ -68,7 +73,7 @@
                         this.reset();
                     });
 
-                    $('.addid').append('<a href="/Austragungsort/<%= austragungsort.id %>/Kickertisch/'+data.id+'">Kickertisch '+data.id+' angelegt</a>.');
+                    $('.addid').append('<a href="/Austragungsort/<%= austragungsort.id %>/Kickertisch/'+data.id+'">Kickertisch '+data.id+' angelegt</a>.' );
 
                                        },
                                        statusCode: {
@@ -84,6 +89,7 @@
 
             });
 
+            // Ändere Daten eines Austragungsortes
             $('#changeData').submit(function(e) {
                 e.preventDefault();
 
@@ -151,14 +157,14 @@
                             <li>Beschreibung: <span id="newDesc"><%= austragungsort.Beschreibung %></span></li>
                         </ul> 
                         <br />
-                          <hr />
+                        <hr />
                         <div class="row">
                             <div class="col-md-6">
                                 <a href="" id="alltables" class="btn btn-default" role="button">Alle Tische dieses Ortes anzeigen</a>
                             </div>
                         </div>
                         <hr />
-                            <div class="row">
+                        <div class="row">
                             <div class="col-md-6">
                                 <p>Tisch hinzufügen</p>
                                 <form role="form" action="" method="POST" name="kickertischAnlegen" id="kickertischAnlegen">
@@ -183,10 +189,10 @@
                                 </form> 
                             </div>
                         </div>
-                       <br />
+                        <br />
                         <div class="row">
                             <div class="col-md-6">
-                            <p class="addid"></p>
+                                <p class="addid"></p>
                             </div>
                         </div>
                         <hr />
@@ -203,10 +209,10 @@
                             </div>
                         </div>
 
-                      
+
                         <hr />
 
-                    
+
                         <div class="row">
                             <div class="col-md-6">
                                 <form role="form" action="" method="DELETE" name="deleteAustragungsort" id="deleteAustragungsort">

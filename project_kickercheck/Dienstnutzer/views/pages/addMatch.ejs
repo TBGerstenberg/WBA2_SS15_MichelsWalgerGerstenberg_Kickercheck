@@ -5,38 +5,40 @@
         <script type="text/javascript">
             $(document).ready(function(){
 
+                // Datepicker Logik
                 var d = new Date();
                 var time = d.setDate(d.getDate()-1);
 
                 $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
                 $('.timepick').datetimepicker({format:'HH:mm'});
 
+                // Lege ein Match an
                 $('#matchAnlegen').submit(function(e) {
                     e.preventDefault();
+                    
+                // Wenn vor via AJAX ein Match angelegt wurde, ersetze den Link durch den Link auf das neue Match
                     $('.addid').html('');
 
 
-
+                // Sammle die Teilnehmer des Matches aus den Dropdowns
                     var teilnehmer1 = $('#user1').val();
                     var teilnehmer2 = $('#user2').val();
                     var teilnehmer3 = $('#user3').val();
                     var teilnehmer4 = $('#user4').val();
 
 
+                // Wenn das Formular ohne Teilnehmer gesendet wird
                     if(teilnehmer1 == '0' && teilnehmer2 == '0' && teilnehmer3 == '0' && teilnehmer4 == '0') {
 
                         alert('Mindestens 1 Teilnehmer');
                         return false;
                     }
 
-
-
-
                     var datum = $('#datum').val();
                     var uhrzeit = $('#uhrzeit').val();
-
                     var austragungsort = $('#ato').val();
 
+                    
                     if(!(datum && uhrzeit)) {
                         alert('Bitte Datum und Uhrzeit spezifizieren.');
                         return false;
@@ -47,11 +49,7 @@
                         return false;
                     }
 
-
-
-
-
-
+                // Baue aus Teilnehmern ein Array
                     var teilnehmerArray = [];
 
 
@@ -68,6 +66,7 @@
                         teilnehmerArray.push(teilnehmer4);
                     }
 
+                    // Wenn die Länge des Teilnehmer Arrays 1,2,3 oder 4 ist, setze jeweils die Teams eines Matches
                     if(teilnehmerArray.length == 1) {
                         var teilnehmerTeamArray = [{ Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
                                                     Team2: { Teilnehmer1: null, Teilnehmer2: null } } ]
@@ -83,7 +82,6 @@
                                     }
 
 
-
                     var formData = {
                         Datum : datum,
                         Uhrzeit : uhrzeit,
@@ -92,6 +90,7 @@
                         Regelwerk: null,
                         Status: 'vor_beginn'}
 
+                    // Sende POST auf Match, um es anzulegen
                     $.ajax({
                         type: 'POST',
                         contentType: 'application/json',
