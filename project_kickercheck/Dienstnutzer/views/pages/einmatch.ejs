@@ -37,12 +37,12 @@
 
                 // Wenn ein Kickertisch ausgewählt wird, wird der Austragungsort (/Austragungsort/id) durch 
                 // den Kickertisch überschrieben weil er Subressource des Ortes ist (/Austragungsort/id/Kickertisch/id)
-                // Prüfung ob ein Kickertisch gesetzt ist
                 <% if(match.Austragungsort)  { %>		
                 var ortURI = "<%= match.Austragungsort %>".split("/");		
                 var ort = "/"+ortURI[1]+"/"+ortURI[2];		
                 $('#tis').append('<a href="'+ort+'"><%= austragungsort.Name %></a>');		
 
+                // Prüfung ob ein Kickertisch gesetzt ist
                 if(!ortURI[3]) {		
                     $('#stdTisch').html('Bitte einen Kickertisch wählen.');		
                     $('#aort').html('');		

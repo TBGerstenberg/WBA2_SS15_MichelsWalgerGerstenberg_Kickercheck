@@ -145,7 +145,7 @@
                                     <div class="form-group">
                                         <label for="teilnehmer">Teilnehmer 1:</label> <br>
 
-                                        <select id="user1" class="form-control">
+                                        <select id="user1" class="form-control selectClass">
                                             <option value="0">Bitte wählen</option>
                                             <% benutzerAll.forEach(function(benutzer) { %>
                                             <option class="teilnehmer1" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
@@ -153,21 +153,21 @@
                                         </select>
 
                                         <label for="teilnehmer">Teilnehmer 2:</label> <br>
-                                        <select id="user2" class="form-control">
+                                        <select id="user2" class="form-control selectClass">
                                             <option value="0">Bitte wählen</option>
                                             <% benutzerAll.forEach(function(benutzer) { %>
                                             <option class="teilnehmer2" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
                                             <% });  %>
                                         </select>
                                         <label for="teilnehmer">Teilnehmer 3:</label> <br>
-                                        <select id="user3" class="form-control">
+                                        <select id="user3" class="form-control selectClass">
                                             <option value="0">Bitte wählen</option>
                                             <% benutzerAll.forEach(function(benutzer) { %>
                                             <option class="teilnehmer3" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
                                             <% });  %>
                                         </select>
                                         <label for="teilnehmer">Teilnehmer 4:</label> <br>
-                                        <select id="user4" class="form-control">
+                                        <select id="user4" class="form-control selectClass">
                                             <option value="0">Bitte wählen</option>
                                             <% benutzerAll.forEach(function(benutzer) { %>
                                             <option class="teilnehmer4" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>

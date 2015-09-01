@@ -27,8 +27,34 @@ app.get('/addTurnier', function(req, res) {
     var x = http.request(options, function(externalrep){
         externalrep.on("data", function(chunks){
             var austragungsorte = JSON.parse(chunks);
-            res.render('pages/addTurnier',{austragungsorte:austragungsorte});
-            res.end();
+            
+            var ortTischMapping = [];
+            
+             async.each(austragungsorte, function(listItem, next) {
+                 
+                   var listenKey="Ort " +listItem.id+ " Tische";
+
+            //Frage Liste aller Kickertische dieses ortes ab
+            client.lrange(listenKey, 0, -1, function(err,items) {
+
+                //Wenn die Liste nicht leer ist  
+                if(items.length!=0){
+                    
+                     ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
+                }
+                    next();
+            });
+
+              
+                  
+                        }, function(err) {
+                    
+
+                            res.render('pages/addTurnier',{austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});	
+
+                        });
+
+        
         });
     });
     x.end();
@@ -105,6 +131,20 @@ app.get('/:TurnierId', function(req, res) {
                     externalrepo.on("data", function(chunko){
 
                         var austragungsort = JSON.parse(chunko);
+                        
+                           //Listenkey für die Liste aller Kickertische dieses ortes 
+            var listenKey="Ort " +austragungsort.id+ " Tische";
+
+            //Frage Liste aller Kickertische dieses ortes ab
+            client.lrange(listenKey, 0, -1, function(err,items) {
+
+                //Wenn die Liste nicht leer ist  
+                if(items.length!=0){
+                    
+                    var anzahlTische = items.length;
+                    
+                }
+            });
 
                         externalrep.on("data", function(chunks){
 
@@ -140,7 +180,7 @@ app.get('/:TurnierId', function(req, res) {
                                         turnierteilnehmerdata.on("data", function(chunkturn){
                                             var turnierTeilnehmer = JSON.parse(chunkturn);
                                             res.render('pages/einturnier', {
-                                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort, matches: matches, turnierTeilnehmer : turnierTeilnehmer                 
+                                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort, matches: matches, turnierTeilnehmer : turnierTeilnehmer, anzahlTische: anzahlTische                
                                             });
                                         });
                                     });
