@@ -1,4 +1,5 @@
 var app = express.Router();
+var clientFaye = new faye.Client("http://localhost:8000/faye");
 
 app.get('/addMatch', function(req, res) {
 
@@ -558,7 +559,17 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 if(MatchSpielstand.Modus == 'Klassisch') {
                     
               if(MatchSpielstand.spielstandT1 < 6 && MatchSpielstand.spielstandT2 < 6) {
-
+                  
+                     //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                    'SpielstandT1': MatchSpielstand.spielstandT1,
+                    'SpielstandT2': MatchSpielstand.spielstandT2,
+                });
+               
+                  
                     //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
 
@@ -568,14 +579,35 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                 }
                 else if(MatchSpielstand.spielstandT1 == 6 && MatchSpielstand.spielstandT2 < 6) {
-
-
+              
+    
                     if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
+                        
+                        
+                               //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                    'SpielstandT1': MatchSpielstand.spielstandT1,
+                    'Winner': [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2]
+                });
+                
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
                         
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
+                        
+                                               //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                    'SpielstandT1': MatchSpielstand.spielstandT1,
+                      'SpielstandT2': MatchSpielstand.spielstandT2,
+                    'Winner': [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1]
+                });
                         
                     }
 
@@ -589,11 +621,33 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 else if(MatchSpielstand.spielstandT2 == 6 && MatchSpielstand.spielstandT1 < 6 ) {
 
                     if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
+                        
+                                                         //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                     'SpielstandT1': MatchSpielstand.spielstandT1,
+                    'SpielstandT2': MatchSpielstand.spielstandT2,
+                    'Winner': [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1,dieseMatch.Teilnehmer[0].Team2.Teilnehmer2]
+                });
+                        
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
                         
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
+                        
+                                         //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                     'SpielstandT1': MatchSpielstand.spielstandT1,
+                    'SpielstandT2': MatchSpielstand.spielstandT2,
+                    'Winner': [dieseMatch.Teilnehmer[0].Team2.Teilnehmer2]
+                });
+                        
                         
                     }
                     //Schreibe Turnierdaten zurück 
@@ -611,6 +665,16 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 if(MatchSpielstand.Modus == 'Variation') {
                     
                      if(MatchSpielstand.spielstandT1 < 10 && MatchSpielstand.spielstandT2 < 10) {
+                         
+                                 //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                    'SpielstandT1': MatchSpielstand.spielstandT1,
+                    'SpielstandT2': MatchSpielstand.spielstandT2,
+                });
+               
 
                     //Schreibe Turnierdaten zurück 
                     client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
@@ -623,11 +687,34 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 else if(MatchSpielstand.spielstandT1 == 10 && MatchSpielstand.spielstandT2 < 10) {
 
                     if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
+                        
+                        
+                               //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                    'SpielstandT1': MatchSpielstand.spielstandT1,
+                     'SpielstandT2': MatchSpielstand.spielstandT2,
+                    'Winner': [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2]
+                });
+                        
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
 
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
+                        
+                                                         //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                    'SpielstandT1': MatchSpielstand.spielstandT1,
+                     'SpielstandT2': MatchSpielstand.spielstandT2,
+                    'Winner': [dieseMatch.Teilnehmer[0].Team1.Teilnehmer2]
+                });
+                        
 
                     }
                     
@@ -642,11 +729,32 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                 else if(MatchSpielstand.spielstandT2 == 10 && MatchSpielstand.spielstandT1 < 10 ) {
 
                     if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
+                        
+                                                                     //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                     'SpielstandT1': MatchSpielstand.spielstandT1,
+                    'SpielstandT2': MatchSpielstand.spielstandT2,
+                    'Winner': [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1,dieseMatch.Teilnehmer[0].Team2.Teilnehmer2]
+                });
+                        
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
 
                     }
                     else {
                         MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
+                        
+                                                                     //Path of the Topic
+              var path = "/liveticker/"+matchId;
+  
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                     'SpielstandT1': MatchSpielstand.spielstandT1,
+                    'SpielstandT2': MatchSpielstand.spielstandT2,
+                    'Winner': [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1]
+                });
 
                     }
  
