@@ -178,7 +178,7 @@ app.get('/:TurnierId', function(req, res) {
                                         turnierteilnehmerdata.on("data", function(chunkturn){
                                             var turnierTeilnehmer = JSON.parse(chunkturn);
                                             res.render('pages/einturnier', {
-                                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort, matches: matches, turnierTeilnehmer : turnierTeilnehmer, anzahlTische: anzahlTische                
+                                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort, matches: matches, turnierTeilnehmer : turnierTeilnehmer               
                                             });
                                         });
                                     });
