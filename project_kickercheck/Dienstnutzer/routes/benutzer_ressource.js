@@ -236,7 +236,7 @@ app.get('/:BenutzerId/addHerausforderung', function(req, res) {
     x.end();
 });
 
-
+//Liefert alle Herausforderungen für einen Bestimmten Benutzer
 app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
     
     //Id's extrahieren
@@ -244,7 +244,7 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
     //Speichert alle Herausforderungen
     var response=[];    
 
-    //returned ein Array aller Keys die das Pattern Herausforderung* matchen 
+    //returned ein Array aller Keys die das Pattern einBenutzerBenuterIDHerausforderung* matchen 
     client.keys('einBenutzer '+benutzerId+' Herausforderung *', function (err, key) {
 
         //Wenn kein Key das Pattern Herausforderung* gematcht hat
@@ -264,11 +264,8 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
             res.end();
 
         });
-
     });
-    
 })
-
 
 app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
     
@@ -287,42 +284,32 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
 
             switch (acceptedTypes) {
 
-                    //Client kann application/json verarbeiten 
+                //Client kann application/json verarbeiten 
                 case "application/json":
-                    
-                   
-                        client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
-
+                
+                    client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
                         var HerausforderungDaten= JSON.parse(HerausforderungDaten);
-                            
-                        //Setze Contenttype der Antwort auf application/json
+                        //Setze Contenttype der Antwort auf application/json, sende Statuscode 200.
                         res.set("Content-Type", 'application/json').status(200).json(HerausforderungDaten).end();
+                        
                     });       
                     break;
 
                 default:
-
                     //We cannot send a representation that is accepted by the client 
-                    res.status(406);
-                    res.set("Accepts", "application/json");
-                    res.end();
-
+                    res.status(406).set("Accepts", "application/json").end();
                     break;
             }
         }       
-        //Unbekannt
+        //Es gibt die angefragte Herausforderung nicht
         else {
-            res.status(404).send("Die Ressource wurde nicht gefunden herausfor.");
-            res.end();
+            res.status(404).end();
         }
     });
     
 });
 
-app.put('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
-    
-});
-
+//Poste eine Herausforderung
 app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
     var Herausforderung = req.body;
@@ -331,12 +318,10 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
     var contentType = req.get('Content-Type');
 
-    //Check ob der Content Type der Anfrage json ist
     
+    //Check ob der Content Type der Anfrage json ist
     if (contentType != "application/json") {
-        res.set("Accepts", "application/json");
-        res.status(406).send("Content Type is not supported");
-        res.end();
+        res.set("Accepts", "application/json").status(406).end();
     }
 
     else {
@@ -344,6 +329,7 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
         //Inkrementiere  in der DB , atomare Aktion 
         client.incr('HerausforderungId', function(err, id) {
 
+            //Baue JSON zusammen
             var HerausfoderungObj={
                 'id' : id,
                 'Herausforderer': Herausforderung.Herausforderer,
@@ -351,20 +337,14 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
                 'Kurztext' : Herausforderung.Kurztext
             };
 
-            client.set('einBenutzer '+benutzerId+' Herausforderung ' + id, JSON.stringify(HerausfoderungObj));
             //Pflege Daten über den Kickertisch in die DB ein 
+            client.set('einBenutzer '+benutzerId+' Herausforderung ' + id, JSON.stringify(HerausfoderungObj));
 
-            //Teile dem Client die URI der neu angelegten Ressource mit 
-            res.set("Location", "/Benutzer/"+benutzerId+"/Herausforderung/" + id);
+            //Teile dem Client die URI der neu angelegten Ressource mit, Setze Content-Type der Antwort
+            res.set("Location", "/Benutzer/"+benutzerId+"/Herausforderung/" + id).set("Content-Type","application/json");
 
-            //Setze content type der Antwort 
-            res.set("Content-Type","application/json");
-
-            //Zeige dem Client mit Statuscode 201 Erfolg beim anlegen an  
-            res.json(HerausfoderungObj);
-
-            //Antwort beenden 
-            res.end();
+            //Zeige dem Client mit Statuscode 201 Erfolg beim anlegen an, und Schreibe JSON in den Body 
+            res.json.(HerausfoderungObj).status(201).end();
         });
     }    
 });
