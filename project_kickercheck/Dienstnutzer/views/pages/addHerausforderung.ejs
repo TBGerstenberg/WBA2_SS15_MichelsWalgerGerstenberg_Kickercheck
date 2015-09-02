@@ -28,6 +28,21 @@
                     var text = $('#HerausforderungsText').val();
                     var austragungsort = $('#ato').val();
                     
+                     if(!(datum && text)) {
+                        alert('Bitte Datum und Text spezifizieren.');
+                        return false;
+                    }
+
+                    if(austragungsort == '0') {
+                        alert('Bitte Austragungsort spezifizieren.');
+                        return false;
+                    }
+                    
+                    if(teilnehmer2 == '0') {
+                        alert('Bitte Teilnehmer spezifizieren.');
+                        return false;
+                    }
+                    
                     var formData = {
                         
                         Datum : datum,
