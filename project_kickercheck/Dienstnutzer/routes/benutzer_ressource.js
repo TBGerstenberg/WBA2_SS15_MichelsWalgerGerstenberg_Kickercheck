@@ -72,7 +72,7 @@ app.post('/', function(req, res) {
 
     // HTTP Header setzen
     var headers = {
-         'Accept' : 'application/json',
+        'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 
@@ -113,11 +113,11 @@ app.put('/:BenutzerId', function(req, res) {
     var benutzerId = req.params.BenutzerId;
 
 
-   // console.log(util.inspect(BenutzerDaten, false, null));
+    // console.log(util.inspect(BenutzerDaten, false, null));
 
     // HTTP Header setzen
     var headers = {
-         'Accept' : 'application/json',
+        'Accept' : 'application/json',
         'Content-Type': 'application/json'
     };
 
@@ -137,7 +137,7 @@ app.put('/:BenutzerId', function(req, res) {
 
             var changeBenutzer = JSON.parse(chunk);
 
-         //   console.log(util.inspect(changeBenutzer, false, null));
+            //   console.log(util.inspect(changeBenutzer, false, null));
 
             res.json(changeBenutzer);
             res.end();
@@ -184,7 +184,7 @@ app.delete('/:BenutzerId', function(req, res) {
 
 //Löscht eine Herausforderung an einen Nutzer
 app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
-    
+
     //Extrahiere Id's aus der Anfrage 
     var benutzerId = req.params.BenutzerId;
     var HerausforderungId = req.params.HerausforderungId;
@@ -199,19 +199,19 @@ app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res)
             //Löschen hat geklappt , sende 204 
             res.status(204).end();
         }
-        
+
         // Die Herausforderung existiert nicht
         else {
             res.status(404).end();
         }
     });
-    
+
 });
 
 
 app.get('/:BenutzerId/addHerausforderung', function(req, res) {
-    
-       var options1 = {
+
+    var options1 = {
         host: "localhost",
         port: 3000,
         path: "/Benutzer",
@@ -220,13 +220,13 @@ app.get('/:BenutzerId/addHerausforderung', function(req, res) {
             accept:"application/json"
         }
     }
-    
+
     var x = http.request(options1, function(externalResponse){
-        
+
         externalResponse.on("data", function(chunk){
 
-                var benutzerAll = JSON.parse(chunk);
-            
+            var benutzerAll = JSON.parse(chunk);
+
             res.render('pages/addHerausforderung',{benutzerAll:benutzerAll});
 
             res.end();
@@ -237,7 +237,7 @@ app.get('/:BenutzerId/addHerausforderung', function(req, res) {
 
 //Liefert alle Herausforderungen für einen Bestimmten Benutzer
 app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
-    
+
     //Id's extrahieren
     var benutzerId = req.params.BenutzerId;
     //Speichert alle Herausforderungen
@@ -259,15 +259,33 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
                 response.push(JSON.parse(val));
             });
 
-            res.render('pages/alleHerausforderungen',{response:response});
-            res.end();
+            var options1 = {
+                host: "localhost",
+                port: 3000,
+                path: "/Benutzer",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
 
+            var y = http.request(options1, function(externalResponse){
+
+                externalResponse.on("data", function(chunk){
+
+                    var benutzerAll = JSON.parse(chunk);
+
+                    res.render('pages/alleHerausforderungen',{response:response,benutzerAll:benutzerAll});
+
+                });
+            });
+            y.end();
         });
     });
-})
+});
 
 app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
-    
+
     //Extrahiere Id's
     var herausforderungId = req.params.HerausforderungId;
     var benutzerId = req.params.BenutzerId;
@@ -280,10 +298,10 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
             client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
                 var HerausforderungDaten= JSON.parse(HerausforderungDaten);
                 //Setze Contenttype der Antwort auf application/json, sende Statuscode 200.
-                        
+
                 res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten});
                 res.end();
-                        
+
             });
         }       
         //Es gibt die angefragte Herausforderung nicht
@@ -291,7 +309,7 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
             res.status(404).end();
         }
     });
-    
+
 });
 
 //Poste eine Herausforderung
@@ -299,11 +317,11 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
     var Herausforderung = req.body;
     var benutzerId = req.params.BenutzerId;
-    
+
 
     var contentType = req.get('Content-Type');
 
-    
+
     //Check ob der Content Type der Anfrage json ist
     if (contentType != "application/json") {
         res.set("Accepts", "application/json").status(406).end();
