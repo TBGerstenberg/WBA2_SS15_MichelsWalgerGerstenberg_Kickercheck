@@ -88,11 +88,19 @@
                             <li>Name: <span id="newName"><%= benutzer.Name %></span></li>
                             <li>Alter: <span id="newAge"><%= benutzer.Alter %></span></li>
                         </ul> 
-                        <br />
-                        <hr />
-                        <div>
-                            <a href="/Benutzer/<%= benutzer.id %>/addHerausforderung">Spieler Herausfordern</a>
+                       <hr />
+                         <div class="row">
+                            <div class="col-md-6">
+                                <a href="/Benutzer/<%= benutzer.id%>/alleHerausforderungen" id="alltables" class="btn btn-default" role="button">Alle Herausforderungen anzeigen</a>
+                            </div>
                         </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a href="/Benutzer/<%= benutzer.id %>/addHerausforderung" class="btn btn-success" role="button">Benutzer herausfordern</a>
+                            </div>
+                        </div>
+                        <hr />
                         <p> Benutzer ändern: </p>
                         <div class="row">
                             <div class="col-md-6">
