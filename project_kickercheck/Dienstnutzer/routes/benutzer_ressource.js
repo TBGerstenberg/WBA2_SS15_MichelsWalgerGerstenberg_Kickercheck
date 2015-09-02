@@ -211,7 +211,7 @@ app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res)
 
 app.get('/:BenutzerId/addHerausforderung', function(req, res) {
 
-     var options1 = {
+    var options1 = {
         host: "localhost",
         port: 3000,
         path: "/Benutzer",
@@ -291,7 +291,9 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
             return;
         }
 
-        client.mget(key, function (err, Herausforderung) {
+        var sorted =  key.sort();
+
+        client.mget(sorted, function (err, Herausforderung) {
 
             //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
             Herausforderung.forEach(function (val) {
@@ -308,14 +310,33 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
                 }
             }
 
+            var options2 = {
+                host: "localhost",
+                port: 3000,
+                path: "/Austragungsort",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
+
             var y = http.request(options1, function(externalResponse){
 
                 externalResponse.on("data", function(chunk){
 
                     var benutzerAll = JSON.parse(chunk);
 
-                    res.render('pages/alleHerausforderungen',{response:response,benutzerAll:benutzerAll});
+                    var z = http.request(options2, function(externalrep){
 
+                        externalrep.on("data", function(chunk){
+
+                            var austragungsorte = JSON.parse(chunk);
+
+                            res.render('pages/alleHerausforderungen',{response:response,benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+
+                        });
+                    });
+                    z.end();
                 });
             });
             y.end();
@@ -334,31 +355,52 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
 
         //Lokalitaet kennt einen Tisch mit dieser TischId
         if (IdExists) {
-            client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
-                var HerausforderungDaten= JSON.parse(HerausforderungDaten);
+            client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,herausforderungdata){
+
+                var HerausforderungDaten= JSON.parse(herausforderungdata);
                 //Setze Contenttype der Antwort auf application/json, sende Statuscode 200.
-                
-                 var options1 = {
-                host: "localhost",
-                port: 3000,
-                path: "/Benutzer",
-                method:"GET",
-                headers:{
-                    accept:"application/json"
+
+                var options1 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Benutzer",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
                 }
-            }
+                
+                  var options2 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Austragungsort",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
+                }
 
-            var y = http.request(options1, function(externalResponse){
 
-                externalResponse.on("data", function(chunk){
+                var y = http.request(options1, function(externalResponse){
 
-                    var benutzerAll = JSON.parse(chunk);
+                    externalResponse.on("data", function(chunk){
 
-                res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten,benutzerAll:benutzerAll});
+                        var benutzerAll = JSON.parse(chunk);
+                        
+                         var z = http.request(options2, function(externalrep){
 
-            });
-            });
-            y.end();
+                        externalrep.on("data", function(chunk){
+
+                            var austragungsorte = JSON.parse(chunk);
+
+                        res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten,benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+
+                    });
+                });
+                z.end();
+                    });
+                });
+                y.end();
             });
         }       
         //Es gibt die angefragte Herausforderung nicht
@@ -378,10 +420,11 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
     var contentType = req.get('Content-Type');
 
-
-    //Check ob der Content Type der Anfrage json ist
-    if (contentType != "application/json") {
-        res.set("Accepts", "application/json").status(406).end();
+    //Check ob der Content Type der Anfrage JSON ist 
+    if (contentType != "application/json" && contentType != "application/json; charset=UTF-8") {
+        res.set("Accepts", "application/json");
+        res.status(406);
+        res.end();
     }
 
     else {
@@ -390,23 +433,23 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
         client.incr('HerausforderungId', function(err, id) {
 
             //Baue JSON zusammen
-            var HerausfoderungObj={
+            var HerausforderungObj={
                 'id' : id,
-                'Herausgeforderter': HerausfoderungObj.Herausgeforderter,
+                'Herausgeforderter': Herausforderung.Herausgeforderter,
                 'Herausforderer': Herausforderung.Herausforderer,
-                'Austragungsort': HerausfoderungObj.Austragungsort,
+                'Austragungsort': Herausforderung.Austragungsort,
                 'Datum': Herausforderung.Datum,
                 'Kurztext' : Herausforderung.Kurztext
             };
 
             //Pflege Daten über den Kickertisch in die DB ein 
-            client.set('einBenutzer '+benutzerId+' Herausforderung ' + id, JSON.stringify(HerausfoderungObj));
+            client.set('einBenutzer '+benutzerId+' Herausforderung ' + id, JSON.stringify(HerausforderungObj));
 
             //Teile dem Client die URI der neu angelegten Ressource mit, Setze Content-Type der Antwort
             res.set("Location", "/Benutzer/"+benutzerId+"/Herausforderung/" + id).set("Content-Type","application/json");
 
             //Zeige dem Client mit Statuscode 201 Erfolg beim anlegen an, und Schreibe JSON in den Body 
-            res.json(HerausfoderungObj).status(201).end();
+            res.json(HerausforderungObj).status(201).end();
         });
     }
 });

@@ -69,12 +69,14 @@
                             <% response.forEach(function(Herausforderung) { %>
                             <a href="./Herausforderung/<%= Herausforderung.id %>" class="list-group-item"><h4 class="list-group-item-heading">Herausforderung <%= Herausforderung.id %></h4>
                                 
-                                <p class="list-group-item-text">Herausgeforderter: <%= Herausforderung.Herausgeforderter %></p>
+                                <p class="list-group-item-text">Herausgeforderter:  <% benutzerAll.forEach(function(benutzer) { %>
+                                <% if("/Benutzer/"+benutzer.id == Herausforderung.Herausgeforderter) { %><%= benutzer.Name %><% } }); %></p>
                                 <p class="list-group-item-text">Herausforderer: 
                                  <% benutzerAll.forEach(function(benutzer) { %>
                                 <% if("/Benutzer/"+benutzer.id == Herausforderung.Herausforderer) { %><%= benutzer.Name %><% } }); %></p>
                                 <p class="list-group-item-text">Datum: <%= Herausforderung.Datum %></p>
-                                <p class="list-group-item-text">Austragungsort: <%= Herausforderung.Austragungsort %></p>
+                                <p class="list-group-item-text">Austragungsort: <% austragungsorte.forEach(function(ort) { %>
+                                <% if("/Austragungsort/"+ort.id == Herausforderung.Austragungsort) { %><%= ort.Name %><% } }); %></p>
                                 <p class="list-group-item-text">Text: <%= Herausforderung.Kurztext %></p>
 
                             </a>
