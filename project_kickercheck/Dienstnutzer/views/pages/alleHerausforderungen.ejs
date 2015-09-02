@@ -75,8 +75,8 @@
                                 <!--<button type="button" onClick="HerausforderungAnnehmen()">Herausforderung Annehmen</button>
                                 <button type="button" onClick="HerausforderungAblehnen()">Herausforderung Ablehnen</button>-->
                             </a>
-                            <button class="button-wrap" id="deleteHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>"> Ablehnen </button>
-                            <button class="button-wrap" id="acceptHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>" data-herausforderungHerausforderer="<%= Herausforderung.Herausforderer %>" data-herausforderungDataum="<%= Herausforderung.Datum %>" > Annehmen </button>
+                            <button class="btn btn-danger" id="deleteHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>"> Ablehnen </button>
+                            <button class="btn btn-success" id="acceptHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>" data-herausforderungHerausforderer="<%= Herausforderung.Herausforderer %>" data-herausforderungDatum="<%= Herausforderung.Datum %>" > Annehmen </button>
                             <% });  %>
                         </div>
 
