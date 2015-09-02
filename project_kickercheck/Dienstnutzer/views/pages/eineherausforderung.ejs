@@ -16,7 +16,8 @@
                         <h1>Herausforderung <%= HerausforderungDaten.id %></h1>
                         <br />
                         <ul>
-                            <li>Herausforderer: <span id="Name"><%= HerausforderungDaten.Herausforderer %></span></li>
+                            <li>Herausforderer: <span id="Name"> <% benutzerAll.forEach(function(benutzer) { %>
+                                <% if("/Benutzer/"+benutzer.id == HerausforderungDaten.Herausforderer) { %><%= benutzer.Name %><% } }); %></span></li>
                             <li>Datum: <span id="Datum"><%= HerausforderungDaten.Datum %></span></li>
                             <li>Text: <span id="Text"><%=HerausforderungDaten.Kurztext %></span></li>
                         </ul> 

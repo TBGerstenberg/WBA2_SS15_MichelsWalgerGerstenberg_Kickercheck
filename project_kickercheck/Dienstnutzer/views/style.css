@@ -34,15 +34,15 @@ p.list-group-item-text {
     float:right;
     margin-top:-70px;
 }
-#deleteHerausforderung {
+.deleteHerausforderung {
  position: absolute;
 z-index: 200;
 right: 85px;
-margin-top: -65px;
+margin-top: -80px;
 }
-#acceptHerausforderung {
+.acceptHerausforderung {
    position: absolute;
 z-index: 200;
 right: 175px;
-margin-top: -65px;
+margin-top: -80px;
 }
