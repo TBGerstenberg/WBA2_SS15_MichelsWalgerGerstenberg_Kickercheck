@@ -171,7 +171,6 @@ app.delete('/:BenutzerId', function(req, res) {
 
         externalResponse.on('data', function (chunk) {
 
-            console.log('pokpok');
             res.status(200).end();
 
 
