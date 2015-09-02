@@ -343,9 +343,9 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
             res.set("Location", "/Benutzer/"+benutzerId+"/Herausforderung/" + id).set("Content-Type","application/json");
 
             //Zeige dem Client mit Statuscode 201 Erfolg beim anlegen an, und Schreibe JSON in den Body 
-            res.json.(HerausfoderungObj).status(201).end();
+            res.json(HerausfoderungObj).status(201).end();
         });
-    }    
+    }
 });
 
 module.exports = app;
