@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <% include ../partials/head %>
+    </head>
+
+    <body class="container">
+        <header>
+            <% include ../partials/header %>
+        </header>
+        <main>
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="jumbotron">
+                        <h1>Herausforderung <%= HerausforderungDaten.id %></h1>
+                        <br />
+                        <ul>
+                            <li>Herausforderer: <span id="Name"><%= HerausforderungDaten.Herausforderer %></span></li>
+                            <li>Datum: <span id="Datum"><%= HerausforderungDaten.Datum %></span></li>
+                            <li>Text: <span id="Text"><%=HerausforderungDaten.Kurztext %></span></li>
+                        </ul> 
+                        <br />
+                        <hr />
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        <footer>
+            <% include ../partials/footer %>
+        </footer>
+
+    </body>
+</html>

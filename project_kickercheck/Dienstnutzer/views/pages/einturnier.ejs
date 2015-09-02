@@ -8,7 +8,9 @@
 
             $(document).ready(function() {
 
-                //Fügt dem Turnier einen Teilnehmer hinzu
+
+
+                // Fügt dem Turnier einen Teilnehmer hinzu
                 $('#addTeilnehmer').submit(function(e) {
                     e.preventDefault();
 
@@ -34,15 +36,15 @@
                         }
                         window.location.reload(true);
                     },
-                    statusCode: {
-                        409: function() {
-                            alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
-                        }
-                    },
-                    fail: function() {
-                        alert('Fehler');
+                           statusCode: {
+                           409: function() {
+                        alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
                     }
-                });
+                },
+                                           fail: function() {
+                    alert('Fehler');
+                }
+            });
             });
 
             //Ändert die Daten eines Turnieres
@@ -260,21 +262,24 @@
                             </tbody>
                         </table> 
 
+
                         <!-- Hier wird asynchron die nachgeladen-->
                         <div class="row" id="spielplan">
                             <input id="rufeSpielplanAb" onclick="rufeSpielplanAb()" class="btn btn-default marginbottom20" value="Spielplan einblenden" type="button" />
                         </div>
 
                         <!-- Hier wird asynchron die Ligatabelle nachgeladen-->
+
                         <div class="row" id="ligatabelle">
                             <input type="button" class="btn btn-default marginbottom20" value="Ligatabelle einblenden" onclick="rufeLigatabelleAb()"/>
                         </div>
                     </div>
                 </div>
-                </main>
-            <footer>
-                <% include ../partials/footer %>
-            </footer>
+            </div>
+        </main>
+        <footer>
+            <% include ../partials/footer %>
+        </footer>
 
-            </body>
-        </html>
+    </body>
+</html>

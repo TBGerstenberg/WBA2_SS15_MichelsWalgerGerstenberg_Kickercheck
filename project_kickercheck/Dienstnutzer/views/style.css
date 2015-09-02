@@ -22,9 +22,27 @@ p.list-group-item-text {
     float:right;
     margin-top:-60px;
 }
+#alluserforderung {
+    position: relative;
+    z-index: 200;
+    float:right;
+    margin-top:-55px;
+}
 #forderung {
     position: relative;
     z-index: 200;
     float:right;
     margin-top:-70px;
+}
+#deleteHerausforderung {
+ position: absolute;
+z-index: 200;
+right: 85px;
+margin-top: -65px;
+}
+#acceptHerausforderung {
+   position: absolute;
+z-index: 200;
+right: 175px;
+margin-top: -65px;
 }

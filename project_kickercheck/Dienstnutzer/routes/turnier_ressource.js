@@ -1,6 +1,6 @@
 var app = express.Router();
 
-//Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen  ,dass die 
+//Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen, dass die 
 //Spezifika eines Wettkampfes beschreibt. So ist erreicht ,dass der Dienst für unterschiedlichste Wettkampfarten nutzbar ist.
 var Regelwerk =
     {
@@ -25,8 +25,32 @@ app.get('/addTurnier', function(req, res) {
     var x = http.request(options, function(externalrep){
         externalrep.on("data", function(chunks){
             var austragungsorte = JSON.parse(chunks);
-            res.render('pages/addTurnier',{austragungsorte:austragungsorte});
-            res.end();
+
+            var ortTischMapping = [];
+
+            async.each(austragungsorte, function(listItem, next) {
+
+                var listenKey="Ort " +listItem.id+ " Tische";
+
+                //Frage Liste aller Kickertische dieses ortes ab
+                client.lrange(listenKey, 0, -1, function(err,items) {
+
+                    //Wenn die Liste nicht leer ist  
+                    if(items.length!=0){
+
+                        ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
+                    }
+                    next();
+                });
+
+            }, function(err) {
+
+
+                res.render('pages/addTurnier',{austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});	
+
+            });
+
+
         });
     });
     x.end();
@@ -104,6 +128,20 @@ app.get('/:TurnierId', function(req, res) {
 
                         var austragungsort = JSON.parse(chunko);
 
+                        //Listenkey für die Liste aller Kickertische dieses ortes 
+                        var listenKey="Ort " +austragungsort.id+ " Tische";
+
+                        //Frage Liste aller Kickertische dieses ortes ab
+                        client.lrange(listenKey, 0, -1, function(err,items) {
+
+                            //Wenn die Liste nicht leer ist  
+                            if(items.length!=0){
+
+                                var anzahlTische = items.length;
+
+                            }
+                        });
+
                         externalrep.on("data", function(chunks){
 
                             var benutzerAll = JSON.parse(chunks);
@@ -172,8 +210,6 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
             client.mget('einTurnier '+turnierId + ' ligatabelle',function(err,ligatabelle){
 
                 var tabelle = JSON.parse(ligatabelle);
-
-                console.log(util.inspect(ligatabelle, false, null));
 
                 res.render('pages/eineLigatabelle', {
                     ligatabelle:tabelle
@@ -558,7 +594,9 @@ app.post('/:TurnierId/Spielplan',function(req,res){
 
                             //Alle Match Posts sind abgesetzt 
                         }, function(err) {
+                      
                             res.status(201).set('Location',"/Turnier/"+turnierId+"/Spielplan");
+
                         });
                     });  
                 });
@@ -590,10 +628,10 @@ app.get('/:TurnierId/Match',function(req,res){
 
             var matchListe=JSON.parse(matchListeData);
             var spielstände=[];
-            
+
             console.log("Die Matchliste sieht folgednermaßen aus:");
             console.log(util.inspect(matchListe, false, null));
-            
+
 
             var i=0;
             async.each(matchListe, function(listItem, next) {
@@ -607,13 +645,13 @@ app.get('/:TurnierId/Match',function(req,res){
                     spielstände.push(spielstand);
                     next(); 
                 });
-                
+
             },function(err) {
                 console.log("Die Spielstände sehen folgendermaßen aus:");
-                  console.log(util.inspect(spielstände, false, null));
-                 res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstände});
+                console.log(util.inspect(spielstände, false, null));
+                res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstände});
             });
-            
+
         });
     });
     matchListeRequest.end();
