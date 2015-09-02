@@ -5,6 +5,7 @@
         <script>
             $(document).ready(function() {
 
+                // Kickertisch löschen
                 $('#deleteTable').submit(function(e) {
                     e.preventDefault();
 
@@ -28,6 +29,7 @@
                     });
                 });
 
+                // Daten eines Kickertisches ändern
                 $('#changeData').submit(function(e) {
                     e.preventDefault();
 
@@ -45,7 +47,6 @@
 
                     $.ajax({
                         type: 'PUT',
-                        url: '',
                         contentType: 'application/json',
                         data: JSON.stringify(formData),
                         success: function(data) {
@@ -67,6 +68,7 @@
                     });
                 });
                 
+                // Einen Tisch fordern
                  $('#tischFordern').submit(function(e) {
                     e.preventDefault();
 
@@ -94,7 +96,7 @@
                         },
                         statusCode: {
                             409: function(){
-                                alert('Forderung bereits gesendet oder Teil der Belegung des Tisches');
+                                alert('Keine Belegung vorhanden, Forderung bereits gesendet oder Teil der Belegung des Tisches');
                             }
                         },
                         fail: function() {
@@ -129,7 +131,7 @@
                         <hr />
                         <p> Belegung: <%= belegung.Anzahl %> Spieler</p>
                             <% if(belegung.Anzahl > 0) { %>
-                        <p>Namen der Spieler:</p>
+                        <p>Namen der Spieler an diesem Tisch:</p>
                         <ul>
                         <% for(var i=0;i<belegung.Teilnehmer.length;i++) { %>
                             <% benutzerAll.forEach(function(benutzer) { %>

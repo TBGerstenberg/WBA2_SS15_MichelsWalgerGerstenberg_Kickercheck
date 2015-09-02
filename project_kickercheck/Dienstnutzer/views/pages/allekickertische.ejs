@@ -19,7 +19,7 @@
                         <br />
 
                         <div class="list-group">
-
+                            
                             <% kickertische.forEach(function(kickertisch) {  %>
 
                             <a href="Kickertisch/<%= kickertisch.id %>/" class="list-group-item"> <h4 class="list-group-item-heading"><%= kickertisch.Typ %></h4>
@@ -28,12 +28,8 @@
                                 <% belegungen.forEach(function(belegung) {  %>
                                 <% if(belegung.id == kickertisch.id) { %>
                                 <p class="list-group-item-text">Belegung: <%= belegung.Anzahl %> Spieler</p>
-                                <% if(belegung.id == kickertisch.id) { %>
-                                <% if(belegung.Anzahl > 0) { %>
-                                <p class="list-group-item-text">Spieler an diesem Tisch: <%= belegung.Teilnehmer %></p>
-                                <% } %>
                                  <p class="list-group-item-text">Forderungen an diesem Tisch: <%= belegung.Forderungen.length %></p>
-                                <%  } } }); %>
+                                <%  } }); %>
                                  <a href="Kickertisch/<%= kickertisch.id %>/" id="forderung" class="btn btn-primary" role="button">Diesen Tisch fordern</a>
                             </a>
 

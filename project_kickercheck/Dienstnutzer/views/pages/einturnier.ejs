@@ -35,6 +35,12 @@
                 
                 //Lädt die Ligatabelle nach 
                 $('#generiereTabelle').click(function(e){
+                    
+                      if(<%= turnierTeilnehmer.length %> != <%=turnier.Teilnehmeranzahl%>) { 
+                    alert('Bitte alle Teilnehmer hinzufügen');
+                    return false;
+                     } 
+                                             
                    $.ajax({
                         type: 'GET',
                         url: "/Turnier/<%= turnier.id %>/Ligatabelle",
@@ -52,6 +58,7 @@
                     }); 
                 }); 
                 
+                // Fügt dem Turnier einen Teilnehmer hinzu
                 $('#addTeilnehmer').submit(function(e) {
                     e.preventDefault();
 
@@ -84,6 +91,7 @@
                     });
                 });
 
+            // Ändert Daten eines Turniers
                 $('#changeData').submit(function(e) {
                     e.preventDefault();
 
@@ -213,10 +221,13 @@
 
                         <% if(matches.length <= 0) { %>
                         <!--Button um den Spielplan zu erstellen -->
-                        <input id="generiereSpielplan" class="btn btn-default marginbottom20" value="Generiere Matches" type="button" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input id="generiereSpielplan" class="btn btn-default marginbottom20" value="Generiere Matches" type="button" /></div></div>
                         <% } %>
                             
                         <div class="row">
+                            <div class="col-md-12">
                             <!--Anzeige für den fertigen Spielplan -->
                             <table class="table">
                                 <thead>
@@ -235,12 +246,14 @@
                                     <% } %>
                                 </tbody>
                             </table>
+                                </div>
                         </div>
                         
                         <!-- Hier wird asynchron die Ligatabelle nachgeladen-->
                          <div class="row" id="ligatabelle">
+                             <div class="col-md-12">
                          <input type="button" class="btn btn-default marginbottom20" value="Ligatabelle einblenden" id="generiereTabelle"/>
-                             
+                             </div>      
                         </div>
                     </div>
                 </div>

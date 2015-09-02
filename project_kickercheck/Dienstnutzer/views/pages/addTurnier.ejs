@@ -6,24 +6,29 @@
         <script type="text/javascript">
             $(document).ready(function(){
 
+                // Lege ein Turnier an
                 $('#turnierAnlegen').submit(function(e) {
                     e.preventDefault();
+
+                    // Wenn vor via AJAX ein Turnier angelegt wurde, ersetze den Link durch den Link auf das neue Turnier
                     $('.addid').html('');
+
                     var teilnehmer = $('#teilnehmer').val();
                     var teamgroesse = $('#teamgroesse').val();
                     var typ = $('#typ').val();
-                    var austragungsort=$('#austragungsort').val();
+                    var austragungsort = $('#austragungsort').val();
 
                     if(!(teilnehmer && teamgroesse)) {
                         alert('Bitte Felder ausfüllen');
                         return false;
                     }
-                    
+
                     if(typ =='0') {
-                         alert('Bitte Turniertyp wählen');
+                        alert('Bitte Turniertyp wählen');
                         return false;
                     }
-                    
+
+                    // Wenn kein Austragungsort gesetzt, verhindere Crashes durch "null" Attribut
                     if(austragungsort == '0') {
                         austragungsort = null;
                     }
@@ -49,6 +54,7 @@
                                     Typ : typ,
                                     Austragungsort:austragungsort}
 
+                    // Sende POST Request um neues Turnier anzulegen
                     $.ajax({
                         type: 'POST',
                         contentType: 'application/json',
@@ -108,13 +114,19 @@
                                         <select id="austragungsort" class="form-control">
                                             <option value="0">Bitte wählen (optional)</option>
                                             <% austragungsorte.forEach(function(austragungsort) { %>
-                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %></option>
+                                           
+                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %> <% ortTischMapping.forEach(function(map) { 
+                                                if(map.Ort == austragungsort.Name) { %> 
+                                                (<%= map.Tische %> Kickertische)
+                                                <%} }); %>
+                                            </option>
+                                           
                                             <% });  %>
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="typ">Art des Turniers:</label> <br>
-                                         <select id="typ" class="form-control">
+                                        <select id="typ" class="form-control">
                                             <option value="0">Bitte wählen</option>
                                             <option class="liga" value="Liga">Liga</option>
                                         </select>

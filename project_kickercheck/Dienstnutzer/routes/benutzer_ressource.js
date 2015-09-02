@@ -1,9 +1,13 @@
 var app = express.Router();
 
+//Präsentationslogik 
+
+//Unterseite zum hinzufügen eines Benutzers
 app.get('/addBenutzer', function(req, res) {
     res.render('pages/addBenutzer');
 });
 
+//Unterseite die die Liste aller Benutzer darstellt
 app.get('/alleBenutzer', function(req, res) {
 
     var options = {
@@ -27,6 +31,7 @@ app.get('/alleBenutzer', function(req, res) {
     externalRequest.end();
 });
 
+//Unterseite die die Ansicht eines Benutzers darstellt 
 app.get('/:BenutzerId', function(req, res) {
 
     var options = {
@@ -50,6 +55,15 @@ app.get('/:BenutzerId', function(req, res) {
     x.end();
 });
 
+/*
+// Ressourcen des Dienstnutzers ,
+// die ebenfalls über REST-methoden zugänglich sind und damit in gewisser weise 
+// eine Erweiterung der Dienstgeber Capability zugeschnitten auf Kickersport darstellen
+//
+//
+*/
+
+//Leitet eine POST-Benutzer Anfrage an den Dienstgeber weiter
 app.post('/', function(req, res) {
 
     // Speichert req.body
@@ -92,6 +106,7 @@ app.post('/', function(req, res) {
     externalRequest.end();
 });
 
+//Leitet eine Benutzer - PUT anfrage an den Dienstgeber weiter 
 app.put('/:BenutzerId', function(req, res) {
 
     var BenutzerDaten = req.body;
@@ -138,6 +153,7 @@ app.put('/:BenutzerId', function(req, res) {
 
 });
 
+//Löscht einen Benutzer
 app.delete('/:BenutzerId', function(req, res) {
 
     var benutzerId = req.params.BenutzerId;
@@ -145,9 +161,9 @@ app.delete('/:BenutzerId', function(req, res) {
     // Mit Server verbinden
     var options = {
         host: 'localhost',
-        port: 3000,
         path: '/Benutzer/'+benutzerId,
-        method: 'DELETE'
+        port: 3000,
+        method: 'delete'
     };
 
     var externalRequest = http.request(options, function(externalResponse) {
@@ -155,7 +171,8 @@ app.delete('/:BenutzerId', function(req, res) {
 
         externalResponse.on('data', function (chunk) {
 
-            res.end();
+            console.log('pokpok');
+            res.status(200).end();
 
 
         });
@@ -164,9 +181,6 @@ app.delete('/:BenutzerId', function(req, res) {
 
     externalRequest.end();
 });
-
-module.exports = app;
-
 
 app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
     
@@ -338,6 +352,7 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
                 'Datum': Herausforderung.Datum,
                 'Kurztext' : Herausforderung.Kurztext
             };
+
             client.set('Benutzer '+benutzerId+' Herausforderung ' + id, JSON.stringify(HerausfoderungObj));
             //Pflege Daten über den Kickertisch in die DB ein 
 

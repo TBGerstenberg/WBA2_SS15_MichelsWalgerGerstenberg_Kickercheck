@@ -55,8 +55,7 @@ app.get('/:AustragungsortId', function(req, res) {
     x.end();
 });
 
-
-//Unterseite die die Daten eines Kickertisches darstellt 
+//Unterseite die die Daten aller Kickertische darstellt 
 app.get('/:AustragungsortId/Kickertisch', function(req, res) {
 
     var kickertische = []; 
@@ -64,33 +63,51 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
 
     var austragungsortId = req.params.AustragungsortId;
 
-    // Ermittle den Key unter dem die Linkliste dieser Lokalitaet in der DB abgelegt ist 
+    // Ermittle den Key unter dem die Linkliste der Kickertische dieser Lokalitaet in der DB abgelegt ist 
     var listenKey="Ort " +austragungsortId+ " Tische";
 
     client.mget('Austragungsort '+austragungsortId,function(err,ort){
 
         var austragungsort = JSON.parse(ort);
 
-
         client.lrange(listenKey, 0, -1, function(err,items) {
 
-            var i = 0;
-
+            // für jeden Kickertisch in der Liste
             async.each(items, function(listItem, next) {
-
-                listItem.position = i;
 
                 client.mget('Kickertisch '+listItem,function(err,resp){
 
+                    // Hole dessen Belegung
                     client.mget('Belegung '+listItem,function(err,bel){
+                        // und pushe die Belegung der einzelnen Tische in ein Array
                         kickertische.push(JSON.parse(resp));
                         belegungen.push(JSON.parse(bel));
-                        i++;
                         next();
                     });
                 });
             }, function(err) {
-                res.render('pages/allekickertische', { kickertische: kickertische, belegungen: belegungen, austragungsort: austragungsort });
+
+                var acceptedTypes = req.get('Accept');
+
+                switch (acceptedTypes) {
+
+                        //Client erwartet content type application/json
+                    case "application/json":
+
+                        //Setze Contenttype der Antwort auf application/json
+                        res.set("Content-Type", 'application/json').status(200).json(kickertische).end();
+
+
+                        break;
+
+                    default:
+                        res.render('pages/allekickertische', { kickertische: kickertische, belegungen: belegungen, austragungsort: austragungsort });
+                        //Antwort beenden        
+                        res.end();
+                        break;
+
+                } 
+
             });
         });
     });
@@ -181,7 +198,8 @@ app.put('/:AustragungsortId', function(req, res) {
     externalRequest.end();
 });
 
-//Löscht einen Austragungsort und alle auf dem Dienstntuzer assoziierten Kickertische (Subressource)
+//Löscht einen Austragungsort und alle auf dem Dienstnutzer assoziierten Kickertische (Subressource)
+// aktuell nicht komplett funktionsfähig, Tische werden nicht gelöscht
 app.delete('/:AustragungsortId', function(req, res) {
 
     var austragungsortId = req.params.AustragungsortId;
@@ -240,28 +258,6 @@ app.delete('/:AustragungsortId', function(req, res) {
 //
 */
 
-//Liefert eine Collection aller Kickertische eines Austragungsortes
-app.get('/:AustragungsortId/allekickertische',function(req,res){
-
-    var response=[];    
-    var kickertische=[];
-    var austragungsortId = req.params.AustragungsortId;
-    var listenKey="Ort " +austragungsortId+ " Tische";
-    
-    client.lrange(listenKey, 0, -1, function(err,items) {
-        var i = 0;
-        async.each(items, function(listItem, next) {
-            listItem.position = i;
-            client.mget('Kickertisch '+listItem,function(err,resp){
-                response.push(JSON.parse(resp));
-                i++;
-                next();
-            });
-        }, function(err) {
-            res.status(200).set("Content-Type","application/json").json(response).end();
-        });
-    });    
-});
 
 //Liefert eine Repräsentation eines Tisches eines Austragungsortes 
 app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
@@ -594,15 +590,15 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Forderung/:ForderungId', functi
 
                     //Lese daten der Forderung aus DB
                     client.mget('Forderung '+forderungId,function(err,forderungdaten){
-                        
+
                         //Parse Redis Antwort 
                         var forderung = JSON.parse(forderungdaten);
-                        
+
                         //Liefere geänderte Repräsentation...
                         res.set("Content-Type", 'application/json').status(200).json(forderung).end();                  	        
                     });
                 }
-                
+
                 //Forderung nicht vorhanden 
                 else {
                     res.status(404).end();    
@@ -655,28 +651,32 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res)
                             'Benutzer':Forderung.Benutzer,
                             'Timestamp': timestamp
                         };
-                        
-                       
+
+
 
                         for(var i=0;i<belegung.Forderungen.length;i++) {
-                            
+
                             if(Forderung.Benutzer == belegung.Forderungen[i].Benutzer) {
-                                 res.status(409).end();
-                                return;
-                            }
-                        }
-                        if(belegung.Teilnehmer != null) {
-                        for(var i=0;i<belegung.Teilnehmer.length;i++) {
-                            if( Forderung.Benutzer == belegung.Teilnehmer[i]) {
                                 res.status(409).end();
                                 return;
                             }
                         }
+                        if(belegung.Teilnehmer != null) {
+                            for(var i=0;i<belegung.Teilnehmer.length;i++) {
+                                if( Forderung.Benutzer == belegung.Teilnehmer[i]) {
+                                    res.status(409).end();
+                                    return;
+                                }
+                            }
+                        }
+                        else {
+                            res.status(409).end();
+                            return;
                         }
 
                         client.set('Forderung ' + id, JSON.stringify(forderungObj));
 
-                        belegung.Forderungen.push({Benutzer : Forderung.Benutzer, Timestamp: timestamp});
+                        belegung.Forderungen.push({Benutzer : Forderung.Benutzer});
 
                         client.set('Belegung ' + tischId, JSON.stringify(belegung));
 

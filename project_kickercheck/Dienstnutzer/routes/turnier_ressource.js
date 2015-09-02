@@ -1,7 +1,7 @@
 var app = express.Router();
 
 
-//Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen  ,dass die 
+//Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen, dass die 
 //Spezifika eines Wettkampfes beschreibt. So ist erreicht ,dass der Dienst für unterschiedlichste Wettkampfarten nutzbar ist.
 var Regelwerk =
     {
@@ -13,7 +13,7 @@ var Regelwerk =
 
 //Unterseite zum hinzufügen eines Turnieres
 app.get('/addTurnier', function(req, res) {
-    
+
     //Die Seite benötigt ein für das Dropdown Menü die Liste aller Austragungsorte
     var options = {
         host: "localhost",
@@ -27,8 +27,32 @@ app.get('/addTurnier', function(req, res) {
     var x = http.request(options, function(externalrep){
         externalrep.on("data", function(chunks){
             var austragungsorte = JSON.parse(chunks);
-            res.render('pages/addTurnier',{austragungsorte:austragungsorte});
-            res.end();
+            
+            var ortTischMapping = [];
+                 
+             async.each(austragungsorte, function(listItem, next) {
+                 
+                   var listenKey="Ort " +listItem.id+ " Tische";
+
+            //Frage Liste aller Kickertische dieses ortes ab
+            client.lrange(listenKey, 0, -1, function(err,items) {
+
+                //Wenn die Liste nicht leer ist  
+                if(items.length!=0){
+                    
+                     ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
+                }
+                    next();
+            });
+    
+                        }, function(err) {
+                    
+
+                            res.render('pages/addTurnier',{austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});	
+
+                        });
+
+        
         });
     });
     x.end();
@@ -36,7 +60,7 @@ app.get('/addTurnier', function(req, res) {
 
 //Unterseite für alle Turniere
 app.get('/alleTurniere', function(req, res) {
-    
+
     //Die Seite zeigt daten aller Turniere
     var options = {
         host: "localhost",
@@ -99,12 +123,26 @@ app.get('/:TurnierId', function(req, res) {
                         accept:"application/json"
                     }
                 }
-                
+
                 var z = http.request(options3, function(externalrepo){
 
                     externalrepo.on("data", function(chunko){
 
                         var austragungsort = JSON.parse(chunko);
+                        
+                           //Listenkey für die Liste aller Kickertische dieses ortes 
+            var listenKey="Ort " +austragungsort.id+ " Tische";
+
+            //Frage Liste aller Kickertische dieses ortes ab
+            client.lrange(listenKey, 0, -1, function(err,items) {
+
+                //Wenn die Liste nicht leer ist  
+                if(items.length!=0){
+                    
+                    var anzahlTische = items.length;
+                    
+                }
+            });
 
                         externalrep.on("data", function(chunks){
 
@@ -140,7 +178,7 @@ app.get('/:TurnierId', function(req, res) {
                                         turnierteilnehmerdata.on("data", function(chunkturn){
                                             var turnierTeilnehmer = JSON.parse(chunkturn);
                                             res.render('pages/einturnier', {
-                                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort, matches: matches, turnierTeilnehmer : turnierTeilnehmer                 
+                                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort, matches: matches, turnierTeilnehmer : turnierTeilnehmer               
                                             });
                                         });
                                     });
@@ -174,7 +212,7 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
             client.mget('einTurnier '+turnierId + ' ligatabelle',function(err,ligatabelle){
 
                 var tabelle = JSON.parse(ligatabelle);
-                
+
                 res.render('pages/eineLigatabelle', {
                     ligatabelle:tabelle
                 });
@@ -575,7 +613,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                             var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
                                 matchListeResponse.on('data',function(matchListeData){
 
-                                   res.json(matchListeData);
+                                    res.json(matchListeData);
 
                                 });
                             });
