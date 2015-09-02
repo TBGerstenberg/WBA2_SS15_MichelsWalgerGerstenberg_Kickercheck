@@ -277,28 +277,14 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
 
         //Lokalitaet kennt einen Tisch mit dieser TischId
         if (IdExists) {
-
-            //Ermittle vom Client unterstützte content types 
-            var acceptedTypes = req.get('Accept');
-
-            switch (acceptedTypes) {
-
-                //Client kann application/json verarbeiten 
-                case "application/json":
-                
-                    client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
-                        var HerausforderungDaten= JSON.parse(HerausforderungDaten);
-                        //Setze Contenttype der Antwort auf application/json, sende Statuscode 200.
-                        res.set("Content-Type", 'application/json').status(200).json(HerausforderungDaten).end();
+            client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
+                var HerausforderungDaten= JSON.parse(HerausforderungDaten);
+                //Setze Contenttype der Antwort auf application/json, sende Statuscode 200.
                         
-                    });       
-                    break;
-
-                default:
-                    //We cannot send a representation that is accepted by the client 
-                    res.status(406).set("Accepts", "application/json").end();
-                    break;
-            }
+                res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten});
+                res.end();
+                        
+            });
         }       
         //Es gibt die angefragte Herausforderung nicht
         else {
