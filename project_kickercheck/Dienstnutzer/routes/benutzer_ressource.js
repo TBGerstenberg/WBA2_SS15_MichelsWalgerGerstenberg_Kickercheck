@@ -182,36 +182,34 @@ app.delete('/:BenutzerId', function(req, res) {
     externalRequest.end();
 });
 
+
+//Löscht eine Herausforderung an einen Nutzer
 app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
     
+    //Extrahiere Id's aus der Anfrage 
     var benutzerId = req.params.BenutzerId;
-    //Extrahiere Id aus der Anfrage 
     var HerausforderungId = req.params.HerausforderungId;
 
-    //Prüfe ob Lokalitaet existiert 
-    client.exists('Benutzer '+benutzerId+' Herausforderung ' + HerausforderungId, function(err, IdExists) {
+    //Prüfe ob die Herausforderung existiert
+    client.exists('einBenutzer '+benutzerId+' Herausforderung ' + HerausforderungId, function(err, IdExists) {
 
-        //Lokalitaet existiert 
         if(IdExists) {
-            console.log("ES IST DA");
-            //Entferne EIntrag aus der Datenbank 
-            client.del('Benutzer '+benutzerId+' Herausforderung ' + HerausforderungId);
+            //Entferne Eintrag aus der Datenbank 
+            client.del('einBenutzer '+benutzerId+' Herausforderung ' + HerausforderungId);
 
-            //Alles ok , sende 200 
-            res.status(204).send("Das hat funktioniert! Herausforderung gelöscht");
-
-            //Antwort beenden
-            res.end();
+            //Löschen hat geklappt , sende 204 
+            res.status(204).end();
         }
-
+        
+        // Die Herausforderung existiert nicht
         else {
-            console.log("GAR NICHT MEHR");
-            res.status(404).send("Die Ressource wurde nicht gefunden.");
-            res.end();
+            res.status(404).end();
         }
     });
     
 });
+
+
 app.get('/:BenutzerId/addHerausforderung', function(req, res) {
     
        var options1 = {
@@ -241,13 +239,15 @@ app.get('/:BenutzerId/addHerausforderung', function(req, res) {
 
 app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
     
+    //Id's extrahieren
     var benutzerId = req.params.BenutzerId;
     //Speichert alle Herausforderungen
     var response=[];    
 
     //returned ein Array aller Keys die das Pattern Herausforderung* matchen 
-    client.keys('Benutzer '+benutzerId+' Herausforderung *', function (err, key) {
+    client.keys('einBenutzer '+benutzerId+' Herausforderung *', function (err, key) {
 
+        //Wenn kein Key das Pattern Herausforderung* gematcht hat
         if(key.length == 0) {
             res.render('pages/alleHerausforderungen',{response:response});
             return;
@@ -259,9 +259,7 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
             Herausforderung.forEach(function (val) {
                 response.push(JSON.parse(val));
             });
-            
-            
-            //res.set("Content-Type","application/json");
+
             res.render('pages/alleHerausforderungen',{response:response});
             res.end();
 
@@ -274,11 +272,12 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
 
 app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
     
+    //Extrahiere Id's
     var herausforderungId = req.params.HerausforderungId;
     var benutzerId = req.params.BenutzerId;
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
-    client.exists('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err, IdExists) {
+    client.exists('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err, IdExists) {
 
         //Lokalitaet kennt einen Tisch mit dieser TischId
         if (IdExists) {
@@ -292,7 +291,7 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
                 case "application/json":
                     
                    
-                        client.mget('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
+                        client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
 
                         var HerausforderungDaten= JSON.parse(HerausforderungDaten);
                             
@@ -326,7 +325,6 @@ app.put('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
 
 app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
-    console.log("DU KNECHT RUBRECHT");
     var Herausforderung = req.body;
     var benutzerId = req.params.BenutzerId;
     
@@ -353,7 +351,7 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
                 'Kurztext' : Herausforderung.Kurztext
             };
 
-            client.set('Benutzer '+benutzerId+' Herausforderung ' + id, JSON.stringify(HerausfoderungObj));
+            client.set('einBenutzer '+benutzerId+' Herausforderung ' + id, JSON.stringify(HerausfoderungObj));
             //Pflege Daten über den Kickertisch in die DB ein 
 
             //Teile dem Client die URI der neu angelegten Ressource mit 
