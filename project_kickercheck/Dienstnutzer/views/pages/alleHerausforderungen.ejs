@@ -67,13 +67,11 @@
                         <div class="list-group">
 
                             <% response.forEach(function(Herausforderung) { %>
-                            <a href="/Herausforderung/<%= Herausforderung.id %>" class="list-group-item"><h4 class="list-group-item-heading">Herausforderung <%= Herausforderung.id %></h4>
+                            <a href="./Herausforderung/<%= Herausforderung.id %>" class="list-group-item"><h4 class="list-group-item-heading">Herausforderung <%= Herausforderung.id %></h4>
                                 <p class="list-group-item-text">Herausforderer: <%= Herausforderung.Herausforderer %></p>
                                 <p class="list-group-item-text">Datum: <%= Herausforderung.Datum %></p>
                                 <p class="list-group-item-text">Text: <%= Herausforderung.Kurztext %></p>
 
-                                <!--<button type="button" onClick="HerausforderungAnnehmen()">Herausforderung Annehmen</button>
-                                <button type="button" onClick="HerausforderungAblehnen()">Herausforderung Ablehnen</button>-->
                             </a>
                             <button class="button-wrap" id="deleteHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>"> Ablehnen </button>
                             <button class="button-wrap" id="acceptHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>" data-herausforderungHerausforderer="<%= Herausforderung.Herausforderer %>" data-herausforderungDataum="<%= Herausforderung.Datum %>" > Annehmen </button>
