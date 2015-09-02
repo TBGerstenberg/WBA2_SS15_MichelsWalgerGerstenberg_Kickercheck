@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <% include ../partials/head %>
+        <script type="text/javascript">
+            $(document).ready(function(){
+
+                $('.addid').html('');
+                var d = new Date();
+                var time = d.setDate(d.getDate()-1);
+                
+                var url = window.location.pathname.split("/");
+                var pathurl = url[2];
+
+                $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
+                $('.timepick').datetimepicker({format:'HH:mm'});
+                
+                
+                $('#HerausforderungAnlegen').submit(function(){
+                    
+                    var teilnehmer1 = $('#user1').val();
+                    var datum = $('#datum').val();
+                    var text = $('HerausforderungsText').val();
+                    
+                    var formData = {
+                        
+                        Datum : datum,
+                        Teilnehmer: teilnehmer1,
+                        Kurztext: text,
+                        
+                    }
+                    
+                    var uri = "/Benutzer/"+pathurl+"/Herausforderung";
+                    
+                    $.ajax(uri,{
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(data){
+                    
+                        },
+                        statusCode:{
+                        
+                        },
+                        fail:function(){
+                            
+                        }
+                    });
+                    
+                    alert("Die Herausforderung wurde verschickt");
+    
+            });
+        });
+        </script>
+    </head>
+
+    <body class="container">
+        <header>
+            <% include ../partials/header %>
+        </header>
+        <main>
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="jumbotron">
+                        <div>
+                        <h1>Add Herausforderung</h1>
+                        </div>
+
+                                <div class="col-md-6">
+
+                                <form role="form" action="" method="POST" name="HerausforderungAnlegen" id="HerausforderungAnlegen">
+                                    <div class="form-group">
+                                        <label for="teilnehmer">Teilnehmer 1:</label> <br>
+
+                                        <select id="user1" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <% benutzerAll.forEach(function(benutzer) { %>
+                                            <option class="teilnehmer1" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
+                                            <% });  %>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="datum">Datum:</label> <br>
+                                        <div class="row">
+                                            <div class='col-sm-12'>
+                                                <input type='text' id="datum" placeholder="Datum" class="form-control datepick" />
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="name">Herausforderungs Text:</label> <br>
+                                        <input type="text" id="HerausforderungsText" class="form-control" placeholder="Name" maxlength="100" />
+                                    </div>
+
+                                    <input type="submit" class="btn btn-primary" name="send" value="Absenden" />
+
+                                </form>
+                            </div>
+                        
+                        <br />
+                        <p class="addid"></p>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+
+        <footer>
+            <% include ../partials/footer %>
+        </footer>
+
+    </body>
+</html>
