@@ -16,32 +16,13 @@
                 $('.timepick').datetimepicker({format:'HH:mm'});
                 
                 
-                $('#HerausforderungAnlegen').submit(function(e){
-                    e.preventDefault();
+                $('#HerausforderungAnlegen').submit(function(){
                     
-                    // Wenn vor via AJAX eine Herausforderung angelegt wurde, ersetze den Link durch den Link auf die neue Herausforderung
-                    $('.addid').html('');
-                    
-                    var teilnehmer1 = "/Benutzer/"+pathurl;
+                    var teilnehmer ="Benutzer"+pathurl;
                     var teilnehmer2 = $('#user1').val();
                     var datum = $('#datum').val();
                     var text = $('#HerausforderungsText').val();
-                    var austragungsort = $('#ato').val();
-                    
-                     if(!(datum && text)) {
-                        alert('Bitte Datum und Text spezifizieren.');
-                        return false;
-                    }
-
-                    if(austragungsort == '0') {
-                        alert('Bitte Austragungsort spezifizieren.');
-                        return false;
-                    }
-                    
-                    if(teilnehmer2 == '0') {
-                        alert('Bitte Teilnehmer spezifizieren.');
-                        return false;
-                    }
+                    var austragungsort = $('#ado').val();
                     
                     var formData = {
                         
@@ -55,18 +36,11 @@
                     
                     var uri = "/Benutzer/"+pathurl+"/Herausforderung";
                     
-                    $.ajax({
+                    $.ajax(uri,{
                         type: 'POST',
                         contentType: 'application/json',
-                        url:uri,
                         data: JSON.stringify(formData),
                         success: function(data){
-                            
-                             $('#HerausforderungAnlegen').each(function() {
-                                this.reset();
-                            });
-                            
-                              $('.addid').append('<a href="/Benutzer/'+pathurl+'/Herausforderung/'+data.id+'">Herausforderung '+data.id+' verschickt</a>.');
                         },
                         statusCode:{
                         
@@ -75,7 +49,7 @@
                             
                         }
                     });
-                 
+                    alert("Die Herausforderung wurde verschickt");
             });
         });
         </script>
@@ -103,11 +77,10 @@
                                         <select id="user1" class="form-control">
                                             <option value="0">Bitte wählen</option>
                                             <% benutzerAll.forEach(function(benutzer) { %>
-                                            <option value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
+                                            <option class="teilnehmer1" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
                                             <% });  %>
                                         </select>
                                     </div>
-                                    
                                     
                                      <div class="form-group">
                                         <label for="austragungsort">Austragungsort:</label> <br>
