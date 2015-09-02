@@ -188,13 +188,13 @@ app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res)
     var HerausforderungId = req.params.HerausforderungId;
 
     //Prüfe ob Lokalitaet existiert 
-    client.exists('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err, IdExists) {
+    client.exists('Benutzer '+benutzerId+' Herausforderung ' + HerausforderungId, function(err, IdExists) {
 
         //Lokalitaet existiert 
         if(IdExists) {
             console.log("ES IST DA");
             //Entferne EIntrag aus der Datenbank 
-            client.del('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId);
+            client.del('Benutzer '+benutzerId+' Herausforderung ' + HerausforderungId);
 
             //Alles ok , sende 200 
             res.status(204).send("Das hat funktioniert! Herausforderung gelöscht");
@@ -211,6 +211,32 @@ app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res)
     });
     
 });
+app.get('/:BenutzerId/addHerausforderung', function(req, res) {
+    
+       var options1 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Benutzer",
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+    }
+    
+    var x = http.request(options1, function(externalResponse){
+        
+        externalResponse.on("data", function(chunk){
+
+                var benutzerAll = JSON.parse(chunk);
+            
+            res.render('pages/addHerausforderung',{benutzerAll:benutzerAll});
+
+            res.end();
+        });
+    })
+    x.end();
+});
+
 
 app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
     
@@ -299,6 +325,7 @@ app.put('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
 
 app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
+    console.log("DU KNECHT RUBRECHT");
     var Herausforderung = req.body;
     var benutzerId = req.params.BenutzerId;
     
@@ -324,7 +351,7 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
                 'Datum': Herausforderung.Datum,
                 'Kurztext' : Herausforderung.Kurztext
             };
-            console.log('Benutzer '+benutzerId+' Herausforderung '); 
+
             client.set('Benutzer '+benutzerId+' Herausforderung ' + id, JSON.stringify(HerausfoderungObj));
             //Pflege Daten über den Kickertisch in die DB ein 
 
