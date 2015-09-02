@@ -190,11 +190,17 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="austragungsort">Austragungsort:</label> <br>
-                                        <select id="ato" class="form-control">
-                                            <option value="0">Bitte wählen</option>
+                                         <select id="ato" class="form-control">
+                                            <option value="0">Bitte wählen (optional)</option>
                                             <% austragungsorte.forEach(function(austragungsort) { %>
-                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %></option>
-                                            <% });  %>
+                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>">
+                                        <%= austragungsort.Name %> 
+                                                <% ortTischMapping.forEach(function(map) { 
+                                                if(map.Ort == austragungsort.Name) { %> 
+                                                (<%= map.Tische %> Kickertische)
+                                                <%} }); %>
+                                             </option>
+                                            <% }); %>
                                         </select>
                                     </div>
                                     <input type="submit" class="btn btn-primary" name="send" value="Absenden" />

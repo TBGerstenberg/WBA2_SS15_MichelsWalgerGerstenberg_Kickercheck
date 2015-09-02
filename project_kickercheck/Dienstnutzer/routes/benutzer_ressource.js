@@ -161,9 +161,9 @@ app.delete('/:BenutzerId', function(req, res) {
     // Mit Server verbinden
     var options = {
         host: 'localhost',
-        port: 3000,
         path: '/Benutzer/'+benutzerId,
-        method: 'DELETE'
+        port: 3000,
+        method: 'delete'
     };
 
     var externalRequest = http.request(options, function(externalResponse) {
@@ -171,7 +171,8 @@ app.delete('/:BenutzerId', function(req, res) {
 
         externalResponse.on('data', function (chunk) {
 
-            res.end();
+            console.log('pokpok');
+            res.status(200).end();
 
 
         });
@@ -324,8 +325,8 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
                 'Datum': Herausforderung.Datum,
                 'Kurztext' : Herausforderung.Kurztext
             };
-            console.log('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId); 
-            client.set('Benutzer '+benutzerId+' Herausforderung ' + herausforderungId, JSON.stringify(HerausfoderungObj));
+            console.log('Benutzer '+benutzerId+' Herausforderung '); 
+            client.set('Benutzer '+benutzerId+' Herausforderung ' + id, JSON.stringify(HerausfoderungObj));
             //Pflege Daten über den Kickertisch in die DB ein 
 
             //Teile dem Client die URI der neu angelegten Ressource mit 

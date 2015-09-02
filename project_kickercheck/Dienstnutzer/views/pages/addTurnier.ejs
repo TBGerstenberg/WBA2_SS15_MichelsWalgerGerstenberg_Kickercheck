@@ -114,12 +114,14 @@
                                         <select id="austragungsort" class="form-control">
                                             <option value="0">Bitte wählen (optional)</option>
                                             <% austragungsorte.forEach(function(austragungsort) { %>
-                                            <% ortTischMapping.forEach(function(map) { %>
-                                            <% if(map.Ort == austragungsort.Name) { %>
-                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %> (<%= map.Tische %> Kickertische)</option>
-                                            <% } else { %>
-                                             <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %> (0 Kickertische)</option>
-                                            <% } }); });  %>
+                                           
+                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>"><%= austragungsort.Name %> <% ortTischMapping.forEach(function(map) { 
+                                                if(map.Ort == austragungsort.Name) { %> 
+                                                (<%= map.Tische %> Kickertische)
+                                                <%} }); %>
+                                            </option>
+                                           
+                                            <% });  %>
                                         </select>
                                     </div>
                                     <div class="form-group">

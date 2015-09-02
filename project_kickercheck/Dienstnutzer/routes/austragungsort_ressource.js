@@ -79,35 +79,35 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
 
                     // Hole dessen Belegung
                     client.mget('Belegung '+listItem,function(err,bel){
-                    // und pushe die Belegung der einzelnen Tische in ein Array
+                        // und pushe die Belegung der einzelnen Tische in ein Array
                         kickertische.push(JSON.parse(resp));
                         belegungen.push(JSON.parse(bel));
                         next();
                     });
                 });
             }, function(err) {
-                
-                 var acceptedTypes = req.get('Accept');
 
-                                switch (acceptedTypes) {
+                var acceptedTypes = req.get('Accept');
 
-                                        //Client erwartet content type application/json
-                                    case "application/json":
+                switch (acceptedTypes) {
 
-                                        //Setze Contenttype der Antwort auf application/json
-                                        res.set("Content-Type", 'application/json').status(200).json(kickertische).end();
+                        //Client erwartet content type application/json
+                    case "application/json":
+
+                        //Setze Contenttype der Antwort auf application/json
+                        res.set("Content-Type", 'application/json').status(200).json(kickertische).end();
 
 
-                                        break;
+                        break;
 
-                                    default:
-                                        res.render('pages/allekickertische', { kickertische: kickertische, belegungen: belegungen, austragungsort: austragungsort });
-                                        //Antwort beenden        
-                                        res.end();
-                                        break;
+                    default:
+                        res.render('pages/allekickertische', { kickertische: kickertische, belegungen: belegungen, austragungsort: austragungsort });
+                        //Antwort beenden        
+                        res.end();
+                        break;
 
-                                } 
-                
+                } 
+
             });
         });
     });
@@ -590,15 +590,15 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Forderung/:ForderungId', functi
 
                     //Lese daten der Forderung aus DB
                     client.mget('Forderung '+forderungId,function(err,forderungdaten){
-                        
+
                         //Parse Redis Antwort 
                         var forderung = JSON.parse(forderungdaten);
-                        
+
                         //Liefere geänderte Repräsentation...
                         res.set("Content-Type", 'application/json').status(200).json(forderung).end();                  	        
                     });
                 }
-                
+
                 //Forderung nicht vorhanden 
                 else {
                     res.status(404).end();    
@@ -651,28 +651,32 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res)
                             'Benutzer':Forderung.Benutzer,
                             'Timestamp': timestamp
                         };
-                        
-                       
+
+
 
                         for(var i=0;i<belegung.Forderungen.length;i++) {
-                            
+
                             if(Forderung.Benutzer == belegung.Forderungen[i].Benutzer) {
-                                 res.status(409).end();
-                                return;
-                            }
-                        }
-                        if(belegung.Teilnehmer != null) {
-                        for(var i=0;i<belegung.Teilnehmer.length;i++) {
-                            if( Forderung.Benutzer == belegung.Teilnehmer[i]) {
                                 res.status(409).end();
                                 return;
                             }
                         }
+                        if(belegung.Teilnehmer != null) {
+                            for(var i=0;i<belegung.Teilnehmer.length;i++) {
+                                if( Forderung.Benutzer == belegung.Teilnehmer[i]) {
+                                    res.status(409).end();
+                                    return;
+                                }
+                            }
+                        }
+                        else {
+                            res.status(409).end();
+                            return;
                         }
 
                         client.set('Forderung ' + id, JSON.stringify(forderungObj));
 
-                        belegung.Forderungen.push({Benutzer : Forderung.Benutzer, Timestamp: timestamp});
+                        belegung.Forderungen.push({Benutzer : Forderung.Benutzer});
 
                         client.set('Belegung ' + tischId, JSON.stringify(belegung));
 

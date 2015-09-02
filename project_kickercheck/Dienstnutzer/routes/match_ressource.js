@@ -38,12 +38,28 @@ app.get('/addMatch', function(req, res) {
                 externalrep.on("data", function(chunks){
 
                     var austragungsorte = JSON.parse(chunks);
+                    
+                           var ortTischMapping = [];
+                 
+             async.each(austragungsorte, function(listItem, next) {
+                 
+                   var listenKey="Ort " +listItem.id+ " Tische";
 
-                    res.render('pages/addMatch',{benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+            //Frage Liste aller Kickertische dieses ortes ab
+            client.lrange(listenKey, 0, -1, function(err,items) {
 
-                    res.end();
+                //Wenn die Liste nicht leer ist  
+                if(items.length!=0){
+                    
+                     ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
+                }
+                    next();
+            });
+                  }, function(err) {
+                    
+                          res.render('pages/addMatch',{benutzerAll:benutzerAll,austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});
 
-
+                        });
                 });
 
             });
