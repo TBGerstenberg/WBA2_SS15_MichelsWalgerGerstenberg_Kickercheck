@@ -43,17 +43,6 @@ app.get('/:BenutzerId', function(req, res) {
             accept: 'application/json'
         }
     };
-    
-    var options1 = {
-        host: 'localhost',
-        port: 3000,
-        path: 
-        method: 'GET',
-        headers{
-            accept: 'application/json'
-        }
-    
-    }
 
     var x = http.request(options, function(externalres){
         externalres.on('data', function(chunk){
@@ -222,7 +211,7 @@ app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res)
 
 app.get('/:BenutzerId/addHerausforderung', function(req, res) {
 
-    var options1 = {
+     var options1 = {
         host: "localhost",
         port: 3000,
         path: "/Benutzer",
@@ -232,17 +221,56 @@ app.get('/:BenutzerId/addHerausforderung', function(req, res) {
         }
     }
 
+    var options2 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Austragungsort",
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+    }
+
     var x = http.request(options1, function(externalResponse){
 
-        externalResponse.on("data", function(chunk){
+        externalResponse.on("data", function(chunks){
 
-            var benutzerAll = JSON.parse(chunk);
+            var benutzerAll = JSON.parse(chunks);
 
-            res.render('pages/addHerausforderung',{benutzerAll:benutzerAll});
+            var y = http.request(options2, function(externalrep){
 
-            res.end();
+                externalrep.on("data", function(chunk){
+
+                    var austragungsorte = JSON.parse(chunk);
+
+                    var ortTischMapping = [];
+
+                    async.each(austragungsorte, function(listItem, next) {
+
+                        var listenKey="Ort " +listItem.id+ " Tische";
+
+                        //Frage Liste aller Kickertische dieses ortes ab
+                        client.lrange(listenKey, 0, -1, function(err,items) {
+
+                            //Wenn die Liste nicht leer ist  
+                            if(items.length!=0){
+
+                                ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
+                            }
+                            next();
+                        });
+                    }, function(err) {
+
+                        res.render('pages/addHerausforderung',{benutzerAll:benutzerAll,austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});
+
+                    });
+                });
+
+            });
+            y.end();
         });
-    })
+
+    });
     x.end();
 });
 
