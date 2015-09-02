@@ -298,10 +298,28 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
             client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
                 var HerausforderungDaten= JSON.parse(HerausforderungDaten);
                 //Setze Contenttype der Antwort auf application/json, sende Statuscode 200.
+                
+                 var options1 = {
+                host: "localhost",
+                port: 3000,
+                path: "/Benutzer",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
 
-                res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten});
-                res.end();
+            var y = http.request(options1, function(externalResponse){
 
+                externalResponse.on("data", function(chunk){
+
+                    var benutzerAll = JSON.parse(chunk);
+
+                res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten,benutzerAll:benutzerAll});
+
+            });
+            });
+            y.end();
             });
         }       
         //Es gibt die angefragte Herausforderung nicht
