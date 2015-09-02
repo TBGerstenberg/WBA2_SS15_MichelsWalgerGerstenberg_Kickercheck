@@ -1,6 +1,5 @@
 var app = express.Router();
 
-
 //Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen  ,dass die 
 //Spezifika eines Wettkampfes beschreibt. So ist erreicht ,dass der Dienst für unterschiedlichste Wettkampfarten nutzbar ist.
 var Regelwerk =
@@ -10,10 +9,9 @@ var Regelwerk =
     }
 
 //Präsentationslogik
-
 //Unterseite zum hinzufügen eines Turnieres
 app.get('/addTurnier', function(req, res) {
-    
+
     //Die Seite benötigt ein für das Dropdown Menü die Liste aller Austragungsorte
     var options = {
         host: "localhost",
@@ -36,7 +34,7 @@ app.get('/addTurnier', function(req, res) {
 
 //Unterseite für alle Turniere
 app.get('/alleTurniere', function(req, res) {
-    
+
     //Die Seite zeigt daten aller Turniere
     var options = {
         host: "localhost",
@@ -99,7 +97,7 @@ app.get('/:TurnierId', function(req, res) {
                         accept:"application/json"
                     }
                 }
-                
+
                 var z = http.request(options3, function(externalrepo){
 
                     externalrepo.on("data", function(chunko){
@@ -140,7 +138,7 @@ app.get('/:TurnierId', function(req, res) {
                                         turnierteilnehmerdata.on("data", function(chunkturn){
                                             var turnierTeilnehmer = JSON.parse(chunkturn);
                                             res.render('pages/einturnier', {
-                                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort, matches: matches, turnierTeilnehmer : turnierTeilnehmer                 
+                                                turnier: turnier ,benutzerAll:benutzerAll, austragungsort: austragungsort, turnierTeilnehmer : turnierTeilnehmer                 
                                             });
                                         });
                                     });
@@ -159,7 +157,7 @@ app.get('/:TurnierId', function(req, res) {
     x.end();
 });
 
-//Liefert eine Repräsentation einer Ligatabelle eines Turnieres 
+//Page für eine Ligatabelle 
 app.get('/:TurnierId/Ligatabelle',function(req,res){
 
     var turnierId=req.params.TurnierId;
@@ -174,7 +172,9 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
             client.mget('einTurnier '+turnierId + ' ligatabelle',function(err,ligatabelle){
 
                 var tabelle = JSON.parse(ligatabelle);
-                
+
+                console.log(util.inspect(ligatabelle, false, null));
+
                 res.render('pages/eineLigatabelle', {
                     ligatabelle:tabelle
                 });
@@ -221,7 +221,6 @@ app.post('/', function(req, res) {
             var turnier=JSON.parse(chunk);
 
             //Schicke fertiges Turnier zurück
-            //console.log(util.inspect(turnier, false, null));
             res.setHeader('Location',externalResponse.headers.location);
             res.status(201).json(turnier).end();
         });
@@ -288,20 +287,20 @@ app.delete('/:TurnierId', function(req, res) {
     y.end();
 });
 
+//Diese Operation verändert den Server-State und ist daher ein Put , kein Get 
+//Per Definition ist Put Idempotent , liefert also bei wiederholter Ausführung immer das selbe 
+//Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann
 //Generiert den Konkreten Spielplan mit Turnier.Teilnehmerzahl / Turnier.Teamgröße Matches 
 //Durch wiederholte Anfragen auf Turnier/Id/Match beim Dienstgeber 
 //Die konkrete ausgestaltung eines Matches (Anzahl Teams, Teinehemer=>Teams Mapping usw..) übernimmt
 //dabei der Dienstnutzer.
-//Diese Operation verändert den Server-State und ist daher ein Put , kein Get 
-//Per Definition ist Put Idempotent , liefert also bei wiederholter Ausführung immer das selbse 
-//Ergebnis, so ist erreicht, dass der Spielplan beliebig oft geupdated werden kann 
-app.put('/:TurnierId/Spielplan',function(req,res){
+app.post('/:TurnierId/Spielplan',function(req,res){
+
     //Vorgehen: 
     //Stelle Turnieranfrage, extrahiere URI um Matches zu Posten 
     //Stelle Teilnehmerliste Anfrage für das Turnier für das Teilnehmer>Teams mapping 
     //Stelle Teams zusammen 
     //Poste Matches mit den nach dem Spielplan zusammengestellten Teams 
-
     var turnierId=req.params.TurnierId;
 
     console.log("Spielplan für Turnier" + req.params.TurnierId + "angefordert");
@@ -457,7 +456,6 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         //Füge das Ligaplanobjekt in die Datenbank ein 
                         client.set("einTurnier "+turnierId+" ligatabelle",JSON.stringify(ligatabelleObj));
 
-
                         //Teams und Ligaplan sind aufgestellt ,Poste Matches 
                         //An den Dienstgeber 
 
@@ -484,6 +482,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
                         var j = 0;
 
                         async.each(turnier.Spielplan, function(listItem, next) {
+                            console.log("Die Länge des Spielplans: " + turnier.Spielplan.length);
 
                             //Lese die vorberechnete Paarung aus dem Spielplan
                             var matchConfig=listItem;
@@ -559,27 +558,7 @@ app.put('/:TurnierId/Spielplan',function(req,res){
 
                             //Alle Match Posts sind abgesetzt 
                         }, function(err) {
-
-                            //Antwort für die Abfrage des Turniers 
-                            var jsonString;
-
-                            var matchListeOptions={
-                                host: 'localhost',
-                                port: 3000,
-                                path: "/Turnier/"+req.params.TurnierId+"/Match",
-                                method: 'GET',
-                                headers: teilnehmerHeader
-                            };
-
-                            //Frage Matches ab und liefere Sie als Antwort auf diesen Request
-                            var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
-                                matchListeResponse.on('data',function(matchListeData){
-                                    
-                                   res.json(JSON.parse(matchListeData));
-
-                                });
-                            });
-                            matchListeRequest.end();
+                            res.status(201).set('Location',"/Turnier/"+turnierId+"/Spielplan");
                         });
                     });  
                 });
@@ -588,6 +567,56 @@ app.put('/:TurnierId/Spielplan',function(req,res){
         });
     });
     externalRequest.end();
+});
+
+//Fragt alle Matches und ihre Spielstände eines Turnieres ab und rendert das Ergebnis auf 
+//pages/turniermatches.ejs
+app.get('/:TurnierId/Match',function(req,res){
+
+    var matchListeOptions={
+        host: 'localhost',
+        port: 3000,
+        path: "/Turnier/"+req.params.TurnierId+"/Match",
+        method: 'GET',
+        headers:{
+            'Accept' : 'application/json',
+            'Content-Type': 'application/json'
+        }
+    };
+
+    //Frage Matches ab und liefere Sie als Antwort auf diesen Request
+    var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
+        matchListeResponse.on('data',function(matchListeData){
+
+            var matchListe=JSON.parse(matchListeData);
+            var spielstände=[];
+            
+            console.log("Die Matchliste sieht folgednermaßen aus:");
+            console.log(util.inspect(matchListe, false, null));
+            
+
+            var i=0;
+            async.each(matchListe, function(listItem, next) {
+
+                var matchId=matchListe[i++].split("/")[1];
+                console.log("Die matchIds der Matches, zu denen Spielstände abgefragt werden" + matchId);
+
+                //Lese aktuellen Zustand des Turniers aus DB
+                client.mget('Spielstand '+matchId,function(err,spielstanddata){
+                    var spielstand = JSON.parse(spielstanddata);
+                    spielstände.push(spielstand);
+                    next(); 
+                });
+                
+            },function(err) {
+                console.log("Die Spielstände sehen folgendermaßen aus:");
+                  console.log(util.inspect(spielstände, false, null));
+                 res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstände});
+            });
+            
+        });
+    });
+    matchListeRequest.end();
 });
 
 //Leitet eine Turnier-Teilnehmer PUT anfrage an den Dienstgeber weiter 

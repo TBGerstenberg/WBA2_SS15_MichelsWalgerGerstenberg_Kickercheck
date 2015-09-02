@@ -2,67 +2,13 @@
 <html>
     <head>
         <% include ../partials/head %>
+
+        <script type="text/javascript" src="http://localhost:8000/faye/client.js"></script>
         <script>
+
             $(document).ready(function() {
-                
-                var client = new Faye.Client('http://localhost:8000/faye');
-    
-                //Klickt der Nutzer den generiereSpielplan button wird ein
-                //Get Request auf Turnier/:TurnierId/Spielplan abgesetzt 
-                $('#generiereSpielplan').click(function(e){
-                    e.preventDefault();
-                    
-                    if(<%= turnierTeilnehmer.length %> != <%=turnier.Teilnehmeranzahl%>) { 
-                    alert('Bitte alle Teilnehmer hinzufügen');
-                    return false;
-                     } 
 
-                    $.ajax({
-                        type: 'PUT',
-                        url: '/Turnier/<%= turnier.id %>/Spielplan',
-                        contentType:"application/json",
-                        success: function(data) {
-                    
-                            //Die Turnier seite subscribed auf alle liveticker seiner Matches
-                            for(var i=0;i<matches.length;i++){
-                            
-                            
-                            
-                            
-                            }
-                            
-                        window.location.reload(true);
-                                
-                        },
-                        statusCode: {
-
-                        },
-                        fail: function() {
-                            alert('Fehler');
-                        }
-                    });
-                });
-                
-                //Lädt die Ligatabelle nach 
-                $('#generiereTabelle').click(function(e){
-                   $.ajax({
-                        type: 'GET',
-                        url: "/Turnier/<%= turnier.id %>/Ligatabelle",
-                        contentType:"application/json",
-                        success: function(data) {
-                            
-                            //Ersetze HTML mit der Ligatabelle, so wird auch der Button ausgeblendet
-                            $('#ligatabelle').html(data);
-                        },
-                        statusCode: {
-
-                        },
-                        fail: function() {
-                            alert('Fehler');
-                        }
-                    }); 
-                }); 
-                
+                //Fügt dem Turnier einen Teilnehmer hinzu
                 $('#addTeilnehmer').submit(function(e) {
                     e.preventDefault();
 
@@ -73,6 +19,7 @@
                         return false;
                     }
 
+
                     var formData = {'Teilnehmer' : teilnehmer};
 
                     $.ajax({
@@ -81,56 +28,148 @@
                         contentType: 'application/json',
                         data: JSON.stringify(formData),
                         success: function(data) {
-                    
-                          window.location.reload(true);
-                        },
-                        statusCode: {
-                            409: function() {
-                                alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
-                            }
-                        },
-                        fail: function() {
-                            alert('Fehler');
+                            //Wenn der letzte Teilnehmer hinzugefügt wurde, generiere Spielplan
+                            if(data.length == <%=turnier.Teilnehmeranzahl%>){
+                               posteSpielplan();
                         }
-                    });
-                });
-
-                $('#changeData').submit(function(e) {
-                    e.preventDefault();
-
-                    var austragungszeitraum = $('.austragungszeitraum').val();
-                    var status = $('.status').val();
-
-                    if(!(austragungszeitraum && status)) {
-                        alert('Bitte Daten spezifizieren.');
-                        return false;
+                        window.location.reload(true);
+                    },
+                    statusCode: {
+                        409: function() {
+                            alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
+                        }
+                    },
+                    fail: function() {
+                        alert('Fehler');
                     }
-
-                    var formData = {
-                        Austragungszeitraum : austragungszeitraum,
-                        Status: status
-                    };
-
-                    $.ajax({
-                        type: 'PUT',
-                        url: '/Turnier/<%= turnier.id %>',
-                        contentType: 'application/json',
-                        data: JSON.stringify(formData),
-                        success: function(data) {
-
-                            $('#changeData').each(function() {
-                                this.reset();
-                            });
-
-                            $("#austr").text('Austragungszeitraum: '+data.Austragungszeitraum);
-                            $("#stat").text('Status: '+data.Status);
-                        },
-                        fail: function() {
-                            alert('Fehler');
-                        }
-                    });
                 });
             });
+
+            //Ändert die Daten eines Turnieres
+            $('#changeData').submit(function(e) {
+                e.preventDefault();
+
+                var austragungszeitraum = $('.austragungszeitraum').val();
+                var status = $('.status').val();
+
+                if(!(austragungszeitraum && status)) {
+                    alert('Bitte Daten spezifizieren.');
+                    return false;
+                }
+
+                var formData = {
+                    Austragungszeitraum : austragungszeitraum,
+                    Status: status
+                };
+
+                $.ajax({
+                    type: 'PUT',
+                    url: '/Turnier/<%= turnier.id %>',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(data) {
+
+                        $('#changeData').each(function() {
+                            this.reset();
+                        });
+
+                        $("#austr").text('Austragungszeitraum: '+data.Austragungszeitraum);
+                        $("#stat").text('Status: '+data.Status);
+                    },
+                    fail: function() {
+                        alert('Fehler');
+                    }
+                });
+            });
+            });
+
+
+            //Ruft die Ligatabelle ab 
+            function rufeLigatabelleAb(){
+
+                //Setze GET auf Ligatabellenressource des Dienstnutzers ab
+                $.ajax({
+                    type: 'GET',
+                    url: "/Turnier/<%= turnier.id %>/Ligatabelle",
+                    contentType:"application/json",
+                    success: function(data) {
+                        //Ersetze HTML mit der Ligatabelle, so wird auch der Button ausgeblendet
+                        $('#ligatabelle').html(data);
+                    },
+                    statusCode: {
+
+                    },
+                    fail: function() {
+                        alert('Fehler');
+                    }
+                }); 
+            }
+
+            //Erstellt den Spielplan ,dies wird gefeuert sobald die Teilnehmerliste gefüllt ist
+            function posteSpielplan(){
+                //Poste Matches für den Spielplan
+                $.ajax({
+                    type: 'POST',
+                    url: '/Turnier/<%= turnier.id %>/Spielplan',
+                    contentType:"application/json",
+                    success: function(data) {
+
+                    },
+                    statusCode: {
+
+                    },
+                    fail: function() {
+                        alert('Fehler');
+                    }
+                }); 
+            }
+
+            //Ruft den aktuellen Stand der Turniermatches ab und subscribed beim Liveticker aller dieser Matches, 
+            //So können von der Turnierseite aus alle matches beobachtet werden
+            function rufeSpielplanAb(){
+                //Rufe alle generierten Matches ab
+                $.ajax({
+                    type: 'GET',
+                    url: '/Turnier/<%= turnier.id %>/Match',
+                    contentType:"application/json",
+                    success: function(data) {
+                        $('#spielplan').html(data);
+                        subscribeMatches();
+                    },
+                    statusCode: {
+
+                    },
+                    fail: function() {
+                        alert('Fehler');
+                    }
+                });
+            }
+
+            //Die Ansicht eines Turnieres bietet einen Liveticker für alle seine Matches, 
+            function subscribeMatches(){
+
+                //Faye Client für die Match Subscriptions
+                var client = new Faye.Client('http://localhost:8000/faye');
+
+                //Iteriere über alle Matches 
+                $(".Match").each(function(index,obj){
+                    var element=$(this);
+                    var matchURI=element.attr('data-match');
+                    var matchId=matchURI.split("/")[1];
+
+                    //Subscribe beim Match Liveticker
+                    var subscription = client.subscribe('/liveticker/'+matchId, function(message) {
+
+                        $("#SpielstandT1").html(message.SpielstandT1);
+                        $("#SpielstandT2").html(message.SpielstandT2);
+
+                        if(message.Winner) {  
+                            $("#sieger").html("<a href="+message.Winner+"> Sieger </a>");
+                        }
+                    });
+                });
+            }
+
         </script>
     </head>
 
@@ -217,42 +256,18 @@
                                     <td><%= turnier.Spielplan[i].Team2 %></td>
                                     <td><%= turnier.Spielplan[i].Runde %></td>
                                 </tr>
-
                                 <% }; %> 
                             </tbody>
                         </table> 
 
-                        <% if(matches.length <= 0) { %>
-                        <!--Button um den Spielplan zu erstellen -->
-                        <input id="generiereSpielplan" class="btn btn-default marginbottom20" value="Generiere Matches" type="button" />
-                        <% } %>
-                            
-                        <div class="row">
-                            <!--Anzeige für den fertigen Spielplan -->
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Matches</th>
-                                        <th>Sieger</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="matches">
-                                    <% if(matches) { %>
-                                    <% for(var i=0; i < matches.length; i++) { %>
-                                    <tr>
-                                        <td> <a href="/<%= matches[i]%>">Match <%=i+1%></a> </td>
-                                        <td id="Match<%i%>" data-match="<%i%>"> </td>
-                                    </tr>
-                                    <% }; %>
-                                    <% } %>
-                                </tbody>
-                            </table>
+                        <!-- Hier wird asynchron die nachgeladen-->
+                        <div class="row" id="spielplan">
+                            <input id="rufeSpielplanAb" onclick="rufeSpielplanAb()" class="btn btn-default marginbottom20" value="Spielplan einblenden" type="button" />
                         </div>
-                        
+
                         <!-- Hier wird asynchron die Ligatabelle nachgeladen-->
-                         <div class="row" id="ligatabelle">
-                         <input type="button" class="btn btn-default marginbottom20" value="Ligatabelle einblenden" id="generiereTabelle"/>
-                             
+                        <div class="row" id="ligatabelle">
+                            <input type="button" class="btn btn-default marginbottom20" value="Ligatabelle einblenden" onclick="rufeLigatabelleAb()"/>
                         </div>
                     </div>
                 </div>
