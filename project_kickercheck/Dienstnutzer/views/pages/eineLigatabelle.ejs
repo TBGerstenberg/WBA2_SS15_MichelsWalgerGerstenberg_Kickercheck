@@ -7,15 +7,34 @@
                 <th>Punkte</th>
             </tr>
         </thead>
+        
+        <% if(ligatabelle) { %>
+        
+        <!--Check ob es sich um ein zwei Spieler Turnier handelt -->
+        <% if (ligatabelle.Teams[0].Team.hasOwnProperty('Teilnehmer2')) { %>
+        
         <tbody id="ligatabelle">
-            <% if(ligatabelle) { %>
             <% for(var i=0; i < ligatabelle.Teams.length ; i++) { %>
             <tr>
-                <td><%= ligatabelle.Teams[i].teamName %></td>  
-                <td><%= ligatabelle.Teams[i].Punkte %></td>  
+                <td><%= ligatabelle.Teams[i].teamName %><a href="<%= ligatabelle.Teams[i].Team.Teilnehmer1 %>"> Spieler1</a>  <a href="<%= ligatabelle.Teams[i].Team.Teilnehmer2 %>">Spieler2 </a></td>
+                <td><%= ligatabelle.Teams[i].Punkte %></td>
             </tr>
             <% }; %>
-            <% } %>
         </tbody>
+        
+        <!--Jedes Team hat einen Spieler-->
+        <% } else { %>
+        
+        <tbody id="ligatabelle">
+            <% for(var i=0; i < ligatabelle.Teams.length ; i++) { %>
+            <tr>
+                <td><%= ligatabelle.Teams[i].teamName %>  <a href="<%= ligatabelle.Teams[i].Team.Teilnehmer1%>">Spieler</a></td>
+                <td><%= ligatabelle.Teams[i].Punkte %></td>
+            </tr>
+            <% }; %>
+        </tbody>
+        <% } %>
+        
+        <% } %>
     </table>
 </div>
