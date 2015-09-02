@@ -8,7 +8,7 @@
         $(document).ready( function(event){
 
             
-           $('#deleteHerausforderung').click( function(){
+           $('.deleteHerausforderung').click( function(){
                 var button = $(this);
                var herausforderungId = button.attr('data-herausforderungsID');
                
@@ -20,7 +20,7 @@
         });
             
         
-            $('#acceptHerausforderung').click( function(){
+            $('.acceptHerausforderung').click( function(){
                 var button = $(this);
                 alert("Sie haben die Herausforderung Akzeptiert! Legen sie jetzt ein Match an!");
                 location.href="/Match/addMatch"     
@@ -68,13 +68,16 @@
 
                             <% response.forEach(function(Herausforderung) { %>
                             <a href="./Herausforderung/<%= Herausforderung.id %>" class="list-group-item"><h4 class="list-group-item-heading">Herausforderung <%= Herausforderung.id %></h4>
+                                
+                                <p class="list-group-item-text">Herausgeforderter: <%= Herausforderung.Herausgeforderter %></p>
                                 <p class="list-group-item-text">Herausforderer: <%= Herausforderung.Herausforderer %></p>
                                 <p class="list-group-item-text">Datum: <%= Herausforderung.Datum %></p>
+                                <p class="list-group-item-text">Austragungsort: <%= Herausforderung.Austragungsort %></p>
                                 <p class="list-group-item-text">Text: <%= Herausforderung.Kurztext %></p>
 
                             </a>
-                            <button class="btn btn-danger" id="deleteHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>"> Ablehnen </button>
-                            <button class="btn btn-success" id="acceptHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>" data-herausforderungHerausforderer="<%= Herausforderung.Herausforderer %>" data-herausforderungDatum="<%= Herausforderung.Datum %>" > Annehmen </button>
+                            <button class="btn btn-danger deleteHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>"> Ablehnen </button>
+                            <button class="btn btn-success  deleteHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>" data-herausforderungHerausforderer="<%= Herausforderung.Herausforderer %>" data-herausforderungDatum="<%= Herausforderung.Datum %>" > Annehmen </button>
                             <% });  %>
                         </div>
 
