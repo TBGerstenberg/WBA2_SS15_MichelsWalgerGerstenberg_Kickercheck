@@ -43,18 +43,6 @@ app.get('/:BenutzerId', function(req, res) {
             accept: 'application/json'
         }
     };
-    
-    var options1 = {
-        host: "localhost",
-        port: 3000,
-        path: "/Austragungsort",
-        method:"GET",
-        headers:{
-            accept:"application/json"
-        }
-    
-    }
-
     var x = http.request(options, function(externalres){
         
         externalres.on('data', function(chunk){

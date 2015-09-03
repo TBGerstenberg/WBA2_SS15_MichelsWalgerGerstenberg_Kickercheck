@@ -16,7 +16,7 @@
         <tbody id="ligatabelle">
             <% for(var i=0; i < ligatabelle.Teams.length ; i++) { %>
             <tr>
-                <td><%= ligatabelle.Teams[i].teamName %><a href="<%= ligatabelle.Teams[i].Team.Teilnehmer1 %>"> Spieler1</a>  <a href="<%= ligatabelle.Teams[i].Team.Teilnehmer2 %>">Spieler2 </a></td>
+                <td><%= ligatabelle.Teams[i].teamName %>: <a href="<%= ligatabelle.Teams[i].Team.Teilnehmer1 %>"><% benutzerAll.forEach(function(benutzer) { %><% if("/Benutzer/"+benutzer.id == ligatabelle.Teams[i].Team.Teilnehmer1) { %><%= benutzer.Name%><% } }); %></a> , <a href="<%= ligatabelle.Teams[i].Team.Teilnehmer2 %>"><% benutzerAll.forEach(function(benutzer) { %><% if("/Benutzer/"+benutzer.id == ligatabelle.Teams[i].Team.Teilnehmer2) { %><%= benutzer.Name%><% } }); %></a></td>
                 <td><%= ligatabelle.Teams[i].Punkte %></td>
             </tr>
             <% }; %>
@@ -28,7 +28,7 @@
         <tbody id="ligatabelle">
             <% for(var i=0; i < ligatabelle.Teams.length ; i++) { %>
             <tr>
-                <td><%= ligatabelle.Teams[i].teamName %>  <a href="<%= ligatabelle.Teams[i].Team.Teilnehmer1%>">Spieler</a></td>
+                <td><%= ligatabelle.Teams[i].teamName %>:  <a href="<%= ligatabelle.Teams[i].Team.Teilnehmer1%>"><% benutzerAll.forEach(function(benutzer) { %><% if("/Benutzer/"+benutzer.id == ligatabelle.Teams[i].Team.Teilnehmer1) { %><%= benutzer.Name%><% } }); %></a></td>
                 <td><%= ligatabelle.Teams[i].Punkte %></td>
             </tr>
             <% }; %>

@@ -24,33 +24,23 @@ app.get('/addTurnier', function(req, res) {
     }
     var x = http.request(options, function(externalrep){
         externalrep.on("data", function(chunks){
-            var austragungsorte = JSON.parse(chunks);
 
+            var austragungsorte = JSON.parse(chunks);
             var ortTischMapping = [];
 
             async.each(austragungsorte, function(listItem, next) {
-
                 var listenKey="Ort " +listItem.id+ " Tische";
-
                 //Frage Liste aller Kickertische dieses ortes ab
                 client.lrange(listenKey, 0, -1, function(err,items) {
-
                     //Wenn die Liste nicht leer ist  
                     if(items.length!=0){
-
                         ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
                     }
                     next();
                 });
-
             }, function(err) {
-
-
                 res.render('pages/addTurnier',{austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});	
-
             });
-
-
         });
     });
     x.end();
@@ -82,6 +72,10 @@ app.get('/alleTurniere', function(req, res) {
 });
 
 //Unterseite für ein einzelnes Turnier
+//Die Seite benötigt folgende Informationen bei Abruf :
+//Benutzerliste für den "Teilnehmer hinzufügen" Dropdown
+//Aktuelle Turnierteilnehmer , um die Teilnehmerliste bei jedem Seitenaufruf aktuell zu halten 
+//Austragungsort des Turnieres, da der Name angezeigt werden soll 
 app.get('/:TurnierId', function(req, res) {
 
     var options1 = {
@@ -211,9 +205,30 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
 
                 var tabelle = JSON.parse(ligatabelle);
 
-                res.render('pages/eineLigatabelle', {
-                    ligatabelle:tabelle
+                var options1 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Benutzer",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
+                }
+
+                var y = http.request(options1, function(externalResponse){
+
+                    externalResponse.on("data", function(chunk){
+
+                        var benutzerAll = JSON.parse(chunk);
+
+                        console.log(util.inspect(tabelle, false, null));
+
+                        res.render('pages/eineLigatabelle', {
+                            ligatabelle:tabelle,benutzerAll:benutzerAll
+                        });
+                    });
                 });
+                y.end();
             });
         }
         else{
@@ -472,7 +487,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                                 //Team für den Ligaplan 
                                 var teamLigaplan={
                                     "teamName":teamName,
-                                    "Teilnehmer":teamObj,
+                                    "Team":teamObj,
                                     "Punkte":0
                                 }
 
@@ -594,7 +609,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
 
                             //Alle Match Posts sind abgesetzt 
                         }, function(err) {
-                      
+
                             res.status(201).set('Location',"/Turnier/"+turnierId+"/Spielplan");
 
                         });
@@ -608,7 +623,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
 });
 
 //Fragt alle Matches und ihre Spielstände eines Turnieres ab und rendert das Ergebnis auf 
-//pages/turniermatches.ejs
+//pages/turniermatches.ejs , ein Teil der "einturnier"-Page
 app.get('/:TurnierId/Match',function(req,res){
 
     var matchListeOptions={
@@ -627,7 +642,7 @@ app.get('/:TurnierId/Match',function(req,res){
         matchListeResponse.on('data',function(matchListeData){
 
             var matchListe=JSON.parse(matchListeData);
-            var spielstände=[];
+            var spielstaende=[];
 
             console.log("Die Matchliste sieht folgednermaßen aus:");
             console.log(util.inspect(matchListe, false, null));
@@ -642,16 +657,43 @@ app.get('/:TurnierId/Match',function(req,res){
                 //Lese aktuellen Zustand des Turniers aus DB
                 client.mget('Spielstand '+matchId,function(err,spielstanddata){
                     var spielstand = JSON.parse(spielstanddata);
-                    spielstände.push(spielstand);
+                    spielstaende.push(spielstand);
                     next(); 
                 });
 
             },function(err) {
                 console.log("Die Spielstände sehen folgendermaßen aus:");
-                console.log(util.inspect(spielstände, false, null));
-                res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstände});
+                console.log(util.inspect(spielstaende, false, null));
+                
+                 var options1 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Benutzer",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
+                }
+
+                var y = http.request(options1, function(externalResponse){
+
+                    externalResponse.on("data", function(chunk){
+
+                        var benutzerAll = JSON.parse(chunk);
+                        
+                          for(var i=0;i<spielstaende[i].Gewinner.length;i++) {
+                        if(spielstaende[i].Gewinner[1]) {
+                        console.log('neu');
+                            console.log(spielstaende[i].Gewinner[1]);
+                        }
+                              }
+                        
+                res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstaende,benutzerAll:benutzerAll});
             });
 
+        });
+                y.end();
+            });
         });
     });
     matchListeRequest.end();
@@ -688,7 +730,6 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
         externalResponse.on('data', function (chunk) {
             var teilnehmer = JSON.parse(chunk);
-            //   console.log(util.inspect(completeTurnierplan, false, null));
             res.json(teilnehmer).end();
         });
     });
