@@ -9,6 +9,7 @@
 
             
            $('.deleteHerausforderung').click( function(){
+         
                 var button = $(this);
                var herausforderungId = button.attr('data-herausforderungsID');
                
@@ -16,39 +17,73 @@
                var urlBenutzer = window.location.pathname.split("/");
                var benutzerId = urlBenutzer[2];
                 alert("Herausforderung abgelehnt");
-               location.href="/Benutzer/"+benutzerId+"/alleHerausforderungen"
         });
             
         
             $('.acceptHerausforderung').click( function(){
+                 
                 var button = $(this);
-                alert("Sie haben die Herausforderung Akzeptiert! Legen sie jetzt ein Match an!");
-                location.href="/Match/addMatch"     
-            });
-            
-            
-        });
+                    
+                var herausforderungId = button.attr('data-herausforderungsID');
+                var herausforderer = button.attr('data-Herausforderer');
+                var herausgeforderter = button.attr('data-Herausgeforderter');
+                var austragungsort = button.attr('data-Austragungsort');
+                var datum = button.attr('data-Datum');
+                var uhrzeit = button.attr('data-Uhrzeit');
+                
+                var teilnehmerArray = [];
+                
+                teilnehmerArray.push(herausforderer);
+                teilnehmerArray.push(herausgeforderter);
+                
+                var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: herausgeforderter, Teilnehmer2: null },
+                                                         Team2: { Teilnehmer1: herausforderer, Teilnehmer2: null } } ]
+                
+                var formData = {
+                
+                    Datum : datum,
+                    Uhrzeit : uhrzeit,
+                    Teilnehmer : teilnehmerTeamArray,
+                    Austragungsort: austragungsort,
+                    Status: 'vor_beginn',
+                }
 
-
-     function deleteHerausforderung(herausforderungId){
-         
-          var url = window.location.pathname.split("/");
-    
-            var pathurl = url[2];
-        
-          $.ajax({
-                        type: 'DELETE',
-                        url: '/Benutzer/'+pathurl+"/Herausforderung/"+herausforderungId,
-                        contentType: 'application/json',
-                        success: function(data) {
-                        
+                $.ajax({
+                    type: 'POST',
+                    url: '/Match/',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json',
+                    success: function(data) {
+                       alert('Sie haben die Herausforderung Akzeptiert! Ein Match wurde angelegt.'); 
+                           deleteHerausforderung(herausforderungId);
                         },
                         fail: function() {
                             alert('Fehler');
                         }
                     });
-        }
-    
+                  
+            });
+        });
+
+     function deleteHerausforderung(herausforderungId){
+         
+         //Url speichern und splitten.
+         var url = window.location.pathname.split("/");
+         var pathurl = url[2];
+        
+          $.ajax({
+                type: 'DELETE',
+                url: '/Benutzer/'+pathurl+"/Herausforderung/"+herausforderungId,
+                contentType: 'application/json',
+                success: function(data) {
+                             window.location.reload(true);	
+                },
+                fail: function() {
+                    alert('Fehler');
+                }
+        });
+    }
+
     </script>
 
     <body class="container">
@@ -69,17 +104,22 @@
                             <% response.forEach(function(Herausforderung) { %>
                             <a href="./Herausforderung/<%= Herausforderung.id %>" class="list-group-item"><h4 class="list-group-item-heading">Herausforderung <%= Herausforderung.id %></h4>
                                 
-                                <p class="list-group-item-text">Herausgeforderter: <%= Herausforderung.Herausgeforderter %></p>
+                                <p class="list-group-item-text">Herausgeforderter:
+                                <% benutzerAll.forEach(function(benutzer) { %>
+                                <% if("/Benutzer/"+benutzer.id == Herausforderung.Herausgeforderter) { %><%= benutzer.Name %><% } }); %></p>
                                 <p class="list-group-item-text">Herausforderer: 
                                  <% benutzerAll.forEach(function(benutzer) { %>
                                 <% if("/Benutzer/"+benutzer.id == Herausforderung.Herausforderer) { %><%= benutzer.Name %><% } }); %></p>
                                 <p class="list-group-item-text">Datum: <%= Herausforderung.Datum %></p>
-                                <p class="list-group-item-text">Austragungsort: <%= Herausforderung.Austragungsort %></p>
+                                <p class="list-group-item-text">Uhrzeit: <%= Herausforderung.Uhrzeit %></p>
+                                <p class="list-group-item-text">Austragungsort: <% austragungsorte.forEach(function(ort) { %>
+                                <% if("/Austragungsort/"+ort.id == Herausforderung.Austragungsort) { %><%= ort.Name %><% } }); %></p>
                                 <p class="list-group-item-text">Text: <%= Herausforderung.Kurztext %></p>
 
                             </a>
                             <button class="btn btn-danger deleteHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>"> Ablehnen </button>
-                            <button class="btn btn-success acceptHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>" data-herausforderungHerausforderer="<%= Herausforderung.Herausforderer %>" data-herausforderungDatum="<%= Herausforderung.Datum %>" > Annehmen </button>
+                            
+                            <button class="btn btn-success acceptHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>" data-Herausforderer="<%= Herausforderung.Herausforderer %>" data-Uhrzeit="<%= Herausforderung.Uhrzeit %>" data-Datum="<%= Herausforderung.Datum %>" data-Austragungsort ="<%= Herausforderung.Austragungsort %>" data-Herausgeforderter ="<%= Herausforderung.Herausgeforderter %>" > Annehmen </button>
                             <% });  %>
                         </div>
 

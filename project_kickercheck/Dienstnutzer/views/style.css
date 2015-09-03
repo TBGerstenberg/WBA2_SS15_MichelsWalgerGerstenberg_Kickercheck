@@ -20,7 +20,7 @@ p.list-group-item-text {
     position: relative;
     z-index: 200;
     float:right;
-    margin-top:-60px;
+    margin-top:-70px;
 }
 #alluserforderung {
     position: relative;
@@ -38,11 +38,11 @@ p.list-group-item-text {
  position: absolute;
 z-index: 200;
 right: 85px;
-margin-top: -80px;
+margin-top: -85px;
 }
 .acceptHerausforderung {
    position: absolute;
 z-index: 200;
 right: 175px;
-margin-top: -80px;
+margin-top: -85px;
 }

@@ -215,7 +215,7 @@
                                     <% for(var i=0; i < turnierTeilnehmer.length; i++) { %>
                                     <% benutzerAll.forEach(function(benutzer) { %>
                                     <% var turnierTeilnehmerId = turnierTeilnehmer[i].split("/"); 
-                                                                               if(benutzer.id == turnierTeilnehmerId[2]) { %>
+                                     if(benutzer.id == turnierTeilnehmerId[2]) { %>
                                     <li><a href="<%= turnierTeilnehmer[i] %>"><%= benutzer.Name %></a></li>
                                     <% } }); }}; %>
                                 </ul>

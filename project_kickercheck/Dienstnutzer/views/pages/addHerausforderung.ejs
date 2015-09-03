@@ -16,17 +16,38 @@
                 $('.timepick').datetimepicker({format:'HH:mm'});
                 
                 
-                $('#HerausforderungAnlegen').submit(function(){
+                $('#HerausforderungAnlegen').submit(function(e){
                     
-                    var teilnehmer ="Benutzer"+pathurl;
+                    e.preventDefault();
+                    // Wenn vor via AJAX ein Match angelegt wurde, ersetze den Link durch den Link auf das neue Match
+                    $('.addid').html('');
+                    
+                    var teilnehmer1 ="/Benutzer/"+pathurl;
                     var teilnehmer2 = $('#user1').val();
                     var datum = $('#datum').val();
+                    var uhrzeit = $('#uhrzeit').val();
                     var text = $('#HerausforderungsText').val();
-                    var austragungsort = $('#ado').val();
+                    var austragungsort = $('#ato').val();
+                    
+                      if(!(datum && uhrzeit && text)) {
+                        alert('Bitte Datum und Text spezifizieren.');
+                        return false;
+                    }
+
+                    if(austragungsort == '0') {
+                        alert('Bitte Austragungsort spezifizieren.');
+                        return false;
+                    }
+                    
+                    if(teilnehmer2 == '0') {
+                        alert('Bitte Teilnehmer spezifizieren.');
+                        return false;
+                    }
                     
                     var formData = {
                         
                         Datum : datum,
+                        Uhrzeit : uhrzeit,
                         Herausgeforderter: teilnehmer1,
                         Herausforderer: teilnehmer2,
                         Austragungsort: austragungsort,
@@ -36,11 +57,17 @@
                     
                     var uri = "/Benutzer/"+pathurl+"/Herausforderung";
                     
-                    $.ajax(uri,{
+                    $.ajax({
                         type: 'POST',
                         contentType: 'application/json',
+                        url: uri,
                         data: JSON.stringify(formData),
                         success: function(data){
+                             $('#HerausforderungAnlegen').each(function() {
+                                this.reset();
+                            });
+                            
+                              $('.addid').append('<a href="/Benutzer/'+pathurl+'/Herausforderung/'+data.id+'">Herausforderung '+data.id+' verschickt</a>.');
                         },
                         statusCode:{
                         
@@ -49,7 +76,7 @@
                             
                         }
                     });
-                    alert("Die Herausforderung wurde verschickt");
+                   
             });
         });
         </script>
@@ -103,6 +130,16 @@
                                         <div class="row">
                                             <div class='col-sm-12'>
                                                 <input type='text' id="datum" placeholder="Datum" class="form-control datepick" />
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="uhrzeit">Uhrzeit:</label> <br>
+                                        <div class="row">
+                                            <div class='col-sm-12'>
+                                                <input type='text' id="uhrzeit" placeholder="Uhrzeit" class="form-control timepick" />
                                             </div>
                                         </div>
                                         

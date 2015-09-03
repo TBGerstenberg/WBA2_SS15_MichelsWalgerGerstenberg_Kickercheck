@@ -210,9 +210,31 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
 
                 //console.log(util.inspect(tabelle, false, null));
 
-                res.render('pages/eineLigatabelle', {
-                    ligatabelle:tabelle
+
+                var options1 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Benutzer",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
+                }
+
+                var y = http.request(options1, function(externalResponse){
+
+                    externalResponse.on("data", function(chunk){
+
+                        var benutzerAll = JSON.parse(chunk);
+
+                        console.log(util.inspect(tabelle, false, null));
+
+                        res.render('pages/eineLigatabelle', {
+                            ligatabelle:tabelle,benutzerAll:benutzerAll
+                        });
+                    });
                 });
+                y.end();
             });
         }
         else{
@@ -615,7 +637,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                                 var subscription = fayeclient.subscribe('/liveticker/'+matchIds[i], function(message){
 
                                     if(message.Winner){
-                                         console.log("Gewinner eines Turniermatches von Turnier " + turnierId +  " ermittelt");
+                                        console.log("Gewinner eines Turniermatches von Turnier " + turnierId +  " ermittelt");
 
                                         //Lese ligatabelle des betroffenen Turnieres
                                         client.mget('einTurnier '+turnierId + ' ligatabelle',function(err,ligatabelle){
@@ -672,7 +694,7 @@ app.get('/:TurnierId/Match',function(req,res){
         matchListeResponse.on('data',function(matchListeData){
 
             var matchListe=JSON.parse(matchListeData);
-            var spielstände=[];
+            var spielstaende=[];
 
             console.log("Die Matchliste sieht folgednermaßen aus:");
             console.log(util.inspect(matchListe, false, null));
@@ -687,16 +709,45 @@ app.get('/:TurnierId/Match',function(req,res){
                 //Lese aktuellen Zustand des Turniers aus DB
                 client.mget('Spielstand '+matchId,function(err,spielstanddata){
                     var spielstand = JSON.parse(spielstanddata);
-                    spielstände.push(spielstand);
+                    spielstaende.push(spielstand);
                     next(); 
                 });
 
             },function(err) {
-                //console.log("Die Spielstände sehen folgendermaßen aus:");
-                //console.log(util.inspect(spielstände, false, null));
-                res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstände});
-            });
 
+                console.log("Die Spielstände sehen folgendermaßen aus:");
+                console.log(util.inspect(spielstaende, false, null));
+
+                var options1 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Benutzer",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
+                }
+
+                var y = http.request(options1, function(externalResponse){
+
+                    externalResponse.on("data", function(chunk){
+
+                        var benutzerAll = JSON.parse(chunk);
+
+                        for(var i=0;i<spielstaende[i].Gewinner.length;i++) {
+                            if(spielstaende[i].Gewinner[1]) {
+                                console.log('neu');
+                                console.log(spielstaende[i].Gewinner[1]);
+                            }
+                        }
+
+                        res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstaende,benutzerAll:benutzerAll});
+
+                    });
+
+                });
+                y.end();
+            });
         });
     });
     matchListeRequest.end();

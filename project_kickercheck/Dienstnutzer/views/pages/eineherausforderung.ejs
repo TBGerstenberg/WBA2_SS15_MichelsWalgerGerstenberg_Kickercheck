@@ -16,13 +16,21 @@
                         <h1>Herausforderung <%= HerausforderungDaten.id %></h1>
                         <br />
                         <ul>
-                            <li>Herausforderer: <span id="Name"> <% benutzerAll.forEach(function(benutzer) { %>
-                                <% if("/Benutzer/"+benutzer.id == HerausforderungDaten.Herausforderer) { %><%= benutzer.Name %><% } }); %></span></li>
-                            <li>Datum: <span id="Datum"><%= HerausforderungDaten.Datum %></span></li>
-                            <li>Text: <span id="Text"><%=HerausforderungDaten.Kurztext %></span></li>
+                            <p class="list-group-item-text">Herausgeforderter:
+                            <% benutzerAll.forEach(function(benutzer) { %>
+                            <% if("/Benutzer/"+benutzer.id == HerausforderungDaten.Herausgeforderter) { %><%= benutzer.Name %><% } }); %></p>
+                            <p class="list-group-item-text">Herausforderer: 
+                             <% benutzerAll.forEach(function(benutzer) { %>
+                            <% if("/Benutzer/"+benutzer.id == HerausforderungDaten.Herausforderer) { %><%= benutzer.Name %><% } }); %></p>
+                            <p class="list-group-item-text">Datum: <%= HerausforderungDaten.Datum %></p>
+                            <p class="list-group-item-text">Uhrzeit: <%= HerausforderungDaten.Uhrzeit %></p>
+                            <p class="list-group-item-text">Austragungsort: <% austragungsorte.forEach(function(ort) { %>
+                                <% if("/Austragungsort/"+ort.id == HerausforderungDaten.Austragungsort) { %><%= ort.Name %><% } }); %></p>
+                            <p class="list-group-item-text">Text: <%= HerausforderungDaten.Kurztext %></p>
+
                         </ul> 
                         <br />
-                        <hr />
+                    
                     </div>
                 </div>
 
