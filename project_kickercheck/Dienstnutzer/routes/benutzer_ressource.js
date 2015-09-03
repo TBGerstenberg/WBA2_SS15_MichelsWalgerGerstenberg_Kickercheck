@@ -293,7 +293,9 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
             return;
         }
 
-        client.mget(key, function (err, Herausforderung) {
+        var sorted =  key.sort();
+
+        client.mget(sorted, function (err, Herausforderung) {
 
             //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
             Herausforderung.forEach(function (val) {
@@ -310,14 +312,33 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
                 }
             }
 
+            var options2 = {
+                host: "localhost",
+                port: 3000,
+                path: "/Austragungsort",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
+
             var y = http.request(options1, function(externalResponse){
 
                 externalResponse.on("data", function(chunk){
 
                     var benutzerAll = JSON.parse(chunk);
 
-                    res.render('pages/alleHerausforderungen',{response:response,benutzerAll:benutzerAll});
+                    var z = http.request(options2, function(externalrep){
 
+                        externalrep.on("data", function(chunk){
+
+                            var austragungsorte = JSON.parse(chunk);
+
+                            res.render('pages/alleHerausforderungen',{response:response,benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+
+                        });
+                    });
+                    z.end();
                 });
             });
             y.end();
@@ -336,31 +357,52 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
 
         //Lokalitaet kennt einen Tisch mit dieser TischId
         if (IdExists) {
-            client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,HerausforderungDaten){
-                var HerausforderungDaten= JSON.parse(HerausforderungDaten);
+            client.mget('einBenutzer '+benutzerId+' Herausforderung ' + herausforderungId, function(err,herausforderungdata){
+
+                var HerausforderungDaten= JSON.parse(herausforderungdata);
                 //Setze Contenttype der Antwort auf application/json, sende Statuscode 200.
-                
-                 var options1 = {
-                host: "localhost",
-                port: 3000,
-                path: "/Benutzer",
-                method:"GET",
-                headers:{
-                    accept:"application/json"
+
+                var options1 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Benutzer",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
                 }
-            }
+                
+                  var options2 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Austragungsort",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
+                }
 
-            var y = http.request(options1, function(externalResponse){
 
-                externalResponse.on("data", function(chunk){
+                var y = http.request(options1, function(externalResponse){
 
-                    var benutzerAll = JSON.parse(chunk);
+                    externalResponse.on("data", function(chunk){
 
-                res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten,benutzerAll:benutzerAll});
+                        var benutzerAll = JSON.parse(chunk);
+                        
+                         var z = http.request(options2, function(externalrep){
 
-            });
-            });
-            y.end();
+                        externalrep.on("data", function(chunk){
+
+                            var austragungsorte = JSON.parse(chunk);
+
+                        res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten,benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+
+                    });
+                });
+                z.end();
+                    });
+                });
+                y.end();
             });
         }       
         //Es gibt die angefragte Herausforderung nicht
@@ -403,6 +445,7 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
                 "Herausforderer": Herausforderung.Herausforderer,
                 "Austragungsort": Herausforderung.Austragungsort,
                 "Datum": Herausforderung.Datum,
+                "Uhrzeit": Herausforderung.Uhrzeit,
                 "Kurztext" : Herausforderung.Kurztext,
             };
 
