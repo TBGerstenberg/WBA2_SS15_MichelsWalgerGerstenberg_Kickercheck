@@ -24,10 +24,10 @@ app.get('/addTurnier', function(req, res) {
     }
     var x = http.request(options, function(externalrep){
         externalrep.on("data", function(chunks){
-            
+
             var austragungsorte = JSON.parse(chunks);
             var ortTischMapping = [];
-            
+
             async.each(austragungsorte, function(listItem, next) {
                 var listenKey="Ort " +listItem.id+ " Tische";
                 //Frage Liste aller Kickertische dieses ortes ab
@@ -204,8 +204,11 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
             client.mget('einTurnier '+turnierId + ' ligatabelle',function(err,ligatabelle){
 
                 var tabelle = JSON.parse(ligatabelle);
-                
-                console.log(util.inspect(tabelle, false, null));
+
+                //Sortiert die Tabelle absteigend nach Punkten 
+                tabelle.Teams.sort(dynamicSort("-Punkte"));
+
+                //console.log(util.inspect(tabelle, false, null));
 
                 res.render('pages/eineLigatabelle', {
                     ligatabelle:tabelle
@@ -513,6 +516,9 @@ app.post('/:TurnierId/Spielplan',function(req,res){
 
                         var j = 0;
 
+                        //Merke mir die Ids aller geposteten Matches um später ein Subscribe darauf auszuführen
+                        var matchIds=[];
+
                         async.each(turnier.Spielplan, function(listItem, next) {
                             console.log("Die Länge des Spielplans: " + turnier.Spielplan.length);
 
@@ -548,6 +554,9 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                                 matchRequestResponse.on('data',function(match){
 
                                     var matchExpose = JSON.parse(match);
+
+                                    matchIds.push(matchExpose.id);
+
 
                                     //Bei Turnieren wird nach offiziellen Regeln immer bis 6 (Modus: Klassisch) gespielt 
                                     var spielstandAnfrage = {
@@ -590,9 +599,49 @@ app.post('/:TurnierId/Spielplan',function(req,res){
 
                             //Alle Match Posts sind abgesetzt 
                         }, function(err) {
-                      
-                            res.status(201).set('Location',"/Turnier/"+turnierId+"/Spielplan");
 
+                            //Beende Request
+                            res.status(201).set('Location',"/Turnier/"+turnierId+"/Spielplan").end();
+
+
+                            //Faye Client für die Match Subscriptions
+                            var fayeclient = new faye.Client('http://localhost:8000/faye');
+
+                            //Subscribe auf allen Matches und veranlasse aktualisieren der Tabelle wenn ein Gewinner ermittelt wurde
+                            for(var i=0;i<matchIds.length;i++){
+
+                                console.log("Subscribe Loop läuft");
+
+                                var subscription = fayeclient.subscribe('/liveticker/'+matchIds[i], function(message){
+
+                                    if(message.Winner){
+                                         console.log("Gewinner eines Turniermatches von Turnier " + turnierId +  " ermittelt");
+
+                                        //Lese ligatabelle des betroffenen Turnieres
+                                        client.mget('einTurnier '+turnierId + ' ligatabelle',function(err,ligatabelle){
+
+                                            var tabelle = JSON.parse(ligatabelle);
+
+                                            //console.log("Tabelle vor der aktualisierung ");
+                                            //console.log(util.inspect(tabelle, false, null));
+
+                                            console.log("Der Gewinner war:" + message.Winner);
+                                            for(var k=0;k<tabelle.Teams.length;k++){
+
+                                                if(tabelle.Teams[k].Team.Teilnehmer1 == message.Winner){
+                                                    tabelle.Teams[k].Punkte+=3;
+                                                }
+                                            }
+
+                                            //console.log("Tabelle nach der aktualisierung ");
+                                            //console.log(util.inspect(tabelle, false, null));
+
+                                            client.set('einTurnier '+turnierId + ' ligatabelle',JSON.stringify(tabelle));
+
+                                        });
+                                    } 
+                                });
+                            }
                         });
                     });  
                 });
@@ -643,8 +692,8 @@ app.get('/:TurnierId/Match',function(req,res){
                 });
 
             },function(err) {
-                console.log("Die Spielstände sehen folgendermaßen aus:");
-                console.log(util.inspect(spielstände, false, null));
+                //console.log("Die Spielstände sehen folgendermaßen aus:");
+                //console.log(util.inspect(spielstände, false, null));
                 res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstände});
             });
 
@@ -690,5 +739,20 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
     externalRequest.write(JSON.stringify(Teilnehmer));
     externalRequest.end();
 });
+
+
+//Hilfsfunktion um unterschiedliche Sortierungen der Ligatabelle zu ermöglichen 
+//http://stackoverflow.com/questions/1129216/sort-array-of-objects-by-string-property-value-in-javascript
+function dynamicSort(property) {
+    var sortOrder = 1;
+    if(property[0] === "-") {
+        sortOrder = -1;
+        property = property.substr(1);
+    }
+    return function (a,b) {
+        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+        return result * sortOrder;
+    }
+}
 
 module.exports = app;

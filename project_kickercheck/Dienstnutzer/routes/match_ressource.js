@@ -576,6 +576,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
+                            'Winner':null
                         });
 
 
@@ -609,7 +610,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner': 'Team1'
+                            'Winner': MatchSpielstand.Gewinner
                         });
 
 
@@ -617,8 +618,6 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                         client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
                         //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
                         res.set("Content-Type", 'application/json').status(200).json(MatchSpielstand).end();
-
-
                     }
                     else if(MatchSpielstand.spielstandT2 == 6 && MatchSpielstand.spielstandT1 < 6 ) {
 
@@ -641,7 +640,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner': 'Team2'
+                            'Winner': MatchSpielstand.Gewinner
                         });
 
 
@@ -669,6 +668,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
+                            'Winner':null
                         });
 
 
@@ -701,7 +701,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner': 'Team1'
+                            'Winner': MatchSpielstand.Gewinner
                         });
 
                         //Schreibe Turnierdaten zurück 
@@ -733,7 +733,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner': 'Team2'
+                            'Winner': MatchSpielstand.Gewinner
                         });
 
                         //Schreibe Turnierdaten zurück 
@@ -748,9 +748,6 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                         res.status(403).end();
                     }
                 }
-
-
-
             });
 
         }
