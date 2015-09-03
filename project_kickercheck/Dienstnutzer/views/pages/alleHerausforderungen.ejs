@@ -14,9 +14,8 @@
                var herausforderungId = button.attr('data-herausforderungsID');
                
                deleteHerausforderung(herausforderungId);
-               var urlBenutzer = window.location.pathname.split("/");
-               var benutzerId = urlBenutzer[2];
                 alert("Herausforderung abgelehnt");
+                window.location.reload(true);	
         });
             
         
@@ -54,8 +53,9 @@
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
                     success: function(data) {
-                       alert('Sie haben die Herausforderung Akzeptiert! Ein Match wurde angelegt.'); 
+                       alert('Sie haben die Herausforderung Akzeptiert!\nEin Match wurde angelegt.\nWeiterleitung zu anstehenden Matches auf Benutzerseite...'); 
                            deleteHerausforderung(herausforderungId);
+                         location.href = "/Benutzer/<%= benutzer.id %>"
                         },
                         fail: function() {
                             alert('Fehler');
@@ -66,17 +66,13 @@
         });
 
      function deleteHerausforderung(herausforderungId){
-         
-         //Url speichern und splitten.
-         var url = window.location.pathname.split("/");
-         var pathurl = url[2];
         
           $.ajax({
                 type: 'DELETE',
-                url: '/Benutzer/'+pathurl+"/Herausforderung/"+herausforderungId,
+                url: '/Benutzer/<%= benutzer.id %>/Herausforderung/'+herausforderungId,
                 contentType: 'application/json',
                 success: function(data) {
-                             window.location.reload(true);	
+                 
                 },
                 fail: function() {
                     alert('Fehler');
