@@ -69,7 +69,7 @@
                              $('#HerausforderungAnlegen').each(function() {
                                 this.reset();
                             });
-                            
+ 
                               $('.addid').append('<a href="/Benutzer/'+pathurl+'/Herausforderung/'+data.id+'">Herausforderung '+data.id+' verschickt</a>.');
                         },
                         statusCode:{
@@ -95,8 +95,8 @@
 
                     <div class="jumbotron">
                      
-                        <h1>Add Herausforderung</h1>
-
+                        <h2><a href="/Benutzer/<%=benutzer.id%>"><%=benutzer.Name%></a> herausfordern</h2>
+<br />
                                 <div class="row">
                             <div class="col-md-6">
                                 <form role="form" action="" name="HerausforderungAnlegen" id="HerausforderungAnlegen">
@@ -106,9 +106,9 @@
 
                                         <select id="user1" class="form-control">
                                             <option value="0">Bitte wählen</option>
-                                            <% benutzerAll.forEach(function(benutzer) { %>
-                                            <option class="teilnehmer1" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
-                                            <% });  %>
+                                            <% benutzerAll.forEach(function(ben) { if(ben.id != benutzer.id) {  %>
+                                            <option class="teilnehmer1" value="/Benutzer/<%= ben.id %>"><%= ben.Name %></option>
+                                            <% } });  %>
                                         </select>
                                     </div>
                                     
