@@ -734,13 +734,6 @@ app.get('/:TurnierId/Match',function(req,res){
 
                         var benutzerAll = JSON.parse(chunk);
 
-                        for(var i=0;i<spielstaende[i].Gewinner.length;i++) {
-                            if(spielstaende[i].Gewinner[1]) {
-                                console.log('neu');
-                                console.log(spielstaende[i].Gewinner[1]);
-                            }
-                        }
-
                         res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstaende,benutzerAll:benutzerAll});
 
                     });
