@@ -43,6 +43,7 @@ app.get('/:BenutzerId', function(req, res) {
             accept: 'application/json'
         }
     };
+    
 
     var x = http.request(options, function(externalres){
         externalres.on('data', function(chunk){
@@ -353,7 +354,9 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
             //Baue JSON zusammen
             var HerausfoderungObj={
                 'id' : id,
+                'Herausgeforderter': HerausfoderungObj.Herausgeforderter,
                 'Herausforderer': Herausforderung.Herausforderer,
+                'Austragungsort': HerausfoderungObj.Austragungsort,
                 'Datum': Herausforderung.Datum,
                 'Kurztext' : Herausforderung.Kurztext
             };

@@ -28,51 +28,50 @@ app.get('/addMatch', function(req, res) {
 
     var x = http.request(options1, function(externalResponse){
 
-        var y = http.request(options2, function(externalrep){
+        externalResponse.on("data", function(chunks){
 
-            externalResponse.on("data", function(chunk){
+               var benutzerAll = JSON.parse(chunks);
 
-                var benutzerAll = JSON.parse(chunk);
+            var y = http.request(options2, function(externalrep){
+
+                externalrep.on("data", function(chunk){
+
+                  var austragungsorte = JSON.parse(chunk);
 
 
-                externalrep.on("data", function(chunks){
 
-                    var austragungsorte = JSON.parse(chunks);
-                    
-                           var ortTischMapping = [];
-                 
-             async.each(austragungsorte, function(listItem, next) {
-                 
-                   var listenKey="Ort " +listItem.id+ " Tische";
+                    var ortTischMapping = [];
 
-            //Frage Liste aller Kickertische dieses ortes ab
-            client.lrange(listenKey, 0, -1, function(err,items) {
+                    async.each(austragungsorte, function(listItem, next) {
 
-                //Wenn die Liste nicht leer ist  
-                if(items.length!=0){
-                    
-                     ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
-                }
-                    next();
-            });
-                  }, function(err) {
-                    
-                          res.render('pages/addMatch',{benutzerAll:benutzerAll,austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});
+                        var listenKey="Ort " +listItem.id+ " Tische";
 
+                        //Frage Liste aller Kickertische dieses ortes ab
+                        client.lrange(listenKey, 0, -1, function(err,items) {
+
+                            //Wenn die Liste nicht leer ist  
+                            if(items.length!=0){
+
+                                ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
+                            }
+                            next();
                         });
+                    }, function(err) {
+
+                        res.render('pages/addMatch',{benutzerAll:benutzerAll,austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});
+
+                    });
                 });
 
             });
-
+            y.end();
         });
-
-
-        y.end();
 
     });
     x.end();
 
 });
+
 
 //Unterseite für alle Matches
 app.get('/alleMatches', function(req, res) {

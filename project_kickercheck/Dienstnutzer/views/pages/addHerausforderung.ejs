@@ -18,14 +18,18 @@
                 
                 $('#HerausforderungAnlegen').submit(function(){
                     
-                    var teilnehmer1 = $('#user1').val();
+                    var teilnehmer ="Benutzer"+pathurl;
+                    var teilnehmer2 = $('#user1').val();
                     var datum = $('#datum').val();
                     var text = $('#HerausforderungsText').val();
+                    var austragungsort = $('#ado').val();
                     
                     var formData = {
                         
                         Datum : datum,
-                        Herausforderer: teilnehmer1,
+                        Herausgeforderter: teilnehmer1,
+                        Herausforderer: teilnehmer2,
+                        Austragungsort: austragungsort,
                         Kurztext: text,
                         
                     }
@@ -75,6 +79,22 @@
                                             <% benutzerAll.forEach(function(benutzer) { %>
                                             <option class="teilnehmer1" value="/Benutzer/<%= benutzer.id %>"><%= benutzer.Name %></option>
                                             <% });  %>
+                                        </select>
+                                    </div>
+                                    
+                                     <div class="form-group">
+                                        <label for="austragungsort">Austragungsort:</label> <br>
+                                         <select id="ato" class="form-control">
+                                            <option value="0">Bitte wählen</option>
+                                            <% austragungsorte.forEach(function(austragungsort) { %>
+                                            <option class="austragungsort" value="/Austragungsort/<%= austragungsort.id %>">
+                                        <%= austragungsort.Name %> 
+                                                <% ortTischMapping.forEach(function(map) { 
+                                                if(map.Ort == austragungsort.Name) { %> 
+                                                (<%= map.Tische %> Kickertische)
+                                                <%} }); %>
+                                             </option>
+                                            <% }); %>
                                         </select>
                                     </div>
                                     
