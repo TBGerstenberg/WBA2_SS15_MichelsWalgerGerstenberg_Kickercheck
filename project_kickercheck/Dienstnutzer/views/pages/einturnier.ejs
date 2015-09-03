@@ -7,9 +7,16 @@
         <script>
 
             $(document).ready(function() {
-
-
-
+                
+                if(<%= turnierTeilnehmer.length%> < <%= turnier.Teilnehmeranzahl %>) {
+                  $('#rufeSpielplanAb').prop('disabled', true);
+                $('#rufeLigatabelleAb').prop('disabled', true);
+            }
+                              else {
+                               $('#rufeSpielplanAb').prop('disabled', false);
+                $('#rufeLigatabelleAb').prop('disabled', false);
+                              }
+                              
                 // Fügt dem Turnier einen Teilnehmer hinzu
                 $('#addTeilnehmer').submit(function(e) {
                     e.preventDefault();
@@ -34,6 +41,7 @@
                             if(data.length == <%=turnier.Teilnehmeranzahl%>){
                                posteSpielplan();
                         }
+                          
                         window.location.reload(true);
                     },
                            statusCode: {
@@ -88,7 +96,7 @@
 
             //Ruft die Ligatabelle ab 
             function rufeLigatabelleAb(){
-
+                 
                 //Setze GET auf Ligatabellenressource des Dienstnutzers ab
                 $.ajax({
                     type: 'GET',
@@ -280,7 +288,7 @@
 
                         <!-- Hier wird asynchron die Ligatabelle nachgeladen-->
                         <div class="row" id="ligatabelle">
-                            <input type="button" class="btn btn-default marginbottom20" value="Ligatabelle einblenden" onclick="rufeLigatabelleAb()"/>
+                            <input type="button" id="rufeLigatabelleAb" class="btn btn-default marginbottom20" value="Ligatabelle einblenden" onclick="rufeLigatabelleAb()"/>
                         </div>
                     </div>
                 </div>
