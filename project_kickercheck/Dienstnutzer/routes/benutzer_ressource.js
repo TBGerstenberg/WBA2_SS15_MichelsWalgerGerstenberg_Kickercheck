@@ -45,23 +45,26 @@ app.get('/:BenutzerId', function(req, res) {
     };
     
     var options1 = {
-        host: 'localhost',
+        host: "localhost",
         port: 3000,
-        path: 
-        method: 'GET',
-        headers{
-            accept: 'application/json'
+        path: "/Austragungsort",
+        method:"GET",
+        headers:{
+            accept:"application/json"
         }
     
     }
 
     var x = http.request(options, function(externalres){
+        
         externalres.on('data', function(chunk){
 
             var benutzer = JSON.parse(chunk);
-
-            res.render('pages/einbenutzer', { benutzer: benutzer });
+            
+            res.render('pages/einbenutzer', { benutzer: benutzer});
         });
+        
+        
     });                     
     x.end();
 });
@@ -231,17 +234,56 @@ app.get('/:BenutzerId/addHerausforderung', function(req, res) {
             accept:"application/json"
         }
     }
+    
+     var options2 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Austragungsort",
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+     }
 
     var x = http.request(options1, function(externalResponse){
 
         externalResponse.on("data", function(chunk){
 
             var benutzerAll = JSON.parse(chunk);
+            
+            var y = http.request(options2, function(externalRes){
+                
+                externalRes.on("data", function(chunks){
+                
+                var austragungsorte = JSON.parse(chunks);
 
-            res.render('pages/addHerausforderung',{benutzerAll:benutzerAll});
+                var ortTischMapping = [];
 
-            res.end();
-        });
+                async.each(austragungsorte, function(listItem, next) {
+
+                    var listenKey="Ort " +listItem.id+ " Tische";
+
+                    //Frage Liste aller Kickertische dieses ortes ab
+                    client.lrange(listenKey, 0, -1, function(err,items) {
+
+                        //Wenn die Liste nicht leer ist  
+                        if(items.length!=0){
+                            ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
+                        }
+                        next();
+                    });
+
+            }, 
+                           function(err) {
+
+                res.render('pages/addHerausforderung',{benutzerAll:benutzerAll,austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});	
+
+            });
+                });
+            });
+                
+            y.end();
+        })
     })
     x.end();
 });
@@ -344,6 +386,8 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
 //Poste eine Herausforderung
 app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
+    console.log("POST HERAUSFORDERUNG");
+    
     var Herausforderung = req.body;
     var benutzerId = req.params.BenutzerId;
 
@@ -360,15 +404,18 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
         //Inkrementiere  in der DB , atomare Aktion 
         client.incr('HerausforderungId', function(err, id) {
-
+            console.log(Herausforderung);
+            //JSON.stringify(Herausforderung);
+            //Herausforderung = JSON.parse(Herausforderung);
             //Baue JSON zusammen
+            
             var HerausfoderungObj={
-                'id' : id,
-                'Herausgeforderter': HerausfoderungObj.Herausgeforderter,
-                'Herausforderer': Herausforderung.Herausforderer,
-                'Austragungsort': HerausfoderungObj.Austragungsort,
-                'Datum': Herausforderung.Datum,
-                'Kurztext' : Herausforderung.Kurztext
+                "id" : id,
+                "Herausgeforderter": Herausforderung.Herausgeforderter,
+                "Herausforderer": Herausforderung.Herausforderer,
+                "Austragungsort": Herausforderung.Austragungsort,
+                "Datum": Herausforderung.Datum,
+                "Kurztext" : Herausforderung.Kurztext,
             };
 
             //Pflege Daten über den Kickertisch in die DB ein 

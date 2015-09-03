@@ -22,33 +22,64 @@
         
             $('.acceptHerausforderung').click( function(){
                 var button = $(this);
-                alert("Sie haben die Herausforderung Akzeptiert! Legen sie jetzt ein Match an!");
-                location.href="/Match/addMatch"     
-            });
-            
-            
-        });
+                    
+                var herausforderungId = button.attr('data-herausforderungsID');
+                var herausforderer = button.attr('data-Herausforderer');
+                var herausgeforderter = button.attr('data-Herausgeforderter');
+                var austragungsort = button.attr('data-Austragungsort');
+                var datum = button.attr('data-Datum');
+                
+                var teilnehmerArray = [];
+                
+                teilnehmerArray.push(herausforderer);
+                teilnehmerArray.push(herausgeforderter);
+                
+                var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: herausgeforderter, Teilnehmer2: null },
+                                                         Team2: { Teilnehmer1: herausforderer, Teilnehmer2: null } } ]
+                
+                var formData = {
+                
+                    Datum : datum,
+                    Teilnehmer : teilnehmerTeamArray,
+                    Austragungsort: austragungsort,
+                    Status: 'vor_beginn',
+                }
 
-
-     function deleteHerausforderung(herausforderungId){
-         
-          var url = window.location.pathname.split("/");
-    
-            var pathurl = url[2];
-        
-          $.ajax({
-                        type: 'DELETE',
-                        url: '/Benutzer/'+pathurl+"/Herausforderung/"+herausforderungId,
-                        contentType: 'application/json',
-                        success: function(data) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Match/',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json',
+                    success: function(data) {
                         
                         },
                         fail: function() {
                             alert('Fehler');
                         }
                     });
-        }
-    
+                  alert("Sie haben die Herausforderung Akzeptiert! Ein Match wurde angelegt!");  
+            });
+        });
+
+     function deleteHerausforderung(herausforderungId){
+         
+         //Url speichern und splitten.
+         var url = window.location.pathname.split("/");
+         var pathurl = url[2];
+        
+          $.ajax({
+                type: 'DELETE',
+                url: '/Benutzer/'+pathurl+"/Herausforderung/"+herausforderungId,
+                contentType: 'application/json',
+                success: function(data) {
+                        
+                },
+                fail: function() {
+                    alert('Fehler');
+                }
+        });
+    }
+
     </script>
 
     <body class="container">
@@ -79,7 +110,8 @@
 
                             </a>
                             <button class="btn btn-danger deleteHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>"> Ablehnen </button>
-                            <button class="btn btn-success acceptHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>" data-herausforderungHerausforderer="<%= Herausforderung.Herausforderer %>" data-herausforderungDatum="<%= Herausforderung.Datum %>" > Annehmen </button>
+                            
+                            <button class="btn btn-success acceptHerausforderung" data-herausforderungsID="<%= Herausforderung.id %>" data-Herausforderer="<%= Herausforderung.Herausforderer %>" data-Datum="<%= Herausforderung.Datum %>" data-Austragungsort ="<%= Herausforderung.Austragungsort %>" data-Herausgeforderter ="<%= Herausforderung.Herausgeforderter %>" > Annehmen </button>
                             <% });  %>
                         </div>
 

@@ -18,11 +18,14 @@
                 
                 $('#HerausforderungAnlegen').submit(function(){
                     
-                    var teilnehmer ="Benutzer"+pathurl;
+                    var teilnehmer1 ="/Benutzer/"+pathurl;
                     var teilnehmer2 = $('#user1').val();
                     var datum = $('#datum').val();
                     var text = $('#HerausforderungsText').val();
-                    var austragungsort = $('#ado').val();
+                    var austragungsort = $('#ato').val();
+                    
+                    alert("/Benutzer/"+pathurl);
+                    alert(teilnehmer2);
                     
                     var formData = {
                         
