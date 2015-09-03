@@ -24,33 +24,23 @@ app.get('/addTurnier', function(req, res) {
     }
     var x = http.request(options, function(externalrep){
         externalrep.on("data", function(chunks){
+            
             var austragungsorte = JSON.parse(chunks);
-
             var ortTischMapping = [];
-
+            
             async.each(austragungsorte, function(listItem, next) {
-
                 var listenKey="Ort " +listItem.id+ " Tische";
-
                 //Frage Liste aller Kickertische dieses ortes ab
                 client.lrange(listenKey, 0, -1, function(err,items) {
-
                     //Wenn die Liste nicht leer ist  
                     if(items.length!=0){
-
                         ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
                     }
                     next();
                 });
-
             }, function(err) {
-
-
                 res.render('pages/addTurnier',{austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});	
-
             });
-
-
         });
     });
     x.end();
@@ -82,6 +72,10 @@ app.get('/alleTurniere', function(req, res) {
 });
 
 //Unterseite für ein einzelnes Turnier
+//Die Seite benötigt folgende Informationen bei Abruf :
+//Benutzerliste für den "Teilnehmer hinzufügen" Dropdown
+//Aktuelle Turnierteilnehmer , um die Teilnehmerliste bei jedem Seitenaufruf aktuell zu halten 
+//Austragungsort des Turnieres, da der Name angezeigt werden soll 
 app.get('/:TurnierId', function(req, res) {
 
     var options1 = {
@@ -210,6 +204,8 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
             client.mget('einTurnier '+turnierId + ' ligatabelle',function(err,ligatabelle){
 
                 var tabelle = JSON.parse(ligatabelle);
+                
+                console.log(util.inspect(tabelle, false, null));
 
                 res.render('pages/eineLigatabelle', {
                     ligatabelle:tabelle
@@ -472,7 +468,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                                 //Team für den Ligaplan 
                                 var teamLigaplan={
                                     "teamName":teamName,
-                                    "Teilnehmer":teamObj,
+                                    "Team":teamObj,
                                     "Punkte":0
                                 }
 
@@ -608,7 +604,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
 });
 
 //Fragt alle Matches und ihre Spielstände eines Turnieres ab und rendert das Ergebnis auf 
-//pages/turniermatches.ejs
+//pages/turniermatches.ejs , ein Teil der "einturnier"-Page
 app.get('/:TurnierId/Match',function(req,res){
 
     var matchListeOptions={
@@ -688,7 +684,6 @@ app.put('/:TurnierId/Teilnehmer', function(req, res) {
 
         externalResponse.on('data', function (chunk) {
             var teilnehmer = JSON.parse(chunk);
-            //   console.log(util.inspect(completeTurnierplan, false, null));
             res.json(teilnehmer).end();
         });
     });

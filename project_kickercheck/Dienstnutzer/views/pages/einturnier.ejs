@@ -159,16 +159,26 @@
                     var matchURI=element.attr('data-match');
                     var matchId=matchURI.split("/")[1];
 
-                    //Subscribe beim Match Liveticker
+                    //Für jedes Element mit der Klasse "Match" (jede Tabellenzeile) , subscribe auf den channel dieses Matches
+                    //Die Verbindung Faye Client geht verloren ,sobald die Seite neu geladen wird, daher 
+                    //Wird diese Operation jedes mal ausgeführt wenn die Matchübersicht eingeblendet wird
                     var subscription = client.subscribe('/liveticker/'+matchId, function(message) {
-
-                        $("#SpielstandT1").html(message.SpielstandT1);
-                        $("#SpielstandT2").html(message.SpielstandT2);
+                        //Der Kontext geht bei dieser Operation verloren , die Tablecells müssen also Selektiert werden 
+                        //Die Ids der Tabellenzellen sind die location der Matches , "/" in Ids müssen jedoch escaped werden 
+                        //Teile die Location URI
+                        var splitURI=(message.MatchLocation).split("/");
+                        
+                        //Setze escape Characters ein 
+                        var id=splitURI[0] + "\\/" + splitURI[1];
+                        
+                        //Selektiere die Tabellenzeile mit dieser Id , bzw Child-Elemente davon 
+                        $('#'+id).find('#SpielstandT1').html(message.SpielstandT1);
+                        $('#'+id).find('#SpielstandT2').html(message.SpielstandT2);
 
                         if(message.Winner) {  
-                            $("#sieger").html("<a href="+message.Winner+"> Sieger </a>");
+                            $('#'+id).find('#Sieger').html("<a href="+message.Winner+"> Sieger </a>");
                         }
-                    });
+                    });   
                 });
             }
 
@@ -263,13 +273,12 @@
                         </table> 
 
 
-                        <!-- Hier wird asynchron die nachgeladen-->
+                        <!-- Hier wird asynchron die Matchübersicht nachgeladen-->
                         <div class="row" id="spielplan">
                             <input id="rufeSpielplanAb" onclick="rufeSpielplanAb()" class="btn btn-default marginbottom20" value="Spielplan einblenden" type="button" />
                         </div>
 
                         <!-- Hier wird asynchron die Ligatabelle nachgeladen-->
-
                         <div class="row" id="ligatabelle">
                             <input type="button" class="btn btn-default marginbottom20" value="Ligatabelle einblenden" onclick="rufeLigatabelleAb()"/>
                         </div>

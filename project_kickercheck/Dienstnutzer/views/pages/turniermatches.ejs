@@ -10,16 +10,20 @@
             </tr>
         </thead>
         <tbody id="matches">
+           <!-- Wenn die Turniermatches existieren -->
             <% if(turniermatches) { %>
+            
+              <!-- Für alle Turniermatches -->
                 <% for(var i=0; i < turniermatches.length; i++) { %>
-                <tr>
+                <tr id="<%=turniermatches[i]%>">
+                    <!--Fülle die 4 Spalten mit Link zum Match , Modus , Spielstand , Sieger -->
                     <td> <a href="/<%=turniermatches[i]%>">Match <%=i+1%></a> </td>
                     <td> <%=spielstaende[i].Modus%> </td>
                     <td class="Match" data-match="<%=turniermatches[i]%>"> <span id="SpielstandT1"><%=spielstaende[i].spielstandT1%></span> - <span id="SpielstandT2"><%=spielstaende[i].spielstandT2%></span> </td>
                     <% if(spielstaende[i].Gewinner){%>
-                    <td id="sieger"> <a href="<%=spielstaende[i].Gewinner%>"> Sieger</a></td>
+                    <td id="Sieger"> <a href="<%=spielstaende[i].Gewinner%>"> Sieger</a></td>
                     <% }else{ %>
-                    <td id="sieger"> </td>
+                    <td id="Sieger"> </td>
                     <% } %>
                 </tr>   
                 <% }; %>

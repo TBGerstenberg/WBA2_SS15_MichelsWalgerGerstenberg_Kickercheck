@@ -574,6 +574,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         //Publish to the specific topic path  
                         var publication = clientFaye.publish(path,{
+                            'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
                         });
@@ -606,6 +607,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         //Publish to the specific topic path  
                         var publication = clientFaye.publish(path,{
+                            'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
                             'Winner': 'Team1'
@@ -637,6 +639,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         //Publish to the specific topic path  
                         var publication = clientFaye.publish(path,{
+                            'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
                             'Winner': 'Team2'
@@ -664,6 +667,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         //Publish to the specific topic path  
                         var publication = clientFaye.publish(path,{
+                            'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
                         });
@@ -695,6 +699,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         //Publish to the specific topic path  
                         var publication = clientFaye.publish(path,{
+                            'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
                             'Winner': 'Team1'
@@ -726,6 +731,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         //Publish to the specific topic path  
                         var publication = clientFaye.publish(path,{
+                            'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
                             'Winner': 'Team2'
