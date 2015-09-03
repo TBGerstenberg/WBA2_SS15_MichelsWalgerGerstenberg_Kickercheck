@@ -85,18 +85,43 @@ app.get('/alleMatches', function(req, res) {
             accept:"application/json"
         }
     }
+    
+     var options2 = {
+                host: "localhost",
+                port: 3000,
+                path: "/Austragungsort",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
+                            
+                            
     var externalRequest = http.request(options, function(externalResponse){
 
         externalResponse.on("data", function(chunk){
 
             var matches = JSON.parse(chunk);
-            res.render('pages/allematches',{matches:matches});
+            
+                                var z = http.request(options2, function(externalrep){
+
+                        externalrep.on("data", function(chunk){
+
+                            var austragungsorte = JSON.parse(chunk);
+                            
+                            
+            res.render('pages/allematches',{matches:matches,austragungsorte:austragungsorte});
             res.end();
         });
 
     });
 
-    externalRequest.end();
+    z.end();
+                        });
+                    });
+                    externalRequest.end();
+
+
 });
 
 //Unterseite für ein einzelnes Match
