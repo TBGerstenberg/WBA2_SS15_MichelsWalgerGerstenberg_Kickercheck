@@ -5,12 +5,14 @@
         <script type="text/javascript">
             $(document).ready(function(){
 
-                $('.addid').html('');
+                  
+               
                 var d = new Date();
                 var time = d.setDate(d.getDate()-1);
                 
                 var url = window.location.pathname.split("/");
                 var pathurl = url[2];
+
 
                 $('.datepick').datetimepicker({format:'DD.MM.YYYY', minDate: time});
                 $('.timepick').datetimepicker({format:'HH:mm'});
@@ -23,6 +25,7 @@
                     $('.addid').html('');
                     
                     var teilnehmer1 ="/Benutzer/"+pathurl;
+               
                     var teilnehmer2 = $('#user1').val();
                     var datum = $('#datum').val();
                     var uhrzeit = $('#uhrzeit').val();

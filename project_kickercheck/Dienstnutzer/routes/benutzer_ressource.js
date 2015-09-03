@@ -49,10 +49,47 @@ app.get('/:BenutzerId', function(req, res) {
 
             var benutzer = JSON.parse(chunk);
             
-            res.render('pages/einbenutzer', { benutzer: benutzer});
+             var options = {
+        host: "localhost",
+        port: 3000,
+        path: "/Match",
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+    }
+             
+                      var options2 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Austragungsort",
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+    }
+          
+                            
+    var externalRequest = http.request(options, function(externalResponse){
+
+        externalResponse.on("data", function(chunk){
+
+            var matches = JSON.parse(chunk);
+            
+             var z = http.request(options2, function(externalrep){
+
+                        externalrep.on("data", function(chunk){
+
+                            var austragungsorte = JSON.parse(chunk);
+            
+            res.render('pages/einbenutzer', { benutzer: benutzer,matches:matches,austragungsorte:austragungsorte});
         });
-        
-        
+    });
+            z.end();
+        });
+    });
+       externalRequest.end();
+        });
     });                     
     x.end();
 });
@@ -286,10 +323,27 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
 
     //returned ein Array aller Keys die das Pattern einBenutzerBenuterIDHerausforderung* matchen 
     client.keys('einBenutzer '+benutzerId+' Herausforderung *', function (err, key) {
+        
+              var options1 = {
+                host: "localhost",
+                port: 3000,
+                path: "/Benutzer",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
+              
+               var y = http.request(options1, function(externalResponse){
+
+                externalResponse.on("data", function(chunk){
+
+                    var benutzerAll = JSON.parse(chunk);
+
 
         //Wenn kein Key das Pattern Herausforderung* gematcht hat
         if(key.length == 0) {
-            res.render('pages/alleHerausforderungen',{response:response});
+            res.render('pages/alleHerausforderungen',{benutzerAll:benutzerAll,response:response});
             return;
         }
 
@@ -302,16 +356,7 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
                 response.push(JSON.parse(val));
             });
 
-            var options1 = {
-                host: "localhost",
-                port: 3000,
-                path: "/Benutzer",
-                method:"GET",
-                headers:{
-                    accept:"application/json"
-                }
-            }
-
+      
             var options2 = {
                 host: "localhost",
                 port: 3000,
@@ -321,12 +366,6 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
                     accept:"application/json"
                 }
             }
-
-            var y = http.request(options1, function(externalResponse){
-
-                externalResponse.on("data", function(chunk){
-
-                    var benutzerAll = JSON.parse(chunk);
 
                     var z = http.request(options2, function(externalrep){
 
@@ -341,8 +380,8 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
                     z.end();
                 });
             });
-            y.end();
         });
+          y.end();
     });
 });
 

@@ -89,6 +89,20 @@
                             <li>Alter: <span id="newAge"><%= benutzer.Alter %></span></li>
                         </ul> 
                        <hr />
+                        <h2>Anstehende Matches</h2>
+                          <div class="list-group">
+                              
+        <% matches.forEach(function(match) { 
+        if((match.Teilnehmer[0].Team1.Teilnehmer1 || match.Teilnehmer[0].Team1.Teilnehmer2 || match.Teilnehmer[0].Team2.Teilnehmer1 || match.Teilnehmer[0].Team2.Teilnehmer2) == '/Benutzer/'+benutzer.id && match.Status == 'vor_beginn' ) {
+    %>
+	  <a href="/Match/<%= match.id %>" class="list-group-item"> <h4 class="list-group-item-heading"><%= match.Datum %></h4>
+	   <p class="list-group-item-text">Uhrzeit: <%= match.Uhrzeit %></p>
+           <p class="list-group-item-text">Austragungsort: <% austragungsorte.forEach(function(ort) { %>
+                                <% if("/Austragungsort/"+ort.id == match.Austragungsort) { %><%= ort.Name %><% } }); %></p>
+	    </a>
+   <% } }); %>                              
+</div>
+                        <hr />
                          <div class="row">
                             <div class="col-md-6">
                                 <a href="/Benutzer/<%= benutzer.id%>/alleHerausforderungen" id="alltables" class="btn btn-default" role="button">Alle Herausforderungen anzeigen</a>
