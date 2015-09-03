@@ -24,10 +24,10 @@ app.get('/addTurnier', function(req, res) {
     }
     var x = http.request(options, function(externalrep){
         externalrep.on("data", function(chunks){
-            
+
             var austragungsorte = JSON.parse(chunks);
             var ortTischMapping = [];
-            
+
             async.each(austragungsorte, function(listItem, next) {
                 var listenKey="Ort " +listItem.id+ " Tische";
                 //Frage Liste aller Kickertische dieses ortes ab
@@ -204,12 +204,31 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
             client.mget('einTurnier '+turnierId + ' ligatabelle',function(err,ligatabelle){
 
                 var tabelle = JSON.parse(ligatabelle);
-                
-                console.log(util.inspect(tabelle, false, null));
 
-                res.render('pages/eineLigatabelle', {
-                    ligatabelle:tabelle
+                var options1 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Benutzer",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
+                }
+
+                var y = http.request(options1, function(externalResponse){
+
+                    externalResponse.on("data", function(chunk){
+
+                        var benutzerAll = JSON.parse(chunk);
+
+                        console.log(util.inspect(tabelle, false, null));
+
+                        res.render('pages/eineLigatabelle', {
+                            ligatabelle:tabelle,benutzerAll:benutzerAll
+                        });
+                    });
                 });
+                y.end();
             });
         }
         else{
@@ -590,7 +609,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
 
                             //Alle Match Posts sind abgesetzt 
                         }, function(err) {
-                      
+
                             res.status(201).set('Location',"/Turnier/"+turnierId+"/Spielplan");
 
                         });
@@ -623,7 +642,7 @@ app.get('/:TurnierId/Match',function(req,res){
         matchListeResponse.on('data',function(matchListeData){
 
             var matchListe=JSON.parse(matchListeData);
-            var spielstände=[];
+            var spielstaende=[];
 
             console.log("Die Matchliste sieht folgednermaßen aus:");
             console.log(util.inspect(matchListe, false, null));
@@ -638,16 +657,37 @@ app.get('/:TurnierId/Match',function(req,res){
                 //Lese aktuellen Zustand des Turniers aus DB
                 client.mget('Spielstand '+matchId,function(err,spielstanddata){
                     var spielstand = JSON.parse(spielstanddata);
-                    spielstände.push(spielstand);
+                    spielstaende.push(spielstand);
                     next(); 
                 });
 
             },function(err) {
                 console.log("Die Spielstände sehen folgendermaßen aus:");
-                console.log(util.inspect(spielstände, false, null));
-                res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstände});
+                console.log(util.inspect(spielstaende, false, null));
+                
+                 var options1 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Benutzer",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
+                }
+
+                var y = http.request(options1, function(externalResponse){
+
+                    externalResponse.on("data", function(chunk){
+
+                        var benutzerAll = JSON.parse(chunk);
+                        
+                        
+                res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstaende,benutzerAll:benutzerAll});
             });
 
+        });
+                y.end();
+            });
         });
     });
     matchListeRequest.end();
