@@ -646,7 +646,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                                             var tabelle = JSON.parse(ligatabelle);
 
                                             //console.log("Tabelle vor der aktualisierung ");
-                                            //console.log(util.inspect(tabelle, false, null));
+                                            console.log(util.inspect(tabelle, false, null));
 
                                             console.log("Der Gewinner war:" + message.Winner);
                                             for(var k=0;k<tabelle.Teams.length;k++){
@@ -654,150 +654,152 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                                                 if(tabelle.Teams[k].Team.Teilnehmer1 == message.Winner){
                                                     tabelle.Teams[k].Punkte+=3;
                                                 }
+                                                else if(tabelle.Teams[k].Team.Teilnehmer1+','+tabelle.Teams[k].Team.Teilnehmer2 == message.Winner) {
+                                                    tabelle.Teams[k].Punkte+=3; 
+                                                }
                                             }
+                                                //console.log("Tabelle nach der aktualisierung ");
+                                                //console.log(util.inspect(tabelle, false, null));
 
-                                            //console.log("Tabelle nach der aktualisierung ");
-                                            //console.log(util.inspect(tabelle, false, null));
+                                                client.set('einTurnier '+turnierId + ' ligatabelle',JSON.stringify(tabelle));
 
-                                            client.set('einTurnier '+turnierId + ' ligatabelle',JSON.stringify(tabelle));
-
-                                        });
-                                    } 
+                                            });
+                                        } 
+                                                    });
+                                    }
                                 });
-                            }
+                            });  
                         });
-                    });  
-                });
-                teilnehmerRequest.end();
-            }
-        });
-    });
-    externalRequest.end();
-});
-
-//Fragt alle Matches und ihre Spielstände eines Turnieres ab und rendert das Ergebnis auf 
-//pages/turniermatches.ejs , ein Teil der "einturnier"-Page
-app.get('/:TurnierId/Match',function(req,res){
-
-    var matchListeOptions={
-        host: 'localhost',
-        port: 3000,
-        path: "/Turnier/"+req.params.TurnierId+"/Match",
-        method: 'GET',
-        headers:{
-            'Accept' : 'application/json',
-            'Content-Type': 'application/json'
-        }
-    };
-
-    //Frage Matches ab und liefere Sie als Antwort auf diesen Request
-    var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
-        matchListeResponse.on('data',function(matchListeData){
-
-            var matchListe=JSON.parse(matchListeData);
-            var spielstaende=[];
-
-            console.log("Die Matchliste sieht folgednermaßen aus:");
-            console.log(util.inspect(matchListe, false, null));
-
-
-            var i=0;
-            async.each(matchListe, function(listItem, next) {
-
-                var matchId=matchListe[i++].split("/")[1];
-                console.log("Die matchIds der Matches, zu denen Spielstände abgefragt werden" + matchId);
-
-                //Lese aktuellen Zustand des Turniers aus DB
-                client.mget('Spielstand '+matchId,function(err,spielstanddata){
-                    var spielstand = JSON.parse(spielstanddata);
-                    spielstaende.push(spielstand);
-                    next(); 
-                });
-
-            },function(err) {
-
-                console.log("Die Spielstände sehen folgendermaßen aus:");
-                console.log(util.inspect(spielstaende, false, null));
-
-                var options1 = {
-                    host: "localhost",
-                    port: 3000,
-                    path: "/Benutzer",
-                    method:"GET",
-                    headers:{
-                        accept:"application/json"
+                        teilnehmerRequest.end();
                     }
-                }
-
-                var y = http.request(options1, function(externalResponse){
-
-                    externalResponse.on("data", function(chunk){
-
-                        var benutzerAll = JSON.parse(chunk);
-
-                        res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstaende,benutzerAll:benutzerAll});
-
-                    });
-
+                                                 });
                 });
-                y.end();
+                externalRequest.end();
             });
-        });
-    });
-    matchListeRequest.end();
-});
 
-//Leitet eine Turnier-Teilnehmer PUT anfrage an den Dienstgeber weiter 
-app.put('/:TurnierId/Teilnehmer', function(req, res) {
+            //Fragt alle Matches und ihre Spielstände eines Turnieres ab und rendert das Ergebnis auf 
+            //pages/turniermatches.ejs , ein Teil der "einturnier"-Page
+            app.get('/:TurnierId/Match',function(req,res){
 
-    // Speichert req.body
-    var Teilnehmer = req.body;
+                var matchListeOptions={
+                    host: 'localhost',
+                    port: 3000,
+                    path: "/Turnier/"+req.params.TurnierId+"/Match",
+                    method: 'GET',
+                    headers:{
+                        'Accept' : 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                };
 
-    var turnierId = req.params.TurnierId;
+                //Frage Matches ab und liefere Sie als Antwort auf diesen Request
+                var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
+                    matchListeResponse.on('data',function(matchListeData){
 
-    // HTTP Header setzen
-    var headers = {
-        'Accept' : 'application/json',
-        'Content-Type': 'application/json'
-    };
+                        var matchListe=JSON.parse(matchListeData);
+                        var spielstaende=[];
 
-    // Mit Server verbinden
-    var options = {
-        host: 'localhost',
-        port: 3000,
-        path: '/Turnier/'+turnierId+'/Teilnehmer',
-        method: 'PUT',
-        headers: headers
-    };
-
-    var externalRequest = http.request(options, function(externalResponse) {
-
-        if(externalResponse.statusCode == 409){
-            res.status(409).end();
-        };
-
-        externalResponse.on('data', function (chunk) {
-            var teilnehmer = JSON.parse(chunk);
-            res.json(teilnehmer).end();
-        });
-    });
-    externalRequest.write(JSON.stringify(Teilnehmer));
-    externalRequest.end();
-});
+                        console.log("Die Matchliste sieht folgednermaßen aus:");
+                        console.log(util.inspect(matchListe, false, null));
 
 
-//Hilfsfunktion um unterschiedliche Sortierungen der Ligatabelle zu ermöglichen 
-//http://stackoverflow.com/questions/1129216/sort-array-of-objects-by-string-property-value-in-javascript
-function dynamicSort(property) {
-    var sortOrder = 1;
-    if(property[0] === "-") {
-        sortOrder = -1;
-        property = property.substr(1);
-    }
-    return function (a,b) {
-        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-        return result * sortOrder;
-    }
-}
+                        var i=0;
+                        async.each(matchListe, function(listItem, next) {
 
-module.exports = app;
+                            var matchId=matchListe[i++].split("/")[1];
+                            console.log("Die matchIds der Matches, zu denen Spielstände abgefragt werden" + matchId);
+
+                            //Lese aktuellen Zustand des Turniers aus DB
+                            client.mget('Spielstand '+matchId,function(err,spielstanddata){
+                                var spielstand = JSON.parse(spielstanddata);
+                                spielstaende.push(spielstand);
+                                next(); 
+                            });
+
+                        },function(err) {
+
+                            console.log("Die Spielstände sehen folgendermaßen aus:");
+                            console.log(util.inspect(spielstaende, false, null));
+
+                            var options1 = {
+                                host: "localhost",
+                                port: 3000,
+                                path: "/Benutzer",
+                                method:"GET",
+                                headers:{
+                                    accept:"application/json"
+                                }
+                            }
+
+                            var y = http.request(options1, function(externalResponse){
+
+                                externalResponse.on("data", function(chunk){
+
+                                    var benutzerAll = JSON.parse(chunk);
+
+                                    res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstaende,benutzerAll:benutzerAll});
+
+                                });
+
+                            });
+                            y.end();
+                        });
+                    });
+                });
+                matchListeRequest.end();
+            });
+
+            //Leitet eine Turnier-Teilnehmer PUT anfrage an den Dienstgeber weiter 
+            app.put('/:TurnierId/Teilnehmer', function(req, res) {
+
+                // Speichert req.body
+                var Teilnehmer = req.body;
+
+                var turnierId = req.params.TurnierId;
+
+                // HTTP Header setzen
+                var headers = {
+                    'Accept' : 'application/json',
+                    'Content-Type': 'application/json'
+                };
+
+                // Mit Server verbinden
+                var options = {
+                    host: 'localhost',
+                    port: 3000,
+                    path: '/Turnier/'+turnierId+'/Teilnehmer',
+                    method: 'PUT',
+                    headers: headers
+                };
+
+                var externalRequest = http.request(options, function(externalResponse) {
+
+                    if(externalResponse.statusCode == 409){
+                        res.status(409).end();
+                    };
+
+                    externalResponse.on('data', function (chunk) {
+                        var teilnehmer = JSON.parse(chunk);
+                        res.json(teilnehmer).end();
+                    });
+                });
+                externalRequest.write(JSON.stringify(Teilnehmer));
+                externalRequest.end();
+            });
+
+
+            //Hilfsfunktion um unterschiedliche Sortierungen der Ligatabelle zu ermöglichen 
+            //http://stackoverflow.com/questions/1129216/sort-array-of-objects-by-string-property-value-in-javascript
+            function dynamicSort(property) {
+                var sortOrder = 1;
+                if(property[0] === "-") {
+                    sortOrder = -1;
+                    property = property.substr(1);
+                }
+                return function (a,b) {
+                    var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+                    return result * sortOrder;
+                }
+            }
+
+            module.exports = app;
