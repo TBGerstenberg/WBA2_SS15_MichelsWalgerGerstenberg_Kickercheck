@@ -44,51 +44,51 @@ app.get('/:BenutzerId', function(req, res) {
         }
     };
     var x = http.request(options, function(externalres){
-        
+
         externalres.on('data', function(chunk){
 
             var benutzer = JSON.parse(chunk);
-            
-             var options = {
-        host: "localhost",
-        port: 3000,
-        path: "/Match",
-        method:"GET",
-        headers:{
-            accept:"application/json"
-        }
-    }
-             
-                      var options2 = {
-        host: "localhost",
-        port: 3000,
-        path: "/Austragungsort",
-        method:"GET",
-        headers:{
-            accept:"application/json"
-        }
-    }
-          
-                            
-    var externalRequest = http.request(options, function(externalResponse){
 
-        externalResponse.on("data", function(chunk){
+            var options = {
+                host: "localhost",
+                port: 3000,
+                path: "/Match",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
 
-            var matches = JSON.parse(chunk);
-            
-             var z = http.request(options2, function(externalrep){
+            var options2 = {
+                host: "localhost",
+                port: 3000,
+                path: "/Austragungsort",
+                method:"GET",
+                headers:{
+                    accept:"application/json"
+                }
+            }
+
+
+            var externalRequest = http.request(options, function(externalResponse){
+
+                externalResponse.on("data", function(chunk){
+
+                    var matches = JSON.parse(chunk);
+
+                    var z = http.request(options2, function(externalrep){
 
                         externalrep.on("data", function(chunk){
 
                             var austragungsorte = JSON.parse(chunk);
-            
-            res.render('pages/einbenutzer', { benutzer: benutzer,matches:matches,austragungsorte:austragungsorte});
-        });
-    });
-            z.end();
-        });
-    });
-       externalRequest.end();
+
+                            res.render('pages/einbenutzer', { benutzer: benutzer,matches:matches,austragungsorte:austragungsorte});
+                        });
+                    });
+                    z.end();
+                });
+            });
+            externalRequest.end();
         });
     });                     
     x.end();
@@ -249,6 +249,8 @@ app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res)
 
 
 app.get('/:BenutzerId/addHerausforderung', function(req, res) {
+    
+    var benutzerId = req.params.BenutzerId;
 
     var options1 = {
         host: "localhost",
@@ -259,8 +261,8 @@ app.get('/:BenutzerId/addHerausforderung', function(req, res) {
             accept:"application/json"
         }
     }
-    
-     var options2 = {
+
+    var options2 = {
         host: "localhost",
         port: 3000,
         path: "/Austragungsort",
@@ -268,48 +270,67 @@ app.get('/:BenutzerId/addHerausforderung', function(req, res) {
         headers:{
             accept:"application/json"
         }
-     }
+    }
+    
+    var options3 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Benutzer/"+benutzerId,
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+    }
 
     var x = http.request(options1, function(externalResponse){
 
         externalResponse.on("data", function(chunk){
 
             var benutzerAll = JSON.parse(chunk);
-            
+
             var y = http.request(options2, function(externalRes){
-                
+
                 externalRes.on("data", function(chunks){
-                
-                var austragungsorte = JSON.parse(chunks);
 
-                var ortTischMapping = [];
+                    var austragungsorte = JSON.parse(chunks);
+                    
+                    var z = http.request(options3, function(exres){
 
-                async.each(austragungsorte, function(listItem, next) {
+        exres.on("data", function(benutzerdata){
+            
+                var benutzer = JSON.parse(benutzerdata);
 
-                    var listenKey="Ort " +listItem.id+ " Tische";
+                    var ortTischMapping = [];
 
-                    //Frage Liste aller Kickertische dieses ortes ab
-                    client.lrange(listenKey, 0, -1, function(err,items) {
+                    async.each(austragungsorte, function(listItem, next) {
 
-                        //Wenn die Liste nicht leer ist  
-                        if(items.length!=0){
-                            ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
-                        }
-                        next();
+                        var listenKey="Ort " +listItem.id+ " Tische";
+
+                        //Frage Liste aller Kickertische dieses ortes ab
+                        client.lrange(listenKey, 0, -1, function(err,items) {
+
+                            //Wenn die Liste nicht leer ist  
+                            if(items.length!=0){
+                                ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
+                            }
+                            next();
+                        });
+
+                    }, 
+                               function(err) {
+
+                        res.render('pages/addHerausforderung',{benutzer:benutzer,benutzerAll:benutzerAll,austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});	
+
                     });
-
-            }, 
-                           function(err) {
-
-                res.render('pages/addHerausforderung',{benutzerAll:benutzerAll,austragungsorte:austragungsorte, ortTischMapping: ortTischMapping});	
-
-            });
                 });
             });
-                
-            y.end();
+z.end();
+            
         })
     })
+            y.end();
+        });
+    });
     x.end();
 });
 
@@ -323,65 +344,88 @@ app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
 
     //returned ein Array aller Keys die das Pattern einBenutzerBenuterIDHerausforderung* matchen 
     client.keys('einBenutzer '+benutzerId+' Herausforderung *', function (err, key) {
-        
-              var options1 = {
-                host: "localhost",
-                port: 3000,
-                path: "/Benutzer",
-                method:"GET",
-                headers:{
-                    accept:"application/json"
-                }
+
+        var options1 = {
+            host: "localhost",
+            port: 3000,
+            path: "/Benutzer/"+benutzerId,
+            method:"GET",
+            headers:{
+                accept:"application/json"
             }
-              
-               var y = http.request(options1, function(externalResponse){
-
-                externalResponse.on("data", function(chunk){
-
-                    var benutzerAll = JSON.parse(chunk);
-
-
-        //Wenn kein Key das Pattern Herausforderung* gematcht hat
-        if(key.length == 0) {
-            res.render('pages/alleHerausforderungen',{benutzerAll:benutzerAll,response:response});
-            return;
         }
 
-        var sorted =  key.sort();
 
-        client.mget(sorted, function (err, Herausforderung) {
+        var y = http.request(options1, function(externalResponse){
 
-            //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
-            Herausforderung.forEach(function (val) {
-                response.push(JSON.parse(val));
-            });
+            externalResponse.on("data", function(chunk){
 
-      
-            var options2 = {
-                host: "localhost",
-                port: 3000,
-                path: "/Austragungsort",
-                method:"GET",
-                headers:{
-                    accept:"application/json"
+
+                var benutzer = JSON.parse(chunk);
+
+                //Wenn kein Key das Pattern Herausforderung* gematcht hat
+                if(key.length == 0) {
+                    res.render('pages/alleHerausforderungen',{benutzer:benutzer,response:response});
+                    return;
                 }
-            }
 
-                    var z = http.request(options2, function(externalrep){
+                var sorted =  key.sort();
 
-                        externalrep.on("data", function(chunk){
+                client.mget(sorted, function (err, Herausforderung) {
 
-                            var austragungsorte = JSON.parse(chunk);
+                    //Frage alle diese Keys aus der Datenbank ab und pushe Sie in die Response
+                    Herausforderung.forEach(function (val) {
+                        response.push(JSON.parse(val));
+                    });
 
-                            res.render('pages/alleHerausforderungen',{response:response,benutzerAll:benutzerAll,austragungsorte:austragungsorte});
 
+                    var options2 = {
+                        host: "localhost",
+                        port: 3000,
+                        path: "/Austragungsort",
+                        method:"GET",
+                        headers:{
+                            accept:"application/json"
+                        }
+                    }
+
+                    var options3 = {
+                        host: "localhost",
+                        port: 3000,
+                        path: "/Benutzer/",
+                        method:"GET",
+                        headers:{
+                            accept:"application/json"
+                        }
+                    }
+
+
+                    var ab = http.request(options3, function(externalResponse){
+
+                        externalResponse.on("data", function(chunks){
+
+
+                            var benutzerAll = JSON.parse(chunks);
+
+                            var z = http.request(options2, function(externalrep){
+
+                                externalrep.on("data", function(chunk){
+
+                                    var austragungsorte = JSON.parse(chunk);
+
+                                    res.render('pages/alleHerausforderungen',{response:response,benutzer:benutzer,benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+
+                                });
+                            });
+                            z.end();
                         });
                     });
-                    z.end();
+                    ab.end();
                 });
             });
+           
         });
-          y.end();
+         y.end();
     });
 });
 
@@ -410,8 +454,8 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
                         accept:"application/json"
                     }
                 }
-                
-                  var options2 = {
+
+                var options2 = {
                     host: "localhost",
                     port: 3000,
                     path: "/Austragungsort",
@@ -427,18 +471,18 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
                     externalResponse.on("data", function(chunk){
 
                         var benutzerAll = JSON.parse(chunk);
-                        
-                         var z = http.request(options2, function(externalrep){
 
-                        externalrep.on("data", function(chunk){
+                        var z = http.request(options2, function(externalrep){
 
-                            var austragungsorte = JSON.parse(chunk);
+                            externalrep.on("data", function(chunk){
 
-                        res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten,benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+                                var austragungsorte = JSON.parse(chunk);
 
-                    });
-                });
-                z.end();
+                                res.render('pages/eineherausforderung',{HerausforderungDaten:HerausforderungDaten,benutzerAll:benutzerAll,austragungsorte:austragungsorte});
+
+                            });
+                        });
+                        z.end();
                     });
                 });
                 y.end();
@@ -456,7 +500,7 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
 app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
     console.log("POST HERAUSFORDERUNG");
-    
+
     var Herausforderung = req.body;
     var benutzerId = req.params.BenutzerId;
 
@@ -477,7 +521,7 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
             //JSON.stringify(Herausforderung);
             //Herausforderung = JSON.parse(Herausforderung);
             //Baue JSON zusammen
-            
+
             var HerausfoderungObj={
                 "id" : id,
                 "Herausgeforderter": Herausforderung.Herausgeforderter,

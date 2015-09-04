@@ -5,6 +5,33 @@
         <script type="text/javascript">
             $(document).ready(function(){
 
+  $('select').change(function() {
+    
+    var select_elements = $('select')
+    $.each(select_elements, function(i,elem){
+        var sel_values = [];
+
+        // Selecting and Iterating on Sibling Selects        
+        var siblis = $(elem).siblings('select')
+        $.each(siblis, function(i, sibli){
+            if($(sibli).val()!='0'){
+                sel_values.push($(sibli).val());
+            }
+        });
+          
+        // Iterating on Options of Select
+        $(this).children('option').each(function() {
+            $(this).removeAttr('disabled');
+
+            if($.inArray($(this).val(), sel_values) !== -1){
+                $(this).attr('disabled', true);
+            }
+        });        
+        
+    });    
+});
+
+         
                 // Datepicker Logik
                 var d = new Date();
                 var time = d.setDate(d.getDate()-1);
