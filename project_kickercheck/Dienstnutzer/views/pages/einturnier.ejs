@@ -7,53 +7,53 @@
         <script>
 
             $(document).ready(function() {
-                
-                if(<%= turnierTeilnehmer.length%> < <%= turnier.Teilnehmeranzahl %>) {
-                  $('#rufeSpielplanAb').prop('disabled', true);
+
+            if(<%= turnierTeilnehmer.length%> < <%= turnier.Teilnehmeranzahl %>) {
+                $('#rufeSpielplanAb').prop('disabled', true);
                 $('#rufeLigatabelleAb').prop('disabled', true);
             }
-                              else {
-                               $('#rufeSpielplanAb').prop('disabled', false);
-                $('#rufeLigatabelleAb').prop('disabled', false);
-                              }
                               
-                // Fügt dem Turnier einen Teilnehmer hinzu
-                $('#addTeilnehmer').submit(function(e) {
-                    e.preventDefault();
+            else {
+                $('#rufeSpielplanAb').prop('disabled', false);
+                $('#rufeLigatabelleAb').prop('disabled', false);
+            }
 
-                    var teilnehmer = $('#teilnehmer').val();
+            // Fügt dem Turnier einen Teilnehmer hinzu
+            $('#addTeilnehmer').submit(function(e) {
+                e.preventDefault();
 
-                    if(teilnehmer == '0') {
-                        alert('Bitte Teilnehmer spezifizieren.');
-                        return false;
+                var teilnehmer = $('#teilnehmer').val();
+
+                if(teilnehmer == '0') {
+                    alert('Bitte Teilnehmer spezifizieren.');
+                    return false;
+                }
+
+                var formData = {'Teilnehmer' : teilnehmer};
+
+                $.ajax({
+                    type: 'PUT',
+                    url: "/Turnier/<%= turnier.id %>/Teilnehmer",
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(data) {
+                        //Wenn der letzte Teilnehmer hinzugefügt wurde, generiere Spielplan
+                        if(data.length == <%=turnier.Teilnehmeranzahl%>){
+                           posteSpielplan();
                     }
 
-
-                    var formData = {'Teilnehmer' : teilnehmer};
-
-                    $.ajax({
-                        type: 'PUT',
-                        url: "/Turnier/<%= turnier.id %>/Teilnehmer",
-                        contentType: 'application/json',
-                        data: JSON.stringify(formData),
-                        success: function(data) {
-                            //Wenn der letzte Teilnehmer hinzugefügt wurde, generiere Spielplan
-                            if(data.length == <%=turnier.Teilnehmeranzahl%>){
-                               posteSpielplan();
-                        }
-                          
-                        window.location.reload(true);
-                    },
-                           statusCode: {
-                           409: function() {
+                    window.location.reload(true);
+                },
+                statusCode: {
+                    409: function() {
                         alert('Es dürfen keine weiteren Teilnehmer hinzugefügt werden.');
                     }
                 },
-                                           fail: function() {
+                fail: function() {
                     alert('Fehler');
                 }
             });
-            });
+        });
 
             //Ändert die Daten eines Turnieres
             $('#changeData').submit(function(e) {
@@ -96,7 +96,7 @@
 
             //Ruft die Ligatabelle ab 
             function rufeLigatabelleAb(){
-                 
+
                 //Setze GET auf Ligatabellenressource des Dienstnutzers ab
                 $.ajax({
                     type: 'GET',
@@ -161,9 +161,13 @@
                 //Faye Client für die Match Subscriptions
                 var client = new Faye.Client('http://localhost:8000/faye');
 
-                //Iteriere über alle Matches 
+                //Iteriere über alle Matches (TableRows mit der Klasse "Match")
                 $(".Match").each(function(index,obj){
+
+                    //aktuelles Objekt
                     var element=$(this);
+
+                    //Extrahiere MatchId, da die Liveticker unter dem Topic "liveticker/matchId" subscribed werden 
                     var matchURI=element.attr('data-match');
                     var matchId=matchURI.split("/")[1];
 
@@ -171,14 +175,15 @@
                     //Die Verbindung Faye Client geht verloren ,sobald die Seite neu geladen wird, daher 
                     //Wird diese Operation jedes mal ausgeführt wenn die Matchübersicht eingeblendet wird
                     var subscription = client.subscribe('/liveticker/'+matchId, function(message) {
+
                         //Der Kontext geht bei dieser Operation verloren , die Tablecells müssen also Selektiert werden 
                         //Die Ids der Tabellenzellen sind die location der Matches , "/" in Ids müssen jedoch escaped werden 
                         //Teile die Location URI
                         var splitURI=(message.MatchLocation).split("/");
-                        
+
                         //Setze escape Characters ein 
                         var id=splitURI[0] + "\\/" + splitURI[1];
-                        
+
                         //Selektiere die Tabellenzeile mit dieser Id , bzw Child-Elemente davon 
                         $('#'+id).find('#SpielstandT1').html(message.SpielstandT1);
                         $('#'+id).find('#SpielstandT2').html(message.SpielstandT2);
@@ -223,7 +228,7 @@
                                     <% for(var i=0; i < turnierTeilnehmer.length; i++) { %>
                                     <% benutzerAll.forEach(function(benutzer) { %>
                                     <% var turnierTeilnehmerId = turnierTeilnehmer[i].split("/"); 
-                                     if(benutzer.id == turnierTeilnehmerId[2]) { %>
+                                                                               if(benutzer.id == turnierTeilnehmerId[2]) { %>
                                     <li><a href="<%= turnierTeilnehmer[i] %>"><%= benutzer.Name %></a></li>
                                     <% } }); }}; %>
                                 </ul>
