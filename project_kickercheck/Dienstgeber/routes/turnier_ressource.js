@@ -377,6 +377,7 @@ app.get('/:TurnierId/Teilnehmer',function(req,res){
 //Ein Teilnehmer kann nicht zweimal einem Turnier 
 //Hinzugefügt werden, daher ist diese Opration idemtpotent 
 //Und führt bei Wiederholung immer zum gleichen Ergebnis => der Teilnehmer ist hinzugefügt
+//Hier hätte eventuell das HTTP Verb PATCH eingesetzt werden können 
 app.put('/:TurnierId/Teilnehmer',function(req,res){
 
     var contentType = req.get('Content-Type');
@@ -456,7 +457,6 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
 
 //Erstellt den Turnierplan für ein Turnier vom Typ Liga (jeder gegen jden , auf Spieltage aufgeteilt)
-//WORK IN PROGRESS
 function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
 
     var erfolg=true;
@@ -474,6 +474,9 @@ function generiereLigaTurnierSpielplan(teilnehmerzahl,teamGroesse,callback){
     //http://www.inf-schule.de/algorithmen/algorithmen/bedeutung/fallstudie_turnierplanung/station_algorithmen
 
     //Enthält später den fertigen Spielplan 
+    //Nach dessen Durchführung hat jeder Teilnehmer gegen jeden anderen Teilnehmer genau 1x gespielt , 
+    //Soll im Nachhinein nach Fußball-Bundesliga Art auch eine Rückrunde gespielt werden so 
+    //Kann der hier erstelle Plan einfach gespiegelt werden. 
     var spielPlan= [];
 
     var i=0;
