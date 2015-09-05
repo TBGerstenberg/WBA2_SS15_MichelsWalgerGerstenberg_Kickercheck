@@ -152,8 +152,14 @@ app.put('/:BenutzerId', function(req, res) {
                 //Lese aktuellen Zustand des Benutzers aus der DB 
                 client.mget('Benutzer '+benutzerId,function(err,benutzerdata){
 
+
                     //Parse Redis Antwort 
                     var Benutzerdaten = JSON.parse(benutzerdata);
+
+                    if(Benutzerdaten.isActive == 0) {
+                        res.status(404).end();
+                        return;
+                    }
 
                     //Aktualisiere änderbare Daten 
                     Benutzerdaten.Name = req.body.Name;
@@ -218,7 +224,7 @@ app.delete('/:BenutzerId', function(req, res) {
     client.exists('Benutzer ' + benutzerId, function(err, IdExists) {
 
         //Der Benutzer existiert 
-        if(IdExists){
+        if(IdExists == 1){
 
             //Benutzerdaten sollen für statistische Zwecke auch beim löschen erhalten 
             //bleiben , da hier evtl. noch Informationen über gewonnene Matches o.Ä eingepflegt werden 
@@ -228,22 +234,24 @@ app.delete('/:BenutzerId', function(req, res) {
                 var benutzerObj=JSON.parse(benutzerData);
 
                 //Benutzer existiert und ist nicht gesperrt 
-                if(IdExists==1 && benutzerObj.isActive ==1) {
-
-                    //Sperre Benutzer für Zugriff von außen 
-                    benutzerObj.isActive=0;
-
-                    //Schreibe Benutzerdaten zurück 
-                    client.set('Benutzer ' + benutzerId,JSON.stringify(benutzerObj));
-
-                    //Alles ok , sende 204-No content für erfolgreiches löschen 
-                  res.status(204).end(); 
+                if(benutzerObj.isActive == 0) {
+                    res.status(404).end();
+                    return;
                 }
+
+
+                benutzerObj.isActive = 0;
+
+
+                //Schreibe Benutzerdaten zurück 
+                client.set('Benutzer ' + benutzerId,JSON.stringify(benutzerObj));
+
+                //Alles ok , sende 204-No content für erfolgreiches löschen 
+                res.status(204).end(); 
             });
         }
-
-        //Es gibt keinen Benutzer mit dieser id
         else {
+            // Benutzer existiert nicht
             res.status(404).end();
         }
     });
