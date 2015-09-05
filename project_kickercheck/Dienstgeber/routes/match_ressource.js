@@ -169,6 +169,7 @@ app.put('/:MatchId',function(req, res) {
                     Matchdaten.Austragungsort = req.body.Austragungsort;
                     Matchdaten.Regelwerk = req.body.Regelwerk;
                     Matchdaten.Status = req.body.Status;
+                    Matchdaten.Teilnehmer=req.body.Teilnehmer;
                     Matchdaten.Turnier= req.body.Turnier;
 
                     //Schreibe Turnierdaten zurück 

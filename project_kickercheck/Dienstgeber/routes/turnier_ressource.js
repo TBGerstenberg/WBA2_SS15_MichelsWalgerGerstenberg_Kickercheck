@@ -377,6 +377,7 @@ app.get('/:TurnierId/Teilnehmer',function(req,res){
 //Ein Teilnehmer kann nicht zweimal einem Turnier 
 //Hinzugefügt werden, daher ist diese Opration idemtpotent 
 //Und führt bei Wiederholung immer zum gleichen Ergebnis => der Teilnehmer ist hinzugefügt
+//Die Verwendung von PUT erscheint daher angemessen 
 //Hier hätte eventuell das HTTP Verb PATCH eingesetzt werden können 
 app.put('/:TurnierId/Teilnehmer',function(req,res){
 
@@ -406,6 +407,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
 
             var Turnierdaten = JSON.parse(turnierdata);
 
+            //Die Turnierteilnehmer sind intern in einer Liste abgelegt 
             var listenKey="einTurnier "+turnierId+" Teilnehmer";
 
             var teilnehmer=[];
@@ -420,7 +422,7 @@ app.put('/:TurnierId/Teilnehmer',function(req,res){
                     //Flag um anzuzeigen ob der Benutzer bereits in der Liste ist
                     var bereitsVorhanden=false;
 
-                    //Durchsuche Teilnehmerliste nach diesem Teilnehmer
+                    //Durchsuche Teilnehmerliste nach diesem Teilnehmer (lineare Suche)
                     for(var i=0;i<items.length;i++){
                         if(items[i] == req.body.Teilnehmer){
                             //Benutzer ist bereits eingetragen 

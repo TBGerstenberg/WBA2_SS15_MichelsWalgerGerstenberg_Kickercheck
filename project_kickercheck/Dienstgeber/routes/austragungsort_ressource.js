@@ -184,7 +184,7 @@ app.put('/:AustragungsortId', function(req, res) {
 
 
                             //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                            res.set("Content-Type", 'application/json').status(201).json(Austragungsortdaten).end();
+                            res.set("Content-Type", 'application/json').status(200).json(Austragungsortdaten).end();
                         });
                     }
                 });
@@ -214,7 +214,8 @@ app.delete('/:AustragungsortId', function(req, res) {
             //Speichert die alle Benutzer
             var response=[];    
 
-            //returned ein Array aller Keys die das Pattern Benutzer* matchen 
+            //returned ein Array aller Keys die das Pattern Match* matchen , der gelöschte AUstragungsort wird aus allen 
+            //Matches entfernt , die bei ihm ausgetragen werden sollten 
             client.keys('Match *', function (err, key) {
 
                 if(key.length == 0) {

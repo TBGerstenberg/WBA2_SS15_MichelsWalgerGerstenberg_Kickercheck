@@ -236,8 +236,8 @@ app.delete('/:BenutzerId', function(req, res) {
                     //Schreibe Benutzerdaten zurück 
                     client.set('Benutzer ' + benutzerId,JSON.stringify(benutzerObj));
 
-                    //Alles ok , sende 200-Ok für erfolgreiches löschen 
-                  res.status(200).end(); 
+                    //Alles ok , sende 204-No content für erfolgreiches löschen 
+                  res.status(204).end(); 
                 }
             });
         }
