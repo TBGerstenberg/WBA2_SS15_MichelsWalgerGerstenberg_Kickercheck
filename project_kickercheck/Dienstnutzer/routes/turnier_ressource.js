@@ -2,11 +2,11 @@ var app = express.Router();
 
 //Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen, dass die 
 //Spezifika eines Wettkampfes beschreibt. So ist erreicht ,dass der Dienst für unterschiedlichste Wettkampfarten nutzbar ist.
-var Regelwerk =
-    {
-        "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
-        "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
-    }
+var Regelwerk=
+        {
+            "Beschreibung":"Beim Tichkicker spielen 2 Teams mit 1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zaehlt einen Punkt. Tore, die unmittelbar mit der ersten Ballberuehrung nach Anstoß erzielt werden, zaehlen nicht.", 
+            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
+        }
 
 
 //Unterseite zum hinzufügen eines Turnieres
@@ -339,7 +339,7 @@ app.put('/:TurnierId', function(req, res) {
 //Leitet eine Turnier-Delete anfrage an den Dienstgeber weiter
 app.delete('/:TurnierId', function(req, res) {
 
-    console.log("Springe in DeleteTurnier aufm Dienstntuzer");
+   // console.log("Springe in DeleteTurnier aufm Dienstntuzer");
 
     var options1 = {
         host: 'localhost',
@@ -520,8 +520,8 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                         }
 
                         //Für Testzwecke 
-                        console.log(" Nachdem der Spielplan gepostet wurde , Ligatabelle gebildet : ");
-                        console.log(util.inspect(ligatabelleObj, false, null));
+                       // console.log(" Nachdem der Spielplan gepostet wurde , Ligatabelle gebildet : ");
+                       // console.log(util.inspect(ligatabelleObj, false, null));
 
                         //Füge das Ligaplanobjekt in die Datenbank ein 
                         client.set("einTurnier "+turnierId+" ligatabelle",JSON.stringify(ligatabelleObj));
@@ -567,8 +567,8 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                             //Sodass der Zeitraum zwischen den einzelnen Matches ebenfalls konfiguriert werden 
                             //kann 
                             var matchAnfrage={
-                                'Datum' : "TO BE SPECIFIED",
-                                'Uhrzeit': "TO BE SPECIFIED",
+                                'Datum' : "Noch kein Datum",
+                                'Uhrzeit': "Noch keine Uhrzeit",
                                 'Teilnehmer' : [],
                                 'Regelwerk':Regelwerk,
                                 'Austragungsort': turnier.Austragungsort,
@@ -679,7 +679,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                                                     tabelle.Teams[k].Punkte+=3;
                                                 }
 
-                                                else if(tabelle.Teams[k].Team.Teilnehmer1+','+tabelle.Teams[k].Team.Teilnehmer2 == message.Winner) {
+                                                else if(tabelle.Teams[k].Team.Teilnehmer1 == message.Winner && tabelle.Teams[k].Team.Teilnehmer2 == message.Winner2) {
                                                     tabelle.Teams[k].Punkte+=3; 
                                                 }
                                             }

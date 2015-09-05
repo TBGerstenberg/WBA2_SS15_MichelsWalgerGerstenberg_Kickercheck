@@ -499,7 +499,7 @@ app.get('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res) {
 //Poste eine Herausforderung
 app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
-    console.log("POST HERAUSFORDERUNG");
+   // console.log("POST HERAUSFORDERUNG");
 
     var Herausforderung = req.body;
     var benutzerId = req.params.BenutzerId;
@@ -517,7 +517,7 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
         //Inkrementiere  in der DB , atomare Aktion 
         client.incr('HerausforderungId', function(err, id) {
-            console.log(Herausforderung);
+           // console.log(Herausforderung);
             //JSON.stringify(Herausforderung);
             //Herausforderung = JSON.parse(Herausforderung);
             //Baue JSON zusammen

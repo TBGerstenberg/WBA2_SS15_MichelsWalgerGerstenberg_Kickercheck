@@ -459,7 +459,7 @@ app.post('/', function(req, res) {
     // Schreibe das Kicker-spezifische Regelwerk für das Match in die Repräsentation
     var Regelwerk=
         {
-            "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
+            "Beschreibung":"Beim Tichkicker spielen 2 Teams mit 1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zaehlt einen Punkt. Tore, die unmittelbar mit der ersten Ballberuehrung nach Anstoß erzielt werden, zaehlen nicht.", 
             "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
         }
 
@@ -501,7 +501,28 @@ app.put('/:MatchId', function(req, res) {
         externalResponse.on('data', function (chunk) {
 
             var changeMatch = JSON.parse(chunk);
+            
+            if(changeMatch.Status == 'aktiv') {
+             //Path of the Topic
+                        var path = "/liveticker/"+matchId;
 
+                        //Publish to the specific topic path  
+                        var publication = clientFaye.publish(path,{
+                             'MatchLocation':"Match/"+matchId,
+                            'MatchLive':'gestartet'
+                        });
+                
+                
+            }
+            else if(changeMatch.Status == 'abgebrochen') {
+                 var path = "/liveticker/"+matchId;
+
+                        //Publish to the specific topic path  
+                        var publication = clientFaye.publish(path,{
+                             'MatchLocation':"Match/"+matchId,
+                            'MatchCanc':'abgebrochen'
+                        });
+            }
             // console.log(util.inspect(changeMatch, false, null));
 
             res.json(changeMatch);
@@ -515,7 +536,7 @@ app.put('/:MatchId', function(req, res) {
     // Schreibe das Kicker-spezifische Regelwerk für das Match in die Repräsentation
     var Regelwerk=
         {
-            "Beschreibung":"Beim Tichkicker spielen 2 Parteien á  1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zählt einen Punkt. Tore,die unmittelbar mit der ersten Ballberührung nach Anstoß erzielt werden zählen nicht.", 
+            "Beschreibung":"Beim Tichkicker spielen 2 Teams mit 1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zaehlt einen Punkt. Tore, die unmittelbar mit der ersten Ballberuehrung nach Anstoß erzielt werden, zaehlen nicht.", 
             "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
         }
 
@@ -600,8 +621,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                         var publication = clientFaye.publish(path,{
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
-                            'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner':null
+                            'SpielstandT2': MatchSpielstand.spielstandT2
                         });
 
 
@@ -619,13 +639,15 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                         if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
 
 
-                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
+                         MatchSpielstand.Gewinner = dieseMatch.Teilnehmer[0].Team1.Teilnehmer1                      
+                            MatchSpielstand.Gewinner2 = dieseMatch.Teilnehmer[0].Team1.Teilnehmer2;
 
                         }
                         else {
                             MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1];
 
                         }
+
 
                         //Path of the Topic
                         var path = "/liveticker/"+matchId;
@@ -635,9 +657,10 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner': MatchSpielstand.Gewinner
+                            'Winner': MatchSpielstand.Gewinner,
+                            'Winner2': MatchSpielstand.Gewinner2,
+                            'MatchEnd': 'beendet'
                         });
-
 
                         //Schreibe Turnierdaten zurück 
                         client.set('Spielstand ' + spielstandId,JSON.stringify(MatchSpielstand));
@@ -648,14 +671,15 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
 
-                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
+                             MatchSpielstand.Gewinner = dieseMatch.Teilnehmer[0].Team2.Teilnehmer1;
+                            MatchSpielstand.Gewinner2 = dieseMatch.Teilnehmer[0].Team2.Teilnehmer2
 
                         }
                         else {
                             MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1];
 
-
                         }
+
 
                         //Path of the Topic
                         var path = "/liveticker/"+matchId;
@@ -665,7 +689,9 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner': MatchSpielstand.Gewinner
+                            'Winner': MatchSpielstand.Gewinner,
+                            'Winner2': MatchSpielstand.Gewinner2,
+                             'MatchEnd': 'beendet'
                         });
 
 
@@ -692,8 +718,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                         var publication = clientFaye.publish(path,{
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
-                            'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner':null
+                            'SpielstandT2': MatchSpielstand.spielstandT2
                         });
 
 
@@ -709,7 +734,8 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
 
-                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team1.Teilnehmer1, dieseMatch.Teilnehmer[0].Team1.Teilnehmer2];
+                            MatchSpielstand.Gewinner = dieseMatch.Teilnehmer[0].Team1.Teilnehmer1                      
+                            MatchSpielstand.Gewinner2 = dieseMatch.Teilnehmer[0].Team1.Teilnehmer2;
 
                         }
                         else {
@@ -726,7 +752,9 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner': MatchSpielstand.Gewinner
+                            'Winner': MatchSpielstand.Gewinner,
+                            'Winner2': MatchSpielstand.Gewinner2,
+                             'MatchEnd': 'beendet'
                         });
 
                         //Schreibe Turnierdaten zurück 
@@ -741,7 +769,8 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
 
-                            MatchSpielstand.Gewinner = [dieseMatch.Teilnehmer[0].Team2.Teilnehmer1, dieseMatch.Teilnehmer[0].Team2.Teilnehmer2];
+                            MatchSpielstand.Gewinner = dieseMatch.Teilnehmer[0].Team2.Teilnehmer1;
+                            MatchSpielstand.Gewinner2 = dieseMatch.Teilnehmer[0].Team2.Teilnehmer2
 
                         }
                         else {
@@ -758,7 +787,9 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'MatchLocation':"Match/"+matchId,
                             'SpielstandT1': MatchSpielstand.spielstandT1,
                             'SpielstandT2': MatchSpielstand.spielstandT2,
-                            'Winner': MatchSpielstand.Gewinner
+                            'Winner': MatchSpielstand.Gewinner,
+                            'Winner2': MatchSpielstand.Gewinner2,
+                             'MatchEnd': 'beendet'
                         });
 
                         //Schreibe Turnierdaten zurück 

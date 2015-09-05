@@ -295,7 +295,7 @@ app.post('/:TurnierId/Match',function(req,res){
         res.set("Accepts", "application/json").status(415).end();
     } 
 
-    console.log("Turnier_Match hinzufügen auf Dienstgeber gecalled");
+    //console.log("Turnier_Match hinzufügen auf Dienstgeber gecalled");
 
     var turnierId=req.params.TurnierId;
 

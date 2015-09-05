@@ -6,6 +6,7 @@
         <script>
             $(document).ready(function() {
                 
+                
                 // Variablen für PUT Requests
                 var stdStatus = 'vor_beginn';
                 var stdModus = $('#modustext').text();
@@ -683,7 +684,7 @@ else if(benutzerAll.length == 4) {
                         <div class="row text-center">
                             <div>
                                 <form role="form" action="" method="PUT" name="endMatch" id="endMatch">
-                                    <input type="submit" class="btn btn-success" name="start" value="Match beenden" />
+                                    <input type="submit" class="btn btn-success" id="beendMatch" name="start" value="Match beenden" />
                                     <p><br />Wird ein Match vor Erreichen der Zielpunktzahl beendet, wird es nicht gewertet.</p>
                                 </form>
                             </div><br />
@@ -722,19 +723,19 @@ else if(benutzerAll.length == 4) {
                                 <p id="spielst">
                                     <br /><% if(spielstand.Gewinner) { %>
 
-                                    <% if(spielstand.Gewinner.length == 1) { 
+                                    <% if(spielstand.Gewinner && !spielstand.Gewinner2) { 
     benutzerAll.forEach(function(benutzer) { 
-        if('/Benutzer/'+benutzer.id == spielstand.Gewinner[0]) { %>
+        if('/Benutzer/'+benutzer.id == spielstand.Gewinner) { %>
 
-                                    Gewinner: <a href="<%= spielstand.Gewinner[0] %>"><%= benutzer.Name %></a>
+                                    Gewinner: <a href="<%= spielstand.Gewinner %>"><%= benutzer.Name %></a>
                                     <% } }); } 
-else if(spielstand.Gewinner.length == 2) { %>
+else { %>
                                     Gewinner: <% benutzerAll.forEach(function(benutzer) { 
-    if('/Benutzer/'+benutzer.id == spielstand.Gewinner[0]) { %> <a href="<%= spielstand.Gewinner[0] %>"><%= benutzer.Name %></a>
+    if('/Benutzer/'+benutzer.id == spielstand.Gewinner) { %> <a href="<%= spielstand.Gewinner %>"><%= benutzer.Name %></a>
                                     <% } }); %>, 
                                     <% benutzerAll.forEach(function(benutzer) { 
-    if('/Benutzer/'+benutzer.id == spielstand.Gewinner[1]) { %>
-                                    <a href="<%= spielstand.Gewinner[1] %>"><%= benutzer.Name %></a>
+    if('/Benutzer/'+benutzer.id == spielstand.Gewinner2) { %>
+                                    <a href="<%= spielstand.Gewinner2 %>"><%= benutzer.Name %></a>
                                     <% } }); } }; %>
                                 </p>
                             </div> 

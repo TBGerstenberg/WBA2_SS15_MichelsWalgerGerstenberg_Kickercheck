@@ -7,6 +7,7 @@
         <script>
 
             $(document).ready(function() {
+            
 
             if(<%= turnierTeilnehmer.length%> < <%= turnier.Teilnehmeranzahl %>) {
                 $('#rufeSpielplanAb').prop('disabled', true);
@@ -185,11 +186,26 @@
                         var id=splitURI[0] + "\\/" + splitURI[1];
 
                         //Selektiere die Tabellenzeile mit dieser Id , bzw Child-Elemente davon 
+                        if(message.SpielstandT1) {
                         $('#'+id).find('#SpielstandT1').html(message.SpielstandT1);
+                      
+                        }
+                        if(message.SpielstandT2) {
                         $('#'+id).find('#SpielstandT2').html(message.SpielstandT2);
+                        
+                        }
+                        if(message.MatchLive) {
+                             $('#'+id).find('#matchinfo').html("(gestartet)");
+                        }
+                        else if(message.MatchEnd) {
+                              $('#'+id).find('#matchinfo').html("(beendet)");
+                        }
 
-                        if(message.Winner) {  
-                            $('#'+id).find('#Sieger').html("<a href="+message.Winner+"> Sieger </a>");
+                        if(message.Winner && !message.Winner2) {  
+                            $('#'+id).find('#Sieger').html("<a href="+message.Winner+"> Spieler </a>");
+                        }
+                        else if(message.Winner && message.Winner2) {
+                             $('#'+id).find('#Sieger').html("<a href="+message.Winner+">Spieler 1</a> , <a href="+message.Winner2+">Spieler 2</a>");
                         }
                     });   
                 });
