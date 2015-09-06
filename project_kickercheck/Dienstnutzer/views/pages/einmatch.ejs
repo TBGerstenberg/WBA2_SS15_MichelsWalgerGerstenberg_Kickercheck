@@ -102,11 +102,49 @@
                         alert('Bitte Tisch wählen');
                         return false;
                     }
+                    
+                    var teilnehmer1 = $('#team1teilnehmer1').attr('href');
+                    var teilnehmer2 = $('#team1teilnehmer2').attr('href');
+                    var teilnehmer3 = $('#team2teilnehmer1').attr('href');
+                    var teilnehmer4 = $('#team2teilnehmer2').attr('href');
+                    
+                    // Baue aus Teilnehmern ein Array
+                    var teilnehmerArray = [];
+
+
+                    if(teilnehmer1) {
+                        teilnehmerArray.push(teilnehmer1);
+                    }
+                    if(teilnehmer2) {
+                        teilnehmerArray.push(teilnehmer2);
+                    }
+                    if(teilnehmer3) {
+                        teilnehmerArray.push(teilnehmer3);
+                    }
+                    if(teilnehmer4) {
+                        teilnehmerArray.push(teilnehmer4);
+                    }
+
+                    // Wenn die Länge des Teilnehmer Arrays 1,2,3 oder 4 ist, setze jeweils die Teams eines Matches
+                    if(teilnehmerArray.length == 1) {
+                        var teilnehmerTeamArray = [{ Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                    Team2: { Teilnehmer1: null, Teilnehmer2: null } } ]
+                        } else if (teilnehmerArray.length == 2) {
+                            var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                         Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: null } } ]
+                            } else if(teilnehmerArray.length == 3) {
+                                var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                             Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: null } } ]
+                                } else if (teilnehmerArray.length == 4) {
+                                    var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                                 Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: teilnehmer4 } } ]
+                                    }
 
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
                                     Austragungsort: tisch,
+                                    Teilnehmer: teilnehmerTeamArray,
                                     Status:  stdStatus,
                                   Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
                                    };
@@ -136,6 +174,43 @@
                     var tisch = $('#aort').attr('href');
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
+                    
+                     var teilnehmer1 = $('#team1teilnehmer1').attr('href');
+                    var teilnehmer2 = $('#team1teilnehmer2').attr('href');
+                    var teilnehmer3 = $('#team2teilnehmer1').attr('href');
+                    var teilnehmer4 = $('#team2teilnehmer2').attr('href');
+                    
+                    // Baue aus Teilnehmern ein Array
+                    var teilnehmerArray = [];
+
+
+                    if(teilnehmer1) {
+                        teilnehmerArray.push(teilnehmer1);
+                    }
+                    if(teilnehmer2) {
+                        teilnehmerArray.push(teilnehmer2);
+                    }
+                    if(teilnehmer3) {
+                        teilnehmerArray.push(teilnehmer3);
+                    }
+                    if(teilnehmer4) {
+                        teilnehmerArray.push(teilnehmer4);
+                    }
+
+                    // Wenn die Länge des Teilnehmer Arrays 1,2,3 oder 4 ist, setze jeweils die Teams eines Matches
+                    if(teilnehmerArray.length == 1) {
+                        var teilnehmerTeamArray = [{ Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                    Team2: { Teilnehmer1: null, Teilnehmer2: null } } ]
+                        } else if (teilnehmerArray.length == 2) {
+                            var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                         Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: null } } ]
+                            } else if(teilnehmerArray.length == 3) {
+                                var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                             Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: null } } ]
+                                } else if (teilnehmerArray.length == 4) {
+                                    var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                                 Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: teilnehmer4 } } ]
+                                    }
 
 
                     // siehe obiges Script zur Prüfung ob ein Kickertisch gesetzt ist, dann enthält die URI die ID des Tisches
@@ -146,6 +221,7 @@
                     
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
+                                    Teilnehmer:teilnehmerTeamArray,
                                     Austragungsort: tisch,
                                     Status:  'aktiv',
                                  Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
@@ -209,11 +285,49 @@
                     var tisch = $('#aort').attr('href');
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
+                    
+                    var teilnehmer1 = $('#team1teilnehmer1').attr('href');
+                    var teilnehmer2 = $('#team1teilnehmer2').attr('href');
+                    var teilnehmer3 = $('#team2teilnehmer1').attr('href');
+                    var teilnehmer4 = $('#team2teilnehmer2').attr('href');
+                    
+                    // Baue aus Teilnehmern ein Array
+                    var teilnehmerArray = [];
+
+
+                    if(teilnehmer1) {
+                        teilnehmerArray.push(teilnehmer1);
+                    }
+                    if(teilnehmer2) {
+                        teilnehmerArray.push(teilnehmer2);
+                    }
+                    if(teilnehmer3) {
+                        teilnehmerArray.push(teilnehmer3);
+                    }
+                    if(teilnehmer4) {
+                        teilnehmerArray.push(teilnehmer4);
+                    }
+
+                    // Wenn die Länge des Teilnehmer Arrays 1,2,3 oder 4 ist, setze jeweils die Teams eines Matches
+                    if(teilnehmerArray.length == 1) {
+                        var teilnehmerTeamArray = [{ Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                    Team2: { Teilnehmer1: null, Teilnehmer2: null } } ]
+                        } else if (teilnehmerArray.length == 2) {
+                            var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                         Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: null } } ]
+                            } else if(teilnehmerArray.length == 3) {
+                                var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                             Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: null } } ]
+                                } else if (teilnehmerArray.length == 4) {
+                                    var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                                 Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: teilnehmer4 } } ]
+                                    }
 
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
                                     Austragungsort : tisch,
+                                    Teilnehmer : teilnehmerTeamArray,
                                     Status:  'beendet',
                                    Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
                                    };
@@ -255,9 +369,47 @@
                     var tisch = $('#aort').attr('href');
                     var datum = $('#dat').text();
                     var uhrzeit = $('#uhr').text();
+                    
+                    var teilnehmer1 = $('#team1teilnehmer1').attr('href');
+                    var teilnehmer2 = $('#team1teilnehmer2').attr('href');
+                    var teilnehmer3 = $('#team2teilnehmer1').attr('href');
+                    var teilnehmer4 = $('#team2teilnehmer2').attr('href');
+                    
+                    // Baue aus Teilnehmern ein Array
+                    var teilnehmerArray = [];
+
+
+                    if(teilnehmer1) {
+                        teilnehmerArray.push(teilnehmer1);
+                    }
+                    if(teilnehmer2) {
+                        teilnehmerArray.push(teilnehmer2);
+                    }
+                    if(teilnehmer3) {
+                        teilnehmerArray.push(teilnehmer3);
+                    }
+                    if(teilnehmer4) {
+                        teilnehmerArray.push(teilnehmer4);
+                    }
+
+                    // Wenn die Länge des Teilnehmer Arrays 1,2,3 oder 4 ist, setze jeweils die Teams eines Matches
+                    if(teilnehmerArray.length == 1) {
+                        var teilnehmerTeamArray = [{ Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                    Team2: { Teilnehmer1: null, Teilnehmer2: null } } ]
+                        } else if (teilnehmerArray.length == 2) {
+                            var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                         Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: null } } ]
+                            } else if(teilnehmerArray.length == 3) {
+                                var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                             Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: null } } ]
+                                } else if (teilnehmerArray.length == 4) {
+                                    var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                                 Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: teilnehmer4 } } ]
+                                    }
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
+                                    Teilnehmer: teilnehmerTeamArray,
                                     Austragungsort: tisch,
                                     Status:  'abgebrochen',
                                    Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
@@ -306,10 +458,48 @@
                         alert('Bitte Daten spezifizieren.');
                         return false;
                     }
+                    
+                    var teilnehmer1 = $('#team1teilnehmer1').attr('href');
+                    var teilnehmer2 = $('#team1teilnehmer2').attr('href');
+                    var teilnehmer3 = $('#team2teilnehmer1').attr('href');
+                    var teilnehmer4 = $('#team2teilnehmer2').attr('href');
+                    
+                    // Baue aus Teilnehmern ein Array
+                    var teilnehmerArray = [];
+
+
+                    if(teilnehmer1) {
+                        teilnehmerArray.push(teilnehmer1);
+                    }
+                    if(teilnehmer2) {
+                        teilnehmerArray.push(teilnehmer2);
+                    }
+                    if(teilnehmer3) {
+                        teilnehmerArray.push(teilnehmer3);
+                    }
+                    if(teilnehmer4) {
+                        teilnehmerArray.push(teilnehmer4);
+                    }
+
+                    // Wenn die Länge des Teilnehmer Arrays 1,2,3 oder 4 ist, setze jeweils die Teams eines Matches
+                    if(teilnehmerArray.length == 1) {
+                        var teilnehmerTeamArray = [{ Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                    Team2: { Teilnehmer1: null, Teilnehmer2: null } } ]
+                        } else if (teilnehmerArray.length == 2) {
+                            var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: null },
+                                                         Team2: { Teilnehmer1: teilnehmer2, Teilnehmer2: null } } ]
+                            } else if(teilnehmerArray.length == 3) {
+                                var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                             Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: null } } ]
+                                } else if (teilnehmerArray.length == 4) {
+                                    var teilnehmerTeamArray = [ { Team1: { Teilnehmer1: teilnehmer1, Teilnehmer2: teilnehmer2 } ,
+                                                                 Team2: { Teilnehmer1: teilnehmer3, Teilnehmer2: teilnehmer4 } } ]
+                                    }
 
                     var formData = {Datum: datum,
                                     Uhrzeit: uhrzeit,
                                     Austragungsort: tisch,
+                                    Teilnehmer:teilnehmerTeamArray,
                                     Status:  stdStatus,
                                  Turnier : <% if(match.Turnier) { %> "<%=match.Turnier %>" <% } else { %>null<% } %>
                                    };
@@ -489,6 +679,8 @@
                             <li id="stat"> Status: <%= match.Status %></li>
                         </ul> 
                         <hr />
+                        
+             
                        
                         <p>Teams </p>
 
@@ -497,7 +689,7 @@
         benutzerAll.forEach(function(benutzer) { 
             if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer1) { %>
 
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
+                        <p id="team1">Team 1 : <a id="team1teilnehmer1" href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
 
                         <% } }); } 
 
@@ -505,41 +697,41 @@ else if(benutzerAll.length == 2) {
     benutzerAll.forEach(function(benutzer) { 
         if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer1) { %>
 
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
+                        <p id="team1">Team 1 : <a id="team1teilnehmer1" href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
                         <% }});  
                         benutzerAll.forEach(function(benutzer) {  
                             if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team2.Teilnehmer1) { %>
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
+                        <p id="team2">Team 2 : <a id="team2teilnehmer1"  href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><%= benutzer.Name %></a></p>
                         <%  } }); } 
 
 else if(benutzerAll.length == 3) {  
     benutzerAll.forEach(function(benutzer) { 
         if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer1) { %> 
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a>
+                        <p id="team1">Team 1 : <a id="team1teilnehmer1" href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a>
                             <% } }); %>, 
                             <% benutzerAll.forEach(function(benutzer) { 
     if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer2) { %> 
-                            <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><%= benutzer.Name %></a></p>  
+                            <a id="team1teilnehmer2"  href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><%= benutzer.Name %></a></p>  
                         <% } }); 
                         benutzerAll.forEach(function(benutzer) { 
                             if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team2.Teilnehmer1) { %> 
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><%= benutzer.Name %></a></p>                                        <% } }); } 
+                        <p id="team2">Team 2 : <a id="team2teilnehmer1" href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><%= benutzer.Name %></a></p>                                        <% } }); } 
 
 else if(benutzerAll.length == 4) {  
     benutzerAll.forEach(function(benutzer) { 
         if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer1) { %> 
 
-                        <p id="team1">Team 1 : <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a><% } }); %>, <% benutzerAll.forEach(function(benutzer) { 
+                        <p id="team1">Team 1 : <a id="team1teilnehmer1" href="<%= match.Teilnehmer[0].Team1.Teilnehmer1 %>"><%= benutzer.Name %></a><% } }); %>, <% benutzerAll.forEach(function(benutzer) { 
     if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team1.Teilnehmer2) { %> 
-                            <a href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><%= benutzer.Name %></a></p>  
+                            <a id="team1teilnehmer2" href="<%= match.Teilnehmer[0].Team1.Teilnehmer2 %>"><%= benutzer.Name %></a></p>  
                         <% } }); %>
                         <% benutzerAll.forEach(function(benutzer) { 
 
     if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team2.Teilnehmer1) { %> 
 
-                        <p id="team2">Team 2 : <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><%= benutzer.Name %></a><% } }); %>, <% benutzerAll.forEach(function(benutzer) { 
+                        <p id="team2">Team 2 : <a id="team2teilnehmer1" href="<%= match.Teilnehmer[0].Team2.Teilnehmer1 %>"><%= benutzer.Name %></a><% } }); %>, <% benutzerAll.forEach(function(benutzer) { 
     if('/Benutzer/'+benutzer.id == match.Teilnehmer[0].Team2.Teilnehmer2) { %> 
-                            <a href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><%= benutzer.Name %></a></p>  
+                            <a id="team2teilnehmer2" href="<%= match.Teilnehmer[0].Team2.Teilnehmer2 %>"><%= benutzer.Name %></a></p>  
                         <% } }); %>
                         <% } %>
                         <% } %>
