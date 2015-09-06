@@ -129,6 +129,12 @@
                             $('#matchAnlegen').each(function() {
                                 this.reset();
                             });
+                            
+                            $('select').each(function() {
+                             $(this).children('option').each(function() {
+            $(this).removeAttr('disabled');
+                            });
+                            });
 
                             $('.addid').append('<a href="/Match/'+data.id+'">Match '+data.id+' angelegt</a>.');
 
