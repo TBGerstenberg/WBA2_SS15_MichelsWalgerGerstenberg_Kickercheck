@@ -65,6 +65,7 @@
                 var teilnehmeranzahl = $('#anzteilnehmer').text();
                 var teamgroesse = $('#grteam').text();
                 var austragungsort = $('#ortaustr').attr('href');
+                var turniertyp = $('#turntyp').text();
 
                 if(!(austragungszeitraum && status)) {
                     alert('Bitte Daten spezifizieren.');
@@ -74,6 +75,7 @@
                 var formData = {
                     Teilnehmeranzahl: teilnehmeranzahl,
                     Teamgroesse: teamgroesse,
+                    Typ: turniertyp,
                     Austragungsort: austragungsort,
                     Austragungszeitraum : austragungszeitraum,
                     Status: status
@@ -85,7 +87,7 @@
                     contentType: 'application/json',
                     data: JSON.stringify(formData),
                     success: function(data) {
-
+                    alert('Daten erfolgreich geändert.');
                         $('#changeData').each(function() {
                             this.reset();
                         });
@@ -234,7 +236,7 @@
                         <ul>
                             <li>Anzahl Teilnehmer: <span id="anzteilnehmer"><%= turnier.Teilnehmeranzahl %></span></li>
                             <li> Teamgröße: <span id="grteam"><%= turnier.Teamgroesse %></span></li>
-                            <li> Typ: <%= turnier.Typ %></li>
+                            <li> Typ: <span id="turntyp"><%= turnier.Typ %></span></li>
                             <% if(turnier.Austragungsort) { %><li> Austragungsort: <a id="ortaustr" href="<%= turnier.Austragungsort %>"><%= austragungsort.Name %></a></li><% } %>
                             <li> Austragungszeitraum: <span id="austr"><%= turnier.Austragungszeitraum %></span></li>
                             <li> Status: <span id="stat"><%= turnier.Status %></span></li>

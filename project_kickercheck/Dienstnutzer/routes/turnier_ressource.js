@@ -416,7 +416,7 @@ app.put('/:TurnierId', function(req, res) {
     var externalRequest = http.request(options, function(externalResponse) {
         externalResponse.on('data', function (chunk) {
             var completeTurnierplan = JSON.parse(chunk);
-            console.log(util.inspect(completeTurnierplan, false, null));
+          //  console.log(util.inspect(completeTurnierplan, false, null));
             res.json(completeTurnierplan);
             res.end();
         });
