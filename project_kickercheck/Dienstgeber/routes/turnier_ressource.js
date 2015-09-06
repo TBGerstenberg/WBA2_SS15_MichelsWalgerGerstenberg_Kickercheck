@@ -165,29 +165,22 @@ app.put('/:TurnierId',function(req, res) {
 
                 //Lese aktuellen Zustand des Turniers aus DB
                 client.mget('Turnier '+turnierId,function(err,turnierdata){
-                    
-                     var Turnierdaten = JSON.parse(turnierdata);
 
-                    //Sichere Read Only Felder gegen Änderung ab, indem bei einer Änderung ein "Forbidden" Status geantwortet wird 
-                    if(Turnierdaten.TeilnehmerHinzufuegen != req.body.TeilnehmerHinzufuegen || Turnierdaten.id != req.body.id || Turnierdaten.MatchHinzufuegen != req.body.MatchHinzufuegen){
-                        res.status(403).end();
-                    }
+                    var Turnierdaten = JSON.parse(turnierdata);
 
-                    else{
-                       
-                        //Aktualisiere änderbare Daten 
-                        Turnierdaten.Teilnehmeranzahl=req.body.Teilnehmeranzahl;
-                        Turnierdaten.Austragungsort=req.body.Austragungsort;
-                        Turnierdaten.Teamgroesse=req.body.Teamgroesse;
-                        Turnierdaten.Austragungszeitraum = req.body.Austragungszeitraum;
-                        Turnierdaten.Status=req.body.Status;
+                    //Aktualisiere änderbare Daten 
+                    Turnierdaten.Teilnehmeranzahl=req.body.Teilnehmeranzahl;
+                    Turnierdaten.Austragungsort=req.body.Austragungsort;
+                    Turnierdaten.Teamgroesse=req.body.Teamgroesse;
+                    Turnierdaten.Austragungszeitraum = req.body.Austragungszeitraum;
+                    Turnierdaten.Status=req.body.Status;
 
-                        //Schreibe Turnierdaten zurück 
-                        client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
+                    //Schreibe Turnierdaten zurück 
+                    client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
 
-                        //Sende geänderte Repräsentation des Turneires im Body, sowie 200-OK für erfolgreiche Änderung 
-                        res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
-                    }
+                    //Sende geänderte Repräsentation des Turneires im Body, sowie 200-OK für erfolgreiche Änderung 
+                    res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
+
                 });
             }
         });

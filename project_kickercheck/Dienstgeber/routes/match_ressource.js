@@ -8,7 +8,7 @@ app.get('/',function(req,res){
 
     switch (acceptedTypes) {
 
-        //Client kann application/json verarbeiten 
+            //Client kann application/json verarbeiten 
         case "application/json":
 
             //Speichert die Matchollection
@@ -39,7 +39,7 @@ app.get('/',function(req,res){
             });
             break;
 
-        //Der Client kann keine vom Service angebotenen Content types verarbeiten 
+            //Der Client kann keine vom Service angebotenen Content types verarbeiten 
         default:
             res.status(406).end();
             break;
@@ -149,7 +149,7 @@ app.put('/:MatchId',function(req, res) {
 
         //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
         client.exists('Match ' + matchId, function(err, IdExists) {
-        
+
             //client.exists hat false geliefert 
             if (!IdExists) {
                 res.status(404).end();
@@ -160,30 +160,24 @@ app.put('/:MatchId',function(req, res) {
 
                 //Lese aktuellen Zustand des Turniers aus DB
                 client.mget('Match '+matchId,function(err,matchdata){
-                    
+
                     var Matchdaten = JSON.parse(matchdata);
-                    
-                    //Sichere Read Only Felder gegen Änderung ab, indem bei einer Änderung ein "Forbidden" Status geantwortet wird 
-                    if(Matchdaten.id != req.body.id){
-                        res.status(403).end();
-                    }
-                    
-                    else{
-                        //Aktualisiere änderbare Daten 
-                        Matchdaten.Datum = req.body.Datum;
-                        Matchdaten.Uhrzeit = req.body.Uhrzeit;
-                        Matchdaten.Austragungsort = req.body.Austragungsort;
-                        Matchdaten.Regelwerk = req.body.Regelwerk;
-                        Matchdaten.Status = req.body.Status;
-                        Matchdaten.Teilnehmer=req.body.Teilnehmer;
-                        Matchdaten.Turnier= req.body.Turnier;
 
-                        //Schreibe Turnierdaten zurück 
-                        client.set('Match ' + matchId,JSON.stringify(Matchdaten));
+                    //Aktualisiere änderbare Daten 
+                    Matchdaten.Datum = req.body.Datum;
+                    Matchdaten.Uhrzeit = req.body.Uhrzeit;
+                    Matchdaten.Austragungsort = req.body.Austragungsort;
+                    Matchdaten.Regelwerk = req.body.Regelwerk;
+                    Matchdaten.Status = req.body.Status;
+                    Matchdaten.Teilnehmer=req.body.Teilnehmer;
+                    Matchdaten.Turnier= req.body.Turnier;
 
-                        //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                        res.set("Content-Type", 'application/json').status(200).json(Matchdaten).end();
-                    }
+                    //Schreibe Turnierdaten zurück 
+                    client.set('Match ' + matchId,JSON.stringify(Matchdaten));
+
+                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                    res.set("Content-Type", 'application/json').status(200).json(Matchdaten).end();
+
                 });       
             }
         });
