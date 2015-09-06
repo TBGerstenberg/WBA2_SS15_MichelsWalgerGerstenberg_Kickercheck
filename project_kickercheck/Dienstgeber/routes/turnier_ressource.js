@@ -171,6 +171,7 @@ app.put('/:TurnierId',function(req, res) {
                     //Aktualisiere änderbare Daten 
                     Turnierdaten.Teilnehmeranzahl=req.body.Teilnehmeranzahl;
                     Turnierdaten.Austragungsort=req.body.Austragungsort;
+                    Turnierdaten.Typ=req.body.Typ;
                     Turnierdaten.Teamgroesse=req.body.Teamgroesse;
                     Turnierdaten.Austragungszeitraum = req.body.Austragungszeitraum;
                     Turnierdaten.Status=req.body.Status;
