@@ -126,6 +126,8 @@ app.route('/startdemo').get(function(req, res) {
     client.set('Benutzer 6', JSON.stringify(benutzer6Obj));
     client.set('Benutzer 7', JSON.stringify(benutzer7Obj));
     client.set('Benutzer 8', JSON.stringify(benutzer8Obj));
+    client.set('BenutzerId',8);
+    client.set('AustragungsortId',2);
 
     res.status(200).render('pages/demo');
 });
