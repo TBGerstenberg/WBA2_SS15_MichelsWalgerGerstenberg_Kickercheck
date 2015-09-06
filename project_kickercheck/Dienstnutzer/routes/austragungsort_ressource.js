@@ -617,6 +617,7 @@ app.post('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res
     }
 
     else {
+        var austragungsortId = req.params.AustragungsortId;
         var tischId = req.params.TischId;
 
         //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
@@ -653,6 +654,7 @@ app.post('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res
                         for(var i=0;i<belegung.Forderungen.length;i++) {
 
                             if(Forderung.Benutzer == belegung.Forderungen[i].Benutzer) {
+                                
                                 res.status(409).end();
                                 return;
                             }
@@ -660,6 +662,7 @@ app.post('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res
                         if(belegung.Teilnehmer != null) {
                             for(var i=0;i<belegung.Teilnehmer.length;i++) {
                                 if( Forderung.Benutzer == belegung.Teilnehmer[i]) {
+                                   
                                     res.status(409).end();
                                     return;
                                 }
@@ -677,7 +680,7 @@ app.post('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res
                         client.set('Belegung ' + tischId, JSON.stringify(belegung));
 
                         //Setze Contenttype der Antwort auf application/json
-                        res.set("Content-Type", 'application/json').status(200).json(forderungObj).end();
+                        res.set("Content-Type", 'application/json').status(201).set("Location", "/Austragungsort/"+austragungsortId+"/Kickertisch/" + tischId+"/Forderung/"+id).json(forderungObj).end();
                     });
                 });
             }
