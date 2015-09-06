@@ -343,8 +343,7 @@ app.post('/:AustragungsortId/Kickertisch/',function(req, res){
     //Check ob der Content Type der Anfrage JSON ist 
     if (contentType != "application/json" && contentType != "application/json; charset=UTF-8") {
         res.set("Accepts", "application/json");
-        res.status(406).send("Content Type is not supported");
-        res.end();
+        res.status(415).end();
     }
 
     else {
@@ -396,14 +395,11 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/', function(req, res) {
 
     var contentType = req.get('Content-Type');
 
-    //Wenn kein XML geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
     if (contentType != "application/json" && contentType != "application/json; charset=UTF-8") {
         //Teile dem Client einen unterstuetzten Type mit 
         res.set("Accepts", "application/json");
         //Zeige über den Statuscode und eine Nachricht 
-        res.status(406).send("Content Type is not supported");
-        //Antwort beenden
-        res.end();
+        res.status(415).end();
     }
 
     //Content type OK 
@@ -468,7 +464,7 @@ app.delete('/:AustragungsortId/Kickertisch/:TischId/', function(req, res) {
             client.del('Kickertisch ' + tischId);
 
             //Alles ok , sende 200 
-            res.status(200).send("Das hat funktioniert! Kickertisch ist weg");
+            res.status(204).end();
 
             //Antwort beenden
             res.end();
@@ -514,7 +510,7 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/Belegung/', function(req, res) 
     //Wenn kein JSON geliefert wird antwortet der Server mit 406- Not acceptable und zeigt über accepts-Header gütlige ContentTypes 
     if (contentType != "application/json" && contentType != "application/json; charset=UTF-8") {
         //Teile dem Client einen unterstuetzten Type mit 
-        res.set("Accepts", "application/json").status(415).send("Content Type is not supported").end();
+        res.set("Accepts", "application/json").status(415).end();
     }
 
     else {
