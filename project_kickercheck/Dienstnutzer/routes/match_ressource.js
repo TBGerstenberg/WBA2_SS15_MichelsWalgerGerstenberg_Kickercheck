@@ -548,24 +548,23 @@ app.put('/:MatchId', function(req, res) {
 
 });
 
-
+//Unterseite für den Spielstand eines Matches
 app.get('/:MatchId/Spielstand', function(req, res) {
 
+    //Id Extrahieren aus der URI
     var matchId = req.params.MatchId;
 
     //Exists returns 0 wenn der angegebe Key nicht existiert, 1 wenn er existiert  
     client.exists('Match ' + matchId, function(err, IdExists) {
 
-        //client.exists hat false geliefert 
+        //client.exists hat false geliefert, sende Status code 404l
         if (!IdExists) {
-            res.status(404).send("Die Ressource wurde nicht gefunden.");
-            res.end();
+            res.status(404).end();
         }
 
         //Ressource existiert     
         else {
-
-
+            //Id Extrahieren
             var spielstandId = req.params.MatchId;
 
             //Lese aktuellen Zustand des Turniers aus DB
@@ -583,6 +582,7 @@ app.get('/:MatchId/Spielstand', function(req, res) {
 
 });
 
+//Unterseite für einen Liveticker von einem Match
 app.get('/:MatchId/Liveticker', function(req, res) {
     res.render('pages/einliveticker');
 });
