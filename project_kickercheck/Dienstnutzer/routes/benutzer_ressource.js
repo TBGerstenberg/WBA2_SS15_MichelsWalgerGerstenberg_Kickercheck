@@ -228,7 +228,9 @@ app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res)
     //Prüfe ob die Herausforderung existiert
     client.exists('einBenutzer '+benutzerId+' Herausforderung ' + HerausforderungId, function(err, IdExists) {
 
+        //Wenn die ID existiert..
         if(IdExists) {
+            
             //Entferne Eintrag aus der Datenbank 
             client.del('einBenutzer '+benutzerId+' Herausforderung ' + HerausforderungId);
 
@@ -244,11 +246,13 @@ app.delete('/:BenutzerId/Herausforderung/:HerausforderungId', function(req, res)
 
 });
 
-
+//Unterseite um einen Benutzer Herauszufordern
 app.get('/:BenutzerId/addHerausforderung', function(req, res) {
     
+    //Id aus URI extrahieren
     var benutzerId = req.params.BenutzerId;
 
+    //JSON Objekte für verschiedene Requests
     var options1 = {
         host: "localhost",
         port: 3000,
@@ -330,6 +334,7 @@ z.end();
     });
     x.end();
 });
+
 
 //Liefert alle Herausforderungen für einen Bestimmten Benutzer
 app.get('/:BenutzerId/alleHerausforderungen', function(req, res) {
@@ -512,13 +517,10 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
 
     else {
 
-        //Inkrementiere  in der DB , atomare Aktion 
+        //Inkrementiere  in der DB
         client.incr('HerausforderungId', function(err, id) {
-           // console.log(Herausforderung);
-            //JSON.stringify(Herausforderung);
-            //Herausforderung = JSON.parse(Herausforderung);
-            //Baue JSON zusammen
 
+            //Baue JSON zusammen
             var HerausfoderungObj={
                 "id" : id,
                 "Herausgeforderter": Herausforderung.Herausgeforderter,
