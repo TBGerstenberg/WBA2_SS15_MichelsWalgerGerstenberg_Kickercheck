@@ -19,7 +19,6 @@
                             alert('Benutzer gelöscht. Weiterleitung zu allen Benutzern.');
                             location.href = "/Benutzer/allebenutzer"
 
-
                         },
                         fail: function() {
                             alert('Fehler');
@@ -42,7 +41,8 @@
                     }
 
                     var formData = {Name: benutzername,
-                                    Alter: alter
+                                    Alter: alter,
+                                   // id: <%benutzer.id %>
                                    };
 
                     $.ajax({

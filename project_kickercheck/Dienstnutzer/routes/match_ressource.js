@@ -519,7 +519,7 @@ app.put('/:MatchId', function(req, res) {
 
                         //Publish to the specific topic path  
                         var publication = clientFaye.publish(path,{
-                             'MatchLocation':"Match/"+matchId,
+                            'MatchLocation':"Match/"+matchId,
                             'MatchCanc':'abgebrochen'
                         });
             }
