@@ -30,6 +30,9 @@
                 // Daten eines Benutzers ändern
                 $('#changeData').submit(function(e) {
                     e.preventDefault();
+                    
+                    var url = window.location.pathname.split("/");
+                    var id = url[2];
 
                     var benutzername = $('#benutzername').val();
                     var alter = $('#alter').val();
@@ -42,7 +45,7 @@
 
                     var formData = {Name: benutzername,
                                     Alter: alter,
-                                   // id: <%benutzer.id %>
+                                    id: id,
                                    };
 
                     $.ajax({
@@ -59,7 +62,6 @@
 
                             $("#newName").text(data.Name);
                             $("#newAge").text(data.Alter);
-
 
                         },
                         fail: function() {
