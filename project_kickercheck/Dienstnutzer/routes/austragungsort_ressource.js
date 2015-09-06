@@ -606,7 +606,7 @@ app.get('/:AustragungsortId/Kickertisch/:TischId/Forderung/:ForderungId', functi
 
 
 //Ändert den Zustand einer Forderung 
-app.put('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res) {
+app.post('/:AustragungsortId/Kickertisch/:TischId/Forderung/', function(req, res) {
 
     var contentType = req.get('Content-Type');
 

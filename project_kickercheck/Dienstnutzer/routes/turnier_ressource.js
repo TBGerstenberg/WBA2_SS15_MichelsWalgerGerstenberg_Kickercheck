@@ -2,11 +2,10 @@ var app = express.Router();
 
 //Der Dienstnutzer nutzt die Capability Turniere und Matches zu organisieren ,wie sie der Dienstgeber anbietet. Im Dienstgeber ist in jedem Match ein Feld "Regelwerk" vorgesehen, dass die 
 //Spezifika eines Wettkampfes beschreibt. So ist erreicht ,dass der Dienst für unterschiedlichste Wettkampfarten nutzbar ist.
-var Regelwerk=
-        {
-            "Beschreibung":"Beim Tichkicker spielen 2 Teams mit 1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zaehlt einen Punkt. Tore, die unmittelbar mit der ersten Ballberuehrung nach Anstoß erzielt werden, zaehlen nicht.", 
-            "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
-        }
+var Regelwerk={
+    "Beschreibung":"Beim Tichkicker spielen 2 Teams mit 1-2 Personen an einem Kickertisch gegeneinander. Es wird wahlweise bis 10 oder bis 6 Punkte gespielt. Jedes Tor zaehlt einen Punkt. Tore, die unmittelbar mit der ersten Ballberuehrung nach Anstoß erzielt werden, zaehlen nicht.", 
+    "OffiziellesRegelwerk":"http://www.tischfussball-online.com/tischfussball-regeln.htm"
+}
 
 
 //Unterseite zum hinzufügen eines Turnieres
@@ -36,15 +35,20 @@ app.get('/addTurnier', function(req, res) {
             //Dropdown enthalten sein 
             var ortTischMapping = [];
 
-            //Lse alle Tische des Austragungsortes aus DB 
+            //Lese alle Tische des Austragungsortes aus DB 
             async.each(austragungsorte, function(listItem, next) {
+                
+                //Key unter dem die Tische intern abgelegt sind 
                 var listenKey="Ort " +listItem.id+ " Tische";
+                
                 //Frage Liste aller Kickertische dieses ortes ab
                 client.lrange(listenKey, 0, -1, function(err,items) {
+                    
                     //Wenn die Liste nicht leer ist  
                     if(items.length!=0){
                         ortTischMapping.push({"Ort" : listItem.Name, "Tische": items.length});
                     }
+                    
                     next();
                 });
 

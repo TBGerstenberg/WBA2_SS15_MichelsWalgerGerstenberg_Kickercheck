@@ -202,21 +202,18 @@ app.delete('/:BenutzerId', function(req, res) {
         host: 'localhost',
         path: '/Benutzer/'+benutzerId,
         port: 3000,
-        method: 'delete'
+        method: 'DELETE'
     };
 
     var externalRequest = http.request(options, function(externalResponse) {
-
-
         externalResponse.on('data', function (chunk) {
-
-            res.status(200).end();
-
-
+           
         });
-
+        
+        externalResponse.on('end',function(){
+            res.status(200).end();
+        });
     });
-
     externalRequest.end();
 });
 
