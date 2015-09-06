@@ -65,10 +65,22 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
 
     // Ermittle den Key unter dem die Linkliste der Kickertische dieser Lokalitaet in der DB abgelegt ist 
     var listenKey="Ort " +austragungsortId+ " Tische";
+    
+     var options = {
+        host: 'localhost',
+        port: 3000,
+        path: '/Austragungsort/'+austragungsortId,
+        method: 'GET',
+        headers: {
+            accept: 'application/json'
+        }
+    };
 
-    client.mget('Austragungsort '+austragungsortId,function(err,ort){
+    var x = http.request(options, function(externalres){
 
-        var austragungsort = JSON.parse(ort);
+        externalres.on('data', function(ort){
+
+            var austragungsort = JSON.parse(ort);
 
         client.lrange(listenKey, 0, -1, function(err,items) {
 
@@ -111,6 +123,8 @@ app.get('/:AustragungsortId/Kickertisch', function(req, res) {
             });
         });
     });
+});
+    x.end();
 });
 
 
@@ -288,9 +302,21 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
 
                     var benutzerAll = JSON.parse(chunk);
 
-                    client.mget('Austragungsort '+austragungsortId,function(err,resp){
+                    var options = {
+        host: 'localhost',
+        port: 3000,
+        path: '/Austragungsort/'+austragungsortId,
+        method: 'GET',
+        headers: {
+            accept: 'application/json'
+        }
+    };
 
-                        var austr = JSON.parse(resp);
+    var x = http.request(options, function(externalres){
+
+        externalres.on('data', function(resp){
+
+            var austr = JSON.parse(resp);
 
                         client.mget('Belegung '+tischId,function(err,bel){
 
@@ -326,6 +352,8 @@ app.get('/:AustragungsortId/Kickertisch/:TischId', function(req, res) {
                         });
                     });
 
+                });
+                    x.end();
                 });
             });
             y.end();
@@ -428,6 +456,9 @@ app.put('/:AustragungsortId/Kickertisch/:TischId/', function(req, res) {
                     var Kickertischdaten = JSON.parse(tischdata);
 
                     //Setze Daten des Tisches 
+                    Kickertischdaten.Hersteller = Kickertisch.Hersteller;
+                    Kickertischdaten.Typ = Kickertisch.Typ;
+                    Kickertischdaten.Merkmale = Kickertisch.Merkmale;
                     Kickertischdaten.Zustand = Kickertisch.Zustand;
 
                     //Schreibe Tischdaten zurück 

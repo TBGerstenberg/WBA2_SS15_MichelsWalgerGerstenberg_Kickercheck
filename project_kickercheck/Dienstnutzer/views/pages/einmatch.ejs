@@ -69,7 +69,8 @@
 
                     var formData = {spielstandT1: value1,
                                     spielstandT2: value2,
-                                    Modus: modus
+                                    Modus: modus,
+                                    Gewinner: null
                                    };
                     
                     $.ajax({
@@ -577,7 +578,8 @@
 
                     var formData = { spielstandT1 : value1,
                                     spielstandT2 : value2,
-                                    Modus: stdModus }
+                                    Modus: stdModus,
+                                   Gewinner: null}
 
                     // Setzte PUT Request auf Spielstand ab und übernehme die Antwort in Form von aktualisierten
                     // Spielständen
@@ -643,7 +645,8 @@
 
                     var formData = { spielstandT1 : value1,
                                     spielstandT2 : value2,
-                                    Modus: stdModus }
+                                    Modus: stdModus,
+                                   Gewinner: null}
 
                     // Setzte PUT Request auf Spielstand ab und übernehme die Antwort in Form von aktualisierten
                     // Spielständen
@@ -653,8 +656,6 @@
                         contentType: 'application/json',
                         data: JSON.stringify(formData),
                         success: function(data) {
-
-
 
                             $('.sp1pkt').text(data.spielstandT1);
                             $('.sp2pkt').text(data.spielstandT2);

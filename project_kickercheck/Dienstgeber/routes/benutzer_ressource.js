@@ -27,7 +27,7 @@ app.get('/',function(req,res){
                     return;
                 }
 
-                var sorted =  key.sort();
+                var sorted = key.sort();
 
                 //Sortiere die Keys 
                 client.mget(sorted, function (err, benutzer) {
@@ -203,7 +203,6 @@ app.post('/', function(req, res) {
                 'id' : id,
                 'Name': Benutzer.Name,
                 'Alter': Benutzer.Alter,
-                'Bild': Benutzer.Bild,
                 'isActive': 1
             };
 

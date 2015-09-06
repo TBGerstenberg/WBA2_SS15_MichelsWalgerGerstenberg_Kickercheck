@@ -52,7 +52,9 @@
                     var formData = {Teilnehmeranzahl : teilnehmer,
                                     Teamgroesse : teamgroesse,
                                     Typ : typ,
-                                    Austragungsort:austragungsort}
+                                    Austragungsort:austragungsort,
+                                   Austragungszeitraum: null,
+                                   Status: 'angelegt'}
 
                     // Sende POST Request um neues Turnier anzulegen
                     $.ajax({

@@ -695,7 +695,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
                                         spielstandT1: 0,
                                         spielstandT2: 0,
                                         Modus: 'Klassisch',
-                                        Gewinner:[]
+                                        Gewinner:null
                                     }
 
                                     // HTTP Header für Match Posts vorbereiten 

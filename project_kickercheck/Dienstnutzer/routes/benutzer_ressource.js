@@ -528,7 +528,7 @@ app.post('/:BenutzerId/Herausforderung', function(req, res) {
                 "Austragungsort": Herausforderung.Austragungsort,
                 "Datum": Herausforderung.Datum,
                 "Uhrzeit": Herausforderung.Uhrzeit,
-                "Kurztext" : Herausforderung.Kurztext,
+                "Kurztext" : Herausforderung.Kurztext
             };
 
             //Pflege Daten über den Kickertisch in die DB ein 

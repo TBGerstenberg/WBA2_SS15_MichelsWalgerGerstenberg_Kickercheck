@@ -14,7 +14,6 @@
                     }
                     $.ajax({
                         type: 'DELETE',
-                        url: '',
                         contentType: 'application/json',
                         success: function(data) {
                             alert('Tisch gelöscht. Weiterleitung zum Standort.');
@@ -33,6 +32,9 @@
                 $('#changeData').submit(function(e) {
                     e.preventDefault();
 
+                    var hersteller = $('#neuhersteller').text();
+                    var typ = $('#neutyp').text();
+                    var merkmale = $('#neumerkmale').text();
                     var zustand = $('#zustand').val();
 
 
@@ -41,7 +43,10 @@
                         return false;
                     }
 
-                    var formData = {Zustand: zustand
+                    var formData = {Zustand: zustand,
+                                    Typ:typ,
+                                    Merkmale:merkmale,
+                                    Hersteller:hersteller
                                    };
 
 
@@ -57,7 +62,7 @@
 
                             alert('Zustand erfolgreich geändert.');
 
-                            $("#zus").text('Zustand: '+data.Zustand);
+                            $("#zus").text(data.Zustand);
 
 
                         },
@@ -121,11 +126,11 @@
                         <h1>Kickertisch <%= tisch.id %></h1>
                         <br />
                         <ul>
-                            <li>Hersteller: <%= tisch.Hersteller %></li>
-                            <li>Typ: <%= tisch.Typ %></li>
+                            <li>Hersteller: <span id="neuhersteller"><%= tisch.Hersteller %></span></li>
+                            <li>Typ: <span id="neutyp"><%= tisch.Typ %></span></li>
                             <li>Ort: <a href="/Austragungsort/<%= ort.id %>"><%= ort.Name %></a></li>
-                            <li>Merkmale: <%= tisch.Merkmale %></li>
-                            <li id="zus">Zustand: <%= tisch.Zustand %></li>
+                            <li>Merkmale: <span id="neumerkmale"><%= tisch.Merkmale %></span></li>
+                            <li>Zustand: <span id="zus"><%= tisch.Zustand %></span></li>
 
                         </ul> 
                         <hr />
