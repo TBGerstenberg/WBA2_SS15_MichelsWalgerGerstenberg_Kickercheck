@@ -30,13 +30,13 @@ app.get('/addMatch', function(req, res) {
 
         externalResponse.on("data", function(chunks){
 
-               var benutzerAll = JSON.parse(chunks);
+            var benutzerAll = JSON.parse(chunks);
 
             var y = http.request(options2, function(externalrep){
 
                 externalrep.on("data", function(chunk){
 
-                  var austragungsorte = JSON.parse(chunk);
+                    var austragungsorte = JSON.parse(chunk);
 
 
 
@@ -85,41 +85,41 @@ app.get('/alleMatches', function(req, res) {
             accept:"application/json"
         }
     }
-    
-     var options2 = {
-                host: "localhost",
-                port: 3000,
-                path: "/Austragungsort",
-                method:"GET",
-                headers:{
-                    accept:"application/json"
-                }
-            }
-                            
-                            
+
+    var options2 = {
+        host: "localhost",
+        port: 3000,
+        path: "/Austragungsort",
+        method:"GET",
+        headers:{
+            accept:"application/json"
+        }
+    }
+
+
     var externalRequest = http.request(options, function(externalResponse){
 
         externalResponse.on("data", function(chunk){
 
             var matches = JSON.parse(chunk);
-            
-                                var z = http.request(options2, function(externalrep){
 
-                        externalrep.on("data", function(chunk){
+            var z = http.request(options2, function(externalrep){
 
-                            var austragungsorte = JSON.parse(chunk);
-                            
-                            
-            res.render('pages/allematches',{matches:matches,austragungsorte:austragungsorte});
-            res.end();
+                externalrep.on("data", function(chunk){
+
+                    var austragungsorte = JSON.parse(chunk);
+
+
+                    res.render('pages/allematches',{matches:matches,austragungsorte:austragungsorte});
+                    res.end();
+                });
+
+            });
+
+            z.end();
         });
-
     });
-
-    z.end();
-                        });
-                    });
-                    externalRequest.end();
+    externalRequest.end();
 
 
 });
@@ -501,27 +501,27 @@ app.put('/:MatchId', function(req, res) {
         externalResponse.on('data', function (chunk) {
 
             var changeMatch = JSON.parse(chunk);
-            
-            if(changeMatch.Status == 'aktiv') {
-             //Path of the Topic
-                        var path = "/liveticker/"+matchId;
 
-                        //Publish to the specific topic path  
-                        var publication = clientFaye.publish(path,{
-                             'MatchLocation':"Match/"+matchId,
-                            'MatchLive':'gestartet'
-                        });
-                
-                
+            if(changeMatch.Status == 'aktiv') {
+                //Path of the Topic
+                var path = "/liveticker/"+matchId;
+
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                    'MatchLocation':"Match/"+matchId,
+                    'MatchLive':'gestartet'
+                });
+
+
             }
             else if(changeMatch.Status == 'abgebrochen') {
-                 var path = "/liveticker/"+matchId;
+                var path = "/liveticker/"+matchId;
 
-                        //Publish to the specific topic path  
-                        var publication = clientFaye.publish(path,{
-                             'MatchLocation':"Match/"+matchId,
-                            'MatchCanc':'abgebrochen'
-                        });
+                //Publish to the specific topic path  
+                var publication = clientFaye.publish(path,{
+                    'MatchLocation':"Match/"+matchId,
+                    'MatchCanc':'abgebrochen'
+                });
             }
             // console.log(util.inspect(changeMatch, false, null));
 
@@ -639,7 +639,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                         if(dieseMatch.Teilnehmer[0].Team1.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team1.Teilnehmer2) {
 
 
-                         MatchSpielstand.Gewinner = dieseMatch.Teilnehmer[0].Team1.Teilnehmer1                      
+                            MatchSpielstand.Gewinner = dieseMatch.Teilnehmer[0].Team1.Teilnehmer1                      
                             MatchSpielstand.Gewinner2 = dieseMatch.Teilnehmer[0].Team1.Teilnehmer2;
 
                         }
@@ -671,7 +671,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
 
                         if(dieseMatch.Teilnehmer[0].Team2.Teilnehmer1 && dieseMatch.Teilnehmer[0].Team2.Teilnehmer2) {
 
-                             MatchSpielstand.Gewinner = dieseMatch.Teilnehmer[0].Team2.Teilnehmer1;
+                            MatchSpielstand.Gewinner = dieseMatch.Teilnehmer[0].Team2.Teilnehmer1;
                             MatchSpielstand.Gewinner2 = dieseMatch.Teilnehmer[0].Team2.Teilnehmer2
 
                         }
@@ -691,7 +691,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'SpielstandT2': MatchSpielstand.spielstandT2,
                             'Winner': MatchSpielstand.Gewinner,
                             'Winner2': MatchSpielstand.Gewinner2,
-                             'MatchEnd': 'beendet'
+                            'MatchEnd': 'beendet'
                         });
 
 
@@ -754,7 +754,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'SpielstandT2': MatchSpielstand.spielstandT2,
                             'Winner': MatchSpielstand.Gewinner,
                             'Winner2': MatchSpielstand.Gewinner2,
-                             'MatchEnd': 'beendet'
+                            'MatchEnd': 'beendet'
                         });
 
                         //Schreibe Turnierdaten zurück 
@@ -789,7 +789,7 @@ app.put('/:MatchId/Spielstand', function(req, res) {
                             'SpielstandT2': MatchSpielstand.spielstandT2,
                             'Winner': MatchSpielstand.Gewinner,
                             'Winner2': MatchSpielstand.Gewinner2,
-                             'MatchEnd': 'beendet'
+                            'MatchEnd': 'beendet'
                         });
 
                         //Schreibe Turnierdaten zurück 

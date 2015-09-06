@@ -262,6 +262,92 @@ app.get('/:TurnierId/Ligatabelle',function(req,res){
     });
 });
 
+//Fragt alle Matches und ihre Spielstände eines Turnieres ab und rendert das Ergebnis auf 
+//pages/turniermatches.ejs , ein Teil der "einturnier"-Page
+app.get('/:TurnierId/Match',function(req,res){
+
+
+    //Anfrage der Matchcollection beim Dienstgeber 
+    var matchListeOptions={
+        host: 'localhost',
+        port: 3000,
+        path: "/Turnier/"+req.params.TurnierId+"/Match",
+        method: 'GET',
+        headers:{
+            'Accept' : 'application/json',
+            'Content-Type': 'application/json'
+        }
+    };
+
+
+
+    var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
+
+        //Wenn die Matchliste ankommt 
+        matchListeResponse.on('data',function(matchListeData){
+
+            //Parse Matchliste 
+            var matchListe=JSON.parse(matchListeData);
+
+            //Die Matchübersicht bietet ebenfalls Information über alle Spielstände 
+            var spielstaende=[];
+
+            //console.log("Die Matchliste sieht folgednermaßen aus:");
+            //console.log(util.inspect(matchListe, false, null));
+
+
+            var i=0;
+            
+            //Frage alle Spielstände ab 
+            async.each(matchListe, function(listItem, next) {
+
+                //Die id des Spielstandes ist intern die Id des zugehörigen Matches 
+                var matchId=matchListe[i++].split("/")[1];
+                
+                //Lese aktuellen Zustand des Turniers aus DB
+                client.mget('Spielstand '+matchId,function(err,spielstanddata){
+                    var spielstand = JSON.parse(spielstanddata);
+                    spielstaende.push(spielstand);
+                    next(); 
+                });
+
+                //ALle Spielstände wurden ausgelesen 
+            },function(err) {
+
+                //console.log("Die Spielstände sehen folgendermaßen aus:");
+                //console.log(util.inspect(spielstaende, false, null));
+
+                //Damit in der "Sieger" Spalte der Matchübersicht die Namen der Sieger stehen können 
+                //Muss die Benutzerliste abgefagt werden 
+                var options1 = {
+                    host: "localhost",
+                    port: 3000,
+                    path: "/Benutzer",
+                    method:"GET",
+                    headers:{
+                        accept:"application/json"
+                    }
+                }
+
+                var y = http.request(options1, function(externalResponse){
+
+                    externalResponse.on("data", function(chunk){
+
+                        var benutzerAll = JSON.parse(chunk);
+
+                        //Rendere Matches, Spielstände und eventuelle Sieger auf der Turniermatches.ejs Page
+                        res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstaende,benutzerAll:benutzerAll});
+
+                    });
+
+                });
+                y.end();
+            });
+        });
+    });
+    matchListeRequest.end();
+});
+
 //Leitet eine Turnier-POST anfrage an den Dienstgeber weiter
 app.post('/', function(req, res) {
 
@@ -355,9 +441,11 @@ app.delete('/:TurnierId', function(req, res) {
     var y = http.request(options1, function(externalrep){
 
         externalrep.on("data", function(chunks){
-            JSON.parse(chunks);
-            res.status(externalrep.statusCode);
-            res.end();
+
+        });
+        
+        externalrep.on("end",function(){
+            res.status(externalrep.statusCode).end();
         });
     });
     y.end();
@@ -649,7 +737,7 @@ app.post('/:TurnierId/Spielplan',function(req,res){
 
                             //Beende Request, Ligatabelle und Matchübersicht mit Liveticker werden nachgeladen 
                             //Daher muss dieser Request kein HTML liefern 
-                            res.status(201).set('Location',"/Turnier/"+turnierId+"/Spielplan").end();
+                            res.status(201).set('Location',"/Turnier/"+turnierId+"/Spielplan").json(turnier).end();
 
                             //Faye Client für die Match Subscriptions
                             var fayeclient = new faye.Client('http://localhost:8000/faye');
@@ -709,91 +797,6 @@ app.post('/:TurnierId/Spielplan',function(req,res){
     externalRequest.end();
 });
 
-//Fragt alle Matches und ihre Spielstände eines Turnieres ab und rendert das Ergebnis auf 
-//pages/turniermatches.ejs , ein Teil der "einturnier"-Page
-app.get('/:TurnierId/Match',function(req,res){
-
-
-    //Anfrage der Matchcollection beim Dienstgeber 
-    var matchListeOptions={
-        host: 'localhost',
-        port: 3000,
-        path: "/Turnier/"+req.params.TurnierId+"/Match",
-        method: 'GET',
-        headers:{
-            'Accept' : 'application/json',
-            'Content-Type': 'application/json'
-        }
-    };
-
-
-
-    var matchListeRequest = http.request(matchListeOptions, function(matchListeResponse){
-
-        //Wenn die Matchliste ankommt 
-        matchListeResponse.on('data',function(matchListeData){
-
-            //Parse Matchliste 
-            var matchListe=JSON.parse(matchListeData);
-
-            //Die Matchübersicht bietet ebenfalls Information über alle Spielstände 
-            var spielstaende=[];
-
-            //console.log("Die Matchliste sieht folgednermaßen aus:");
-            //console.log(util.inspect(matchListe, false, null));
-
-
-            var i=0;
-            
-            //Frage alle Spielstände ab 
-            async.each(matchListe, function(listItem, next) {
-
-                //Die id des Spielstandes ist intern die Id des zugehörigen Matches 
-                var matchId=matchListe[i++].split("/")[1];
-                
-                //Lese aktuellen Zustand des Turniers aus DB
-                client.mget('Spielstand '+matchId,function(err,spielstanddata){
-                    var spielstand = JSON.parse(spielstanddata);
-                    spielstaende.push(spielstand);
-                    next(); 
-                });
-
-                //ALle Spielstände wurden ausgelesen 
-            },function(err) {
-
-                //console.log("Die Spielstände sehen folgendermaßen aus:");
-                //console.log(util.inspect(spielstaende, false, null));
-
-                //Damit in der "Sieger" Spalte der Matchübersicht die Namen der Sieger stehen können 
-                //Muss die Benutzerliste abgefagt werden 
-                var options1 = {
-                    host: "localhost",
-                    port: 3000,
-                    path: "/Benutzer",
-                    method:"GET",
-                    headers:{
-                        accept:"application/json"
-                    }
-                }
-
-                var y = http.request(options1, function(externalResponse){
-
-                    externalResponse.on("data", function(chunk){
-
-                        var benutzerAll = JSON.parse(chunk);
-
-                        //Rendere Matches, Spielstände und eventuelle Sieger auf der Turniermatches.ejs Page
-                        res.render('pages/turniermatches',{turniermatches:matchListe,spielstaende:spielstaende,benutzerAll:benutzerAll});
-
-                    });
-
-                });
-                y.end();
-            });
-        });
-    });
-    matchListeRequest.end();
-});
 
 //Leitet eine Turnier-Teilnehmer PUT anfrage an den Dienstgeber weiter 
 app.put('/:TurnierId/Teilnehmer', function(req, res) {
