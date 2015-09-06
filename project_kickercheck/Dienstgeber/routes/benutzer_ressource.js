@@ -156,20 +156,28 @@ app.put('/:BenutzerId', function(req, res) {
                     //Parse Redis Antwort 
                     var Benutzerdaten = JSON.parse(benutzerdata);
 
+                
                     if(Benutzerdaten.isActive == 0) {
                         res.status(404).end();
                         return;
                     }
 
-                    //Aktualisiere änderbare Daten 
-                    Benutzerdaten.Name = req.body.Name;
-                    Benutzerdaten.Alter = req.body.Alter;
+                    //Sichere Read Only Felder gegen Änderung ab 
+                    if(Benutzerdaten.id != req.body.id){
+                        res.status(403).end();
+                    }
 
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Benutzer ' + benutzerId,JSON.stringify(Benutzerdaten));
+                    else {
+                        //Aktualisiere änderbare Daten 
+                        Benutzerdaten.Name = req.body.Name;
+                        Benutzerdaten.Alter = req.body.Alter;
 
-                    //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
-                    res.set("Content-Type", 'application/json').json(Benutzerdaten).status(200).end();
+                        //Schreibe Turnierdaten zurück 
+                        client.set('Benutzer ' + benutzerId,JSON.stringify(Benutzerdaten));
+
+                        //Antorte mit Erfolg-Statuscode und schicke geänderte Repräsentation 
+                        res.set("Content-Type", 'application/json').json(Benutzerdaten).status(200).end();
+                    }
                 });  
             }            
         });

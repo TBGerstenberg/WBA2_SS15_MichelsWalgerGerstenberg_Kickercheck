@@ -130,7 +130,7 @@ app.post('/',function(req, res) {
     }
 });
 
-//Ändert die Daten eines Austragungsortes 
+//Ändert die Daten eines Austragungsortes, Alle Daten können geändert werden , da der Austragungsort über keine Read-Only Felder verfügt.  
 app.put('/:AustragungsortId', function(req, res) {
 
     //Abruf eines Tisches, nur dann wenn client html verarbeiten kann 

@@ -165,21 +165,29 @@ app.put('/:TurnierId',function(req, res) {
 
                 //Lese aktuellen Zustand des Turniers aus DB
                 client.mget('Turnier '+turnierId,function(err,turnierdata){
+                    
+                     var Turnierdaten = JSON.parse(turnierdata);
 
-                    var Turnierdaten = JSON.parse(turnierdata);
+                    //Sichere Read Only Felder gegen Änderung ab, indem bei einer Änderung ein "Forbidden" Status geantwortet wird 
+                    if(Turnierdaten.TeilnehmerHinzufuegen != req.body.TeilnehmerHinzufuegen || Turnierdaten.id != req.body.id || Turnierdaten.MatchHinzufuegen != req.body.MatchHinzufuegen){
+                        res.status(403).end();
+                    }
 
-                    //Aktualisiere änderbare Daten 
-                    Turnierdaten.Teilnehmeranzahl=req.body.Teilnehmeranzahl;
-                    Turnierdaten.Austragungsort=req.body.Austragungsort;
-                    Turnierdaten.Teamgroesse=req.body.Teamgroesse;
-                    Turnierdaten.Austragungszeitraum = req.body.Austragungszeitraum;
-                    Turnierdaten.Status=req.body.Status;
+                    else{
+                       
+                        //Aktualisiere änderbare Daten 
+                        Turnierdaten.Teilnehmeranzahl=req.body.Teilnehmeranzahl;
+                        Turnierdaten.Austragungsort=req.body.Austragungsort;
+                        Turnierdaten.Teamgroesse=req.body.Teamgroesse;
+                        Turnierdaten.Austragungszeitraum = req.body.Austragungszeitraum;
+                        Turnierdaten.Status=req.body.Status;
 
-                    //Schreibe Turnierdaten zurück 
-                    client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
+                        //Schreibe Turnierdaten zurück 
+                        client.set('Turnier ' + turnierId,JSON.stringify(Turnierdaten));
 
-                    //Sende geänderte Repräsentation des Turneires im Body, sowie 200-OK für erfolgreiche Änderung 
-                    res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
+                        //Sende geänderte Repräsentation des Turneires im Body, sowie 200-OK für erfolgreiche Änderung 
+                        res.set("Content-Type", 'application/json').status(200).json(Turnierdaten).end();
+                    }
                 });
             }
         });
@@ -373,9 +381,8 @@ app.get('/:TurnierId/Teilnehmer',function(req,res){
 });
 
 
-//Fügt einem bestehenden Turnier einen Teilnehmer hinzu 
-//Ein Teilnehmer kann nicht zweimal einem Turnier 
-//Hinzugefügt werden, daher ist diese Opration idemtpotent 
+//Fügt einen oder mehrere bestehende Benutzer einem Turnier als Teilnehmer hinzu 
+//Ein Teilnehmer kann nicht zweimal einem Turnier hinzugefügt werden
 //Und führt bei Wiederholung immer zum gleichen Ergebnis => der Teilnehmer ist hinzugefügt
 //Die Verwendung von PUT erscheint daher angemessen 
 //Hier hätte eventuell das HTTP Verb PATCH eingesetzt werden können 
