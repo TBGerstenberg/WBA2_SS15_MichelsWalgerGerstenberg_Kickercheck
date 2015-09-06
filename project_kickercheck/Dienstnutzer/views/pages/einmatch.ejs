@@ -24,6 +24,11 @@
 
                 var value1 = parseInt(spielstand1, 10);
                 var value2 = parseInt(spielstand2, 10);
+                
+                 if(value1 >= 1 || value2 >= 1) {
+                          $('#spielmodus').attr('disabled', 'disabled');
+                       $('#modusButton').prop('disabled', true);
+                      }
 
                 if(stdModus == 'Variation') {						
                     if(value1 >= 10 || value2 >= 10) {
@@ -59,7 +64,7 @@
 
                     var value1 = parseInt(spielstand1, 10);
                     var value2 = parseInt(spielstand2, 10);
-
+                      
                     var modus = $('#spielmodus').val();
 
                     var formData = {spielstandT1: value1,
@@ -535,7 +540,11 @@
 
                     var value1 = parseInt(spielstand1, 10) + 1;
                     var value2 = parseInt(spielstand2, 10);
-
+                    
+                     if(value1 >= 1 || value2 >= 1) {
+                          $('#spielmodus').attr('disabled', 'disabled');
+                          $('#modusButton').prop('disabled', true);
+                      }
 
                     // Solange das andere Team nicht die Zielpunktzahl erreicht hat
                     if(stdModus == 'Variation') {	
@@ -600,6 +609,11 @@
 
                     var value1 = parseInt(spielstand1, 10);
                     var value2 = parseInt(spielstand2, 10) + 1;
+                    
+                     if(value1 >= 1 || value2 >= 1) {
+                          $('#spielmodus').attr('disabled', 'disabled');
+                          $('#modusButton').prop('disabled', true);
+                      }
 
                     // Solange das andere Team nicht die Zielpunktzahl erreicht hat
                       if(stdModus == 'Variation') {	
@@ -817,7 +831,7 @@ else if(benutzerAll.length == 4) {
                         <div class="row">
                             <div class="col-md-6">
                                 <form role="form" action="" method="POST" name="modusPOST" id="modusPOST">
-                                    <p>Spielmodus (Änderung nur möglich bis ein Team 6 Punkte erreicht hat):</p>
+                                    <p>Spielmodus (Änderung nur möglich bis ein Punkt erzielt wurde):</p>
                                     <div class="form-group">
 
                                         <select id="spielmodus" class="form-control">
@@ -878,13 +892,17 @@ else if(benutzerAll.length == 4) {
                                     <input type="submit" class="btn btn-success" id="beendMatch" name="start" value="Match beenden" />
                                     <p><br />Wird ein Match vor Erreichen der Zielpunktzahl beendet, wird es nicht gewertet.</p>
                                 </form>
-                            </div><br />
+                            </div>
+                              <% if(match.Turnier == null) { %>
+                            <br />
                             <div>
+                               
                                 <form role="form" action="" method="PUT" name="cancelMatch" id="cancelMatch">
                                     <input type="submit" class="btn btn-danger" id="cancMatch" value="Match abbrechen" />
                                 </form>
+                                
                             </div>
-
+                            <% } %>
                         </div>
                         <hr />
                         <% } else if (match.Status == 'beendet') { %>
