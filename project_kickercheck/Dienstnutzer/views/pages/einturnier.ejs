@@ -62,6 +62,9 @@
 
                 var austragungszeitraum = $('.austragungszeitraum').val();
                 var status = $('.status').val();
+                var teilnehmeranzahl = $('#anzteilnehmer').text();
+                var teamgroesse = $('#grteam').text();
+                var austragungsort = $('#ortaustr').attr('href');
 
                 if(!(austragungszeitraum && status)) {
                     alert('Bitte Daten spezifizieren.');
@@ -69,6 +72,9 @@
                 }
 
                 var formData = {
+                    Teilnehmeranzahl: teilnehmeranzahl,
+                    Teamgroesse: teamgroesse,
+                    Austragungsort: austragungsort,
                     Austragungszeitraum : austragungszeitraum,
                     Status: status
                 };
@@ -84,16 +90,16 @@
                             this.reset();
                         });
 
-                        $("#austr").text('Austragungszeitraum: '+data.Austragungszeitraum);
-                        $("#stat").text('Status: '+data.Status);
+                        $("#austr").text(data.Austragungszeitraum);
+                        $("#stat").text(data.Status);
                     },
                     fail: function() {
                         alert('Fehler');
                     }
                 });
             });
+        
             });
-
 
             //Ruft die Ligatabelle ab 
             function rufeLigatabelleAb(){
@@ -226,12 +232,12 @@
                         <h1>Turnier <%= turnier.id %></h1>
                         <br />
                         <ul>
-                            <li>Anzahl Teilnehmer: <%= turnier.Teilnehmeranzahl %></li>
-                            <li> Teamgröße: <%= turnier.Teamgroesse %></li>
+                            <li>Anzahl Teilnehmer: <span id="anzteilnehmer"><%= turnier.Teilnehmeranzahl %></span></li>
+                            <li> Teamgröße: <span id="grteam"><%= turnier.Teamgroesse %></span></li>
                             <li> Typ: <%= turnier.Typ %></li>
-                            <% if(turnier.Austragungsort) { %><li> Austragungsort: <a href="<%= turnier.Austragungsort %>"><%= austragungsort.Name %></a></li><% } %>
-                            <li id="austr"> Austragungszeitraum: <%= turnier.Austragungszeitraum %></li>
-                            <li id="stat"> Status: <%= turnier.Status %></li>
+                            <% if(turnier.Austragungsort) { %><li> Austragungsort: <a id="ortaustr" href="<%= turnier.Austragungsort %>"><%= austragungsort.Name %></a></li><% } %>
+                            <li> Austragungszeitraum: <span id="austr"><%= turnier.Austragungszeitraum %></span></li>
+                            <li> Status: <span id="stat"><%= turnier.Status %></span></li>
                         </ul> 
                         <br />
 
